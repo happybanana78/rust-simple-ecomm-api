@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourcePerFileMappings">
+    <file url="file://$PROJECT_DIR$/.idea/queries/Query.sql" value="3f2a2610-d57f-4b35-b7b6-8661dfb6ee9a" />
+    <file url="file://$PROJECT_DIR$/migrations/20260125102351_create_products_table.sql" value="3f2a2610-d57f-4b35-b7b6-8661dfb6ee9a" />
+  </component>
+</project>
