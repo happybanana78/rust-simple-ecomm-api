@@ -35,10 +35,8 @@ pub async fn login(pool: &PgPool, cmd: LoginCommand) -> Result<PublicAuthToken, 
     if ! valid_password {
         return Err(AppError::Unauthorized("wrong credentials".to_string()))
     }
-
-    let token = AuthToken::new(&user.id).await;
-
-    let auth_token = repository::save_token(pool, token).await?;
+    
+    let auth_token = AuthToken::save_token(&pool, user.id).await?;
 
     Ok(PublicAuthToken::from(auth_token))
 }
