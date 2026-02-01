@@ -4,7 +4,7 @@ use super::{dto, service};
 use validator::Validate;
 use crate::errors::response::ErrorResponse;
 
-#[get("/products")]
+#[get("")]
 pub async fn index(pool: web::Data<PgPool>) -> impl Responder {
     match service::index(&pool).await {
         Ok(products) => HttpResponse::Ok().json(products),
@@ -12,19 +12,19 @@ pub async fn index(pool: web::Data<PgPool>) -> impl Responder {
     }
 }
 
-#[get("/products/{id}")]
+#[get("/{id}")]
 pub async fn show(
     pool: web::Data<PgPool>,
     id: web::Path<i32>
 ) -> impl Responder {
     match service::show(&pool, id.into_inner()).await {
         Ok(Some(product)) => HttpResponse::Ok().json(product),
-        Ok(None) => HttpResponse::NotFound().json(ErrorResponse {message: "Product not found".to_string()}),
+        Ok(None) => HttpResponse::NotFound().json(ErrorResponse {message: "Product not found".to_string(), errors: None}),
         Err(error) => HttpResponse::InternalServerError().body(error.to_string()),
     }
 }
 
-#[post("/products")]
+#[post("")]
 pub async fn create(
     pool: web::Data<PgPool>,
     body: web::Json<dto::CreateProductDTO>
@@ -39,7 +39,7 @@ pub async fn create(
     }
 }
 
-#[put("/products/{id}")]
+#[put("/{id}")]
 pub async fn update(
     pool: web::Data<PgPool>,
     body: web::Json<dto::UpdateProductDTO>,
@@ -55,7 +55,7 @@ pub async fn update(
     }
 }
 
-#[delete("/products/{id}")]
+#[delete("/{id}")]
 pub async fn delete(
     pool: web::Data<PgPool>,
     id: web::Path<i32>

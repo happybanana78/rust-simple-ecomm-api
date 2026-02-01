@@ -5,12 +5,14 @@ use std::env;
 
 mod products;
 mod errors;
-mod cart;
+mod auth;
+mod middlewares;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()>
 {
     dotenv().ok();
+    env_logger::init();
 
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let pool = PgPool::connect(&database_url)
@@ -20,7 +22,8 @@ async fn main() -> std::io::Result<()>
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(pool.clone()))
-            .configure(products::routes::routes)
+            .configure(|cfg| products::routes::routes(cfg, pool.clone()))
+            .configure(auth::routes::routes)
     })
         .bind("127.0.0.1:8080")?
         .run()
