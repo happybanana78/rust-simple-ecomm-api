@@ -6,6 +6,7 @@ use actix_web::body::{BoxBody, EitherBody};
 use futures_util::future::{ok, LocalBoxFuture, Ready};
 use sqlx::PgPool;
 use crate::auth::dto::AuthToken;
+use crate::auth::repository;
 
 pub struct AuthMiddleware {
     pool: PgPool,
@@ -74,9 +75,11 @@ where
                 }
             };
 
-            let auth_token = AuthToken::get_token(&pool, token).await?;
+            let auth_token_model = repository::get_token(&pool, token).await?;
 
-            if auth_token.is_expired().await {
+            let auth_token = AuthToken::from(auth_token_model);
+
+            if auth_token.is_expired() {
                 return Ok(
                     req.into_response(
                         HttpResponse::Unauthorized().finish().map_into_left_body()

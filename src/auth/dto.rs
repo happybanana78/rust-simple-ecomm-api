@@ -1,11 +1,8 @@
-use std::time::Duration;
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Duration, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::PgPool;
-use tokio::time::interval;
 use validator::{Validate, ValidationError};
+use uuid::Uuid;
 use crate::auth::model::{AuthTokenModel, UserModel};
-use crate::auth::repository;
 use crate::errors::error::AppError;
 
 #[derive(Deserialize, Validate)]
@@ -85,52 +82,18 @@ pub struct AuthToken {
 }
 
 impl AuthToken {
-    pub async fn new(user_id: &i64) -> Self {
-        let mut interval = interval(Duration::from_secs(1));
-        interval.tick().await;
-
-        let token = Utc::now().to_string();
+    pub fn new(user_id: &i64) -> Self {
+        let token = Uuid::new_v4().to_string();
 
         AuthToken {
             token,
             user_id: user_id.clone(),
-            expires_at: Utc::now() + chrono::Duration::seconds(60 * 60 * 24), // 1 day
+            expires_at: Utc::now() + Duration::days(2),
         }
     }
 
-    pub async fn is_expired(&self) -> bool {
+    pub fn is_expired(&self) -> bool {
         Utc::now() > self.expires_at
-    }
-
-    pub async fn get_token(pool: &PgPool, token: String) -> Result<Self, AppError> {
-        let auth_token = repository::get_token(pool, token).await
-            .map_err(|_| AppError::Unauthorized("invalid token".to_string()))?;
-
-        Ok(
-            AuthToken {
-                token: auth_token.token,
-                user_id: auth_token.user_id,
-                expires_at: auth_token.expires_at, // 1 day
-            }
-        )
-    }
-
-    pub async fn save_token(pool: &PgPool, user_id: i64) -> Result<Self, AppError> {
-        let check_token = repository::get_token_by_user_id(pool, &user_id).await?;
-
-        if check_token.is_some() {
-            let auth_token = Self::from(check_token.unwrap());
-
-            if ! auth_token.is_expired().await {
-                return Ok(auth_token)
-            }
-        }
-
-        let auth_token = Self::new(&user_id).await;
-
-        repository::save_token(pool, &auth_token).await?;
-
-        Ok(auth_token)
     }
 }
 

@@ -35,8 +35,8 @@ pub async fn login(pool: &PgPool, cmd: LoginCommand) -> Result<PublicAuthToken, 
     if ! valid_password {
         return Err(AppError::Unauthorized("wrong credentials".to_string()))
     }
-    
-    let auth_token = AuthToken::save_token(&pool, user.id).await?;
+
+    let auth_token = get_auth_token(&pool, user.id).await?;
 
     Ok(PublicAuthToken::from(auth_token))
 }
@@ -61,4 +61,22 @@ fn verify_password(password: &str, hash: &str) -> Result<bool, AppError> {
             .verify_password(password.as_bytes(), &parsed_hash)
             .is_ok()
     )
+}
+
+async fn get_auth_token(pool: &PgPool, user_id: i64) -> Result<AuthToken, AppError> {
+    let check_token = repository::get_token_by_user_id(pool, &user_id).await?;
+
+    if check_token.is_some() {
+        let auth_token = AuthToken::from(check_token.unwrap());
+
+        if ! auth_token.is_expired() {
+            return Ok(auth_token)
+        }
+    }
+
+    let auth_token = AuthToken::new(&user_id);
+
+    repository::save_token(pool, &auth_token).await?;
+
+    Ok(auth_token)
 }
