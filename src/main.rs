@@ -23,7 +23,8 @@ async fn main() -> std::io::Result<()>
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(pool.clone()))
-            .configure(|cfg| products::routes::routes(cfg, pool.clone()))
+            .configure(|cfg| admin::routes::routes(cfg, pool.clone()))
+            .configure(products::routes::routes)
             .configure(auth::routes::routes)
     })
         .bind("127.0.0.1:8080")?
