@@ -7,6 +7,7 @@ mod products;
 mod errors;
 mod auth;
 mod middlewares;
+mod admin;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()>

@@ -1,5 +1,5 @@
 CREATE TABLE personal_access_tokens (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL,
     token TEXT NOT NULL UNIQUE,
     expires_at TIMESTAMPTZ NOT NULL,

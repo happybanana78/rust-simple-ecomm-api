@@ -20,6 +20,9 @@ pub enum AppError {
     #[error("conflict: {0}")]
     Conflict(String),
 
+    #[error("resource not found")]
+    NotFound(String),
+
     #[error(transparent)]
     Database(sqlx::Error),
 }
@@ -37,6 +40,7 @@ impl ResponseError for AppError {
             AppError::Unauthorized(_) => StatusCode::UNAUTHORIZED,
             AppError::Internal(_) => StatusCode::INTERNAL_SERVER_ERROR,
             AppError::Conflict(_) => StatusCode::UNPROCESSABLE_ENTITY,
+            AppError::NotFound(_) => StatusCode::NOT_FOUND,
             AppError::Database(_) => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
@@ -76,6 +80,13 @@ impl ResponseError for AppError {
                 error!("Conflict error: {}", err);
 
                 HttpResponse::InternalServerError().json(ErrorResponse {
+                    message: format!("{}", err),
+                    errors: None,
+                })
+            }
+
+            AppError::NotFound(err) => {
+                HttpResponse::NotFound().json(ErrorResponse {
                     message: format!("{}", err),
                     errors: None,
                 })

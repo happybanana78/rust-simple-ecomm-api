@@ -1,67 +1,57 @@
 use actix_web::{get, post, put, delete, web, HttpResponse, Responder};
 use sqlx::PgPool;
-use super::{dto, service};
+use super::service;
 use validator::Validate;
-use crate::errors::response::ErrorResponse;
+use crate::errors::error::AppError;
+use crate::errors::response::SuccessResponse;
+use crate::products::dto::{CreateProductCommand, CreateProductDTO, UpdateProductCommand, UpdateProductDTO};
 
 #[get("")]
-pub async fn index(pool: web::Data<PgPool>) -> impl Responder {
-    match service::index(&pool).await {
-        Ok(products) => HttpResponse::Ok().json(products),
-        Err(error) => HttpResponse::InternalServerError().body(error.to_string()),
-    }
+pub async fn index(pool: web::Data<PgPool>) -> Result<impl Responder, AppError> {
+    let products = service::index(&pool).await?;
+    Ok(HttpResponse::Ok().json(SuccessResponse::ok(products)))
 }
 
 #[get("/{id}")]
 pub async fn show(
     pool: web::Data<PgPool>,
-    id: web::Path<i32>
-) -> impl Responder {
-    match service::show(&pool, id.into_inner()).await {
-        Ok(Some(product)) => HttpResponse::Ok().json(product),
-        Ok(None) => HttpResponse::NotFound().json(ErrorResponse {message: "Product not found".to_string(), errors: None}),
-        Err(error) => HttpResponse::InternalServerError().body(error.to_string()),
-    }
+    id: web::Path<i64>
+) -> Result<impl Responder, AppError> {
+    let product = service::show(&pool, id.into_inner()).await?;
+    Ok(HttpResponse::Ok().json(SuccessResponse::ok(product)))
 }
 
 #[post("")]
 pub async fn create(
     pool: web::Data<PgPool>,
-    body: web::Json<dto::CreateProductDTO>
-) -> impl Responder {
-    if let Err(errors) = body.validate() {
-        return HttpResponse::BadRequest().json(errors);
-    }
+    body: web::Json<CreateProductDTO>
+) -> Result<impl Responder, AppError> {
+    body.validate()?;
 
-    match service::create(&pool, body.0).await {
-        Ok(products) => HttpResponse::Ok().json(products),
-        Err(error) => HttpResponse::InternalServerError().body(error.to_string()),
-    }
+    let command = CreateProductCommand::try_from(body.into_inner())?;
+    let products = service::create(&pool, command).await?;
+    Ok(HttpResponse::Created().json(products))
 }
 
 #[put("/{id}")]
 pub async fn update(
     pool: web::Data<PgPool>,
-    body: web::Json<dto::UpdateProductDTO>,
-    id: web::Path<i32>
-) -> impl Responder {
-    if let Err(errors) = body.validate() {
-        return HttpResponse::BadRequest().json(errors);
-    }
+    body: web::Json<UpdateProductDTO>,
+    id: web::Path<i64>
+) -> Result<impl Responder, AppError> {
+    body.validate()?;
 
-    match service::update(&pool, body.0, id.into_inner()).await {
-        Ok(_) => HttpResponse::NoContent().finish(),
-        Err(error) => HttpResponse::InternalServerError().body(error.to_string()),
-    }
+    let command = UpdateProductCommand::try_from(body.into_inner())?;
+    service::update(&pool, command, id.into_inner()).await?;
+
+    Ok(HttpResponse::NoContent().finish())
 }
 
 #[delete("/{id}")]
 pub async fn delete(
     pool: web::Data<PgPool>,
-    id: web::Path<i32>
-) -> impl Responder {
-    match service::delete(&pool, id.into_inner()).await {
-        Ok(_) => HttpResponse::NoContent().finish(),
-        Err(error) => HttpResponse::InternalServerError().body(error.to_string()),
-    }
+    id: web::Path<i64>
+) -> Result<impl Responder, AppError> {
+    service::delete(&pool, id.into_inner()).await?;
+    Ok(HttpResponse::NoContent().finish())
 }

@@ -1,17 +1,19 @@
 use sqlx::PgPool;
-use crate::products::dto;
+use crate::errors::error::AppError;
+use crate::products::dto::{CreateProductCommand, UpdateProductCommand};
 use super::model::Product;
 
-pub async fn index(pool: &PgPool) -> Result<Vec<Product>, sqlx::Error> {
+pub async fn index(pool: &PgPool) -> Result<Vec<Product>, AppError> {
     sqlx::query_as!{
         Product,
         "SELECT id, name, price, created_at FROM products;",
     }
         .fetch_all(pool)
         .await
+        .map_err(AppError::Database)
 }
 
-pub async fn show(pool: &PgPool, id: i32) -> Result<Option<Product>, sqlx::Error> {
+pub async fn show(pool: &PgPool, id: i64) -> Result<Option<Product>, AppError> {
     sqlx::query_as!{
         Product,
         "SELECT id, name, price, created_at FROM products WHERE id = $1;",
@@ -19,38 +21,42 @@ pub async fn show(pool: &PgPool, id: i32) -> Result<Option<Product>, sqlx::Error
     }
         .fetch_optional(pool)
         .await
+        .map_err(AppError::Database)
 }
 
-pub async fn create(pool: &PgPool, dto: dto::CreateProductDTO) -> Result<Product, sqlx::Error> {
+pub async fn create(pool: &PgPool, cmd: CreateProductCommand) -> Result<Product, AppError> {
     sqlx::query_as!{
         Product,
         "INSERT INTO products (name, price) VALUES ($1, $2) RETURNING *;",
-        dto.name, dto.price,
+        cmd.name, cmd.price,
     }
         .fetch_one(pool)
         .await
+        .map_err(AppError::Database)
 }
 
-pub async fn update(pool: &PgPool, dto: dto::UpdateProductDTO, id: i32) -> Result<u64, sqlx::Error> {
+pub async fn update(pool: &PgPool, cmd: UpdateProductCommand, id: i64) -> Result<u64, AppError> {
     let result = sqlx::query_as!{
         Product,
         "UPDATE products SET (name, price) = ($1, $2) WHERE id = $3;",
-        dto.name, dto.price, id
+        cmd.name, cmd.price, id
     }
         .execute(pool)
-        .await?;
+        .await
+        .map_err(AppError::Database)?;
 
     Ok(result.rows_affected())
 }
 
-pub async fn delete(pool: &PgPool, id: i32) -> Result<u64, sqlx::Error> {
+pub async fn delete(pool: &PgPool, id: i64) -> Result<u64, AppError> {
     let result = sqlx::query_as!{
         Product,
         "DELETE FROM products WHERE id = $1;",
         id
     }
         .execute(pool)
-        .await?;
+        .await
+        .map_err(AppError::Database)?;
 
     Ok(result.rows_affected())
 }
