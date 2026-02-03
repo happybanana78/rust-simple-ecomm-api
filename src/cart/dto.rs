@@ -1,11 +1,13 @@
-use serde::Deserialize;
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use validator::{Validate, ValidationError};
+use crate::cart::model::{HashCartModel, UserCartModel};
 
 #[derive(Deserialize, Validate)]
 #[validate(schema(function = "check_validity"))]
 pub struct GetCartDto {
-    user_id: Option<i64>,
-    user_hash: Option<String>,
+    pub user_id: Option<i64>,
+    pub user_hash: Option<String>,
 }
 
 /**
@@ -26,24 +28,67 @@ pub struct CartByHashCommand {
     pub user_hash: String,
 }
 
-pub enum GetCartCommand {
+pub enum GetCartCommandEnum {
     ByUser(CartByUserCommand),
     ByHash(CartByHashCommand),
 }
 
 impl GetCartDto {
-    pub fn into_command(self) -> GetCartCommand {
+    pub fn into_command(self) -> GetCartCommandEnum {
         match (self.user_id, self.user_hash) {
-            (Some(user_id), None) => GetCartCommand::ByUser(
+            (Some(user_id), None) => GetCartCommandEnum::ByUser(
                 CartByUserCommand { user_id }
             ),
-            (None, Some(user_hash)) => GetCartCommand::ByHash(
+            (None, Some(user_hash)) => GetCartCommandEnum::ByHash(
                 CartByHashCommand { user_hash }
             ),
-            (Some(user_id), Some(_)) => GetCartCommand::ByUser(
+            (Some(user_id), Some(_)) => GetCartCommandEnum::ByUser(
                 CartByUserCommand { user_id }
             ),
             (None, None) => unreachable!("DTO already validated"),
         }
     }
+}
+
+#[derive(Serialize)]
+pub struct PublicUserCart {
+    pub id: i64,
+    pub user_id: i64,
+    pub total: f64,
+    pub created_at: DateTime<Utc>,
+}
+
+impl From<UserCartModel> for PublicUserCart {
+    fn from(cart: UserCartModel) -> Self {
+        PublicUserCart {
+            id: cart.id,
+            user_id: cart.user_id,
+            total: cart.total,
+            created_at: cart.created_at,
+        }
+    }
+}
+
+#[derive(Serialize)]
+pub struct PublicHashCart {
+    pub id: i64,
+    pub user_hash_id: i64,
+    pub total: f64,
+    pub created_at: DateTime<Utc>,
+}
+
+impl From<HashCartModel> for PublicHashCart {
+    fn from(cart: HashCartModel) -> Self {
+        PublicHashCart {
+            id: cart.id,
+            user_hash_id: cart.user_hash_id,
+            total: cart.total,
+            created_at: cart.created_at,
+        }
+    }
+}
+
+pub enum CartEnum {
+    UserCart(PublicUserCart),
+    HashCart(PublicHashCart),
 }
