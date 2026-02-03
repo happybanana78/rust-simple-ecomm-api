@@ -1,0 +1,5 @@
+CREATE TABLE user_hashes (
+   id BIGSERIAL PRIMARY KEY,
+   hash VARCHAR NOT NULL,
+   expires_at TIMESTAMPTZ NOT NULL
+);
