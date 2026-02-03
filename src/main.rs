@@ -8,6 +8,8 @@ mod errors;
 mod auth;
 mod middlewares;
 mod admin;
+mod cart;
+mod users;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()>
@@ -23,9 +25,10 @@ async fn main() -> std::io::Result<()>
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(pool.clone()))
+            .configure(auth::routes::routes)
             .configure(|cfg| admin::routes::routes(cfg, pool.clone()))
             .configure(products::routes::routes)
-            .configure(auth::routes::routes)
+            .configure(cart::routes::routes)
     })
         .bind("127.0.0.1:8080")?
         .run()

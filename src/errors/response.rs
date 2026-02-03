@@ -22,4 +22,11 @@ impl<T: Serialize> SuccessResponse<T> {
             data: Some(data)
         }
     }
+
+    pub fn empty() -> Self {
+        Self {
+            message: "success".to_string(),
+            data: None,
+        }
+    }
 }
