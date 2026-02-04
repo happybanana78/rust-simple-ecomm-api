@@ -53,7 +53,7 @@ pub async fn save_token(pool: &PgPool, dto: &AuthToken) -> Result<AuthTokenModel
     .map_err(AppError::Database)
 }
 
-pub async fn get_token(pool: &PgPool, token: String) -> Result<AuthTokenModel, AppError> {
+pub async fn get_token(pool: &PgPool, token: String) -> Result<Option<AuthTokenModel>, AppError> {
     sqlx::query_as! {
         AuthTokenModel,
         r#"
@@ -68,7 +68,7 @@ pub async fn get_token(pool: &PgPool, token: String) -> Result<AuthTokenModel, A
         "#,
         token
     }
-    .fetch_one(pool)
+    .fetch_optional(pool)
     .await
     .map_err(AppError::Database)
 }
@@ -87,7 +87,8 @@ pub async fn get_token_by_user_id(
             expires_at,
             scopes AS "scopes: Json<HashSet<String>>"
         FROM personal_access_tokens
-        WHERE user_id = $1;
+        WHERE user_id = $1
+        ORDER BY expires_at DESC;
         "#,
         user_id
     }

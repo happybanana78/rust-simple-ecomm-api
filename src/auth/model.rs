@@ -12,7 +12,7 @@ pub struct UserModel {
     pub password: String,
 }
 
-#[derive(Serialize, Deserialize, sqlx::FromRow)]
+#[derive(Debug, Serialize, Deserialize, sqlx::FromRow)]
 pub struct AuthTokenModel {
     pub id: i64,
     pub token: String,

@@ -19,6 +19,8 @@ pub async fn register(pool: &PgPool, cmd: RegisterCommand) -> Result<UserModel, 
 
     let user = repository::find_by_email(pool, &new_user.email).await?;
 
+    // TODO: implement database transactions
+
     match user {
         Some(_) => Err(AppError::Conflict("user already exists".to_string())),
         None => {
@@ -40,9 +42,9 @@ pub async fn login(pool: &PgPool, cmd: LoginCommand) -> Result<PublicAuthToken, 
         return Err(AppError::Unauthorized("wrong credentials".to_string()));
     }
 
-    let auth_token = get_auth_token(&pool, user.id).await?;
+    let auth_token = get_auth_token(pool, user.id).await?;
 
-    Ok(PublicAuthToken::from(auth_token))
+    Ok(auth_token)
 }
 
 fn hash_password(password: &str) -> Result<String, AppError> {
@@ -68,20 +70,16 @@ fn verify_password(password: &str, hash: &str) -> Result<bool, AppError> {
 async fn get_auth_token(pool: &PgPool, user_id: i64) -> Result<PublicAuthToken, AppError> {
     let check_token = repository::get_token_by_user_id(pool, &user_id).await?;
 
-    let auth_token = match check_token {
-        Some(token) => AuthToken::from(token),
+    let auth_token = match check_token.map(AuthToken::from) {
+        Some(auth_token) if !auth_token.is_expired() => auth_token,
         _ => {
             let user_role = roles_service::get_user_role(pool, &user_id).await?;
 
-            AuthToken::new(&user_id, user_role.get_scopes())
+            let auth_token = AuthToken::new(&user_id, user_role.get_scopes());
+
+            AuthToken::from(repository::save_token(pool, &auth_token).await?)
         }
     };
-
-    if !auth_token.is_expired() {
-        return Ok(PublicAuthToken::from(auth_token));
-    }
-
-    let auth_token = repository::save_token(pool, &auth_token).await?;
 
     Ok(PublicAuthToken::from(auth_token))
 }

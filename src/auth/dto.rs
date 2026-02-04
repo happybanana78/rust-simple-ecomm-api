@@ -77,6 +77,7 @@ impl TryFrom<LoginDTO> for LoginCommand {
     }
 }
 
+#[derive(Debug)]
 pub struct AuthToken {
     pub token: String,
     pub user_id: i64,
