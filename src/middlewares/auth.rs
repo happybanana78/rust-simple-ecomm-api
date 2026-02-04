@@ -88,6 +88,7 @@ where
             }
 
             req.extensions_mut().insert(auth_token.user_id);
+            req.extensions_mut().insert(auth_token.scopes);
 
             service.call(req).await
                 .map(|res| res.map_into_right_body())

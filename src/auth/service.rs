@@ -1,10 +1,12 @@
 use super::repository;
+use crate::roles::service as roles_service;
 use sqlx::PgPool;
 use crate::auth::dto::{AuthToken, LoginCommand, NewUser, PublicAuthToken, RegisterCommand};
 use crate::auth::model::UserModel;
 use crate::errors::error::AppError;
 use argon2::{password_hash::{PasswordHasher}, Argon2, PasswordVerifier};
 use argon2::password_hash::phc::PasswordHash;
+use crate::roles::dto::RoleEnum;
 
 pub async fn register(pool: &PgPool, cmd: RegisterCommand) -> Result<UserModel, AppError>
 {
@@ -18,11 +20,14 @@ pub async fn register(pool: &PgPool, cmd: RegisterCommand) -> Result<UserModel, 
 
     let user = repository::find_by_email(pool, &new_user.email).await?;
 
-    if user.is_some() {
-        return Err(AppError::Conflict("user already exists".to_string()))
+    match user {
+        Some(_) => Err(AppError::Conflict("user already exists".to_string())),
+        None => {
+            let user = repository::register(pool, new_user).await?;
+            roles_service::assign_role(pool, &user.id, &RoleEnum::User).await?;
+            Ok(user)
+        }
     }
-
-    repository::register(pool, new_user).await
 }
 
 pub async fn login(pool: &PgPool, cmd: LoginCommand) -> Result<PublicAuthToken, AppError>
@@ -63,20 +68,23 @@ fn verify_password(password: &str, hash: &str) -> Result<bool, AppError> {
     )
 }
 
-async fn get_auth_token(pool: &PgPool, user_id: i64) -> Result<AuthToken, AppError> {
+async fn get_auth_token(pool: &PgPool, user_id: i64) -> Result<PublicAuthToken, AppError> {
     let check_token = repository::get_token_by_user_id(pool, &user_id).await?;
 
-    if check_token.is_some() {
-        let auth_token = AuthToken::from(check_token.unwrap());
+    let auth_token = match check_token {
+        Some(token) => AuthToken::from(token),
+        _ => {
+            let user_role = roles_service::get_user_role(pool, &user_id).await?;
 
-        if ! auth_token.is_expired() {
-            return Ok(auth_token)
+            AuthToken::new(&user_id, user_role.get_scopes())
         }
+    };
+
+    if ! auth_token.is_expired() {
+        return Ok(PublicAuthToken::from(auth_token))
     }
 
-    let auth_token = AuthToken::new(&user_id);
+    let auth_token = repository::save_token(pool, &auth_token).await?;
 
-    repository::save_token(pool, &auth_token).await?;
-
-    Ok(auth_token)
+    Ok(PublicAuthToken::from(auth_token))
 }

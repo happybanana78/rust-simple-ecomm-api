@@ -10,6 +10,7 @@ mod middlewares;
 mod admin;
 mod cart;
 mod users;
+mod roles;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()>

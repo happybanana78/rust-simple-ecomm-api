@@ -1,4 +1,7 @@
+use std::collections::HashSet;
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
+use sqlx::types::Json;
 use crate::auth::dto::AuthToken;
 
 #[derive(sqlx::FromRow)]
@@ -9,12 +12,13 @@ pub struct UserModel {
     pub password: String,
 }
 
-#[derive(sqlx::FromRow)]
+#[derive(Serialize, Deserialize, sqlx::FromRow)]
 pub struct AuthTokenModel {
     pub id: i64,
     pub token: String,
     pub user_id: i64,
     pub expires_at: DateTime<Utc>,
+    pub scopes: Json<HashSet<String>>,
 }
 
 impl From<AuthTokenModel> for AuthToken {
@@ -23,6 +27,7 @@ impl From<AuthTokenModel> for AuthToken {
             token: token.token,
             user_id: token.user_id,
             expires_at: token.expires_at,
+            scopes: token.scopes.0,
         }
     }
 }

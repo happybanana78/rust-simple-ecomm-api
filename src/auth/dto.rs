@@ -1,8 +1,10 @@
+use std::collections::HashSet;
 use chrono::{DateTime, Duration, Utc};
 use serde::{Deserialize, Serialize};
 use validator::{Validate, ValidationError};
 use uuid::Uuid;
 use crate::auth::model::{AuthTokenModel, UserModel};
+use crate::auth::traits::Scope;
 use crate::errors::error::AppError;
 
 #[derive(Deserialize, Validate)]
@@ -79,17 +81,23 @@ pub struct AuthToken {
     pub token: String,
     pub user_id: i64,
     pub expires_at: DateTime<Utc>,
+    pub scopes: HashSet<String>,
 }
 
 impl AuthToken {
-    pub fn new(user_id: &i64) -> Self {
+    pub fn new(user_id: &i64, scopes: HashSet<String>) -> Self {
         let token = Uuid::new_v4().to_string();
 
         AuthToken {
             token,
             user_id: user_id.clone(),
             expires_at: Utc::now() + Duration::days(2),
+            scopes,
         }
+    }
+
+    pub fn has_scope<S: Scope>(&self, scope: S) -> bool {
+        self.scopes.contains(scope.as_str())
     }
 
     pub fn is_expired(&self) -> bool {

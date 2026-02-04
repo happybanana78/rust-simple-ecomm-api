@@ -685,6 +685,7 @@ dependencies = [
  "futures-util",
  "log",
  "serde",
+ "serde_json",
  "sqlx",
  "thiserror",
  "uuid",

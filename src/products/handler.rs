@@ -5,7 +5,6 @@ use crate::errors::error::AppError;
 use crate::errors::response::SuccessResponse;
 use crate::products::dto::PublicProduct;
 
-#[get("")]
 pub async fn index(pool: web::Data<PgPool>) -> Result<impl Responder, AppError> {
     let products = service::index(&pool).await?;
 
@@ -14,7 +13,6 @@ pub async fn index(pool: web::Data<PgPool>) -> Result<impl Responder, AppError> 
     Ok(HttpResponse::Ok().json(SuccessResponse::ok(public_products)))
 }
 
-#[get("/{id}")]
 pub async fn show(
     pool: web::Data<PgPool>,
     id: web::Path<i64>
