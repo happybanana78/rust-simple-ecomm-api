@@ -1,20 +1,19 @@
 use actix_web::{App, HttpServer, web};
-use sqlx::PgPool;
 use dotenvy::dotenv;
+use sqlx::PgPool;
 use std::env;
 
-mod products;
-mod errors;
-mod auth;
-mod middlewares;
 mod admin;
+mod auth;
 mod cart;
-mod users;
+mod errors;
+mod middlewares;
+mod products;
 mod roles;
+mod users;
 
 #[actix_web::main]
-async fn main() -> std::io::Result<()>
-{
+async fn main() -> std::io::Result<()> {
     dotenv().ok();
     env_logger::init();
 
@@ -31,7 +30,7 @@ async fn main() -> std::io::Result<()>
             .configure(products::routes::routes)
             .configure(cart::routes::routes)
     })
-        .bind("127.0.0.1:8080")?
-        .run()
-        .await
+    .bind("127.0.0.1:8080")?
+    .run()
+    .await
 }

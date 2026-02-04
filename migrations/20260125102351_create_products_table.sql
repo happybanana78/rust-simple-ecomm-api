@@ -1,6 +1,7 @@
-CREATE TABLE products (
-    id BIGSERIAL PRIMARY KEY,
-    name TEXT NOT NULL,
-    price DOUBLE PRECISION NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+CREATE TABLE products
+(
+    id         BIGSERIAL PRIMARY KEY,
+    name       TEXT             NOT NULL,
+    price      DOUBLE PRECISION NOT NULL,
+    created_at TIMESTAMPTZ      NOT NULL DEFAULT now()
 );

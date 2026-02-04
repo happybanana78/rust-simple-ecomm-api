@@ -1,8 +1,8 @@
-use std::str::FromStr;
-use sqlx::PgPool;
 use crate::errors::error::AppError;
 use crate::roles::dto::RoleEnum;
 use crate::roles::repository;
+use sqlx::PgPool;
+use std::str::FromStr;
 
 pub async fn assign_role(pool: &PgPool, user_id: &i64, role: &RoleEnum) -> Result<(), AppError> {
     let role = repository::get_role_by_name(pool, role).await?;

@@ -1,8 +1,11 @@
-use sqlx::PgPool;
 use crate::cart::model::{HashCartModel, UserCartModel};
 use crate::errors::error::AppError;
+use sqlx::PgPool;
 
-pub async fn get_cart_by_user_id(pool: &PgPool, user_id: &i64) -> Result<Option<UserCartModel>, AppError> {
+pub async fn get_cart_by_user_id(
+    pool: &PgPool,
+    user_id: &i64,
+) -> Result<Option<UserCartModel>, AppError> {
     sqlx::query_as!(
         UserCartModel,
         r#"
@@ -16,12 +19,15 @@ pub async fn get_cart_by_user_id(pool: &PgPool, user_id: &i64) -> Result<Option<
         "#,
         user_id
     )
-        .fetch_optional(pool)
-        .await
-        .map_err(AppError::Database)
+    .fetch_optional(pool)
+    .await
+    .map_err(AppError::Database)
 }
 
-pub async fn get_cart_by_user_hash(pool: &PgPool, hash_id: &i64) -> Result<Option<HashCartModel>, AppError> {
+pub async fn get_cart_by_user_hash(
+    pool: &PgPool,
+    hash_id: &i64,
+) -> Result<Option<HashCartModel>, AppError> {
     sqlx::query_as!(
         HashCartModel,
         r#"
@@ -35,9 +41,9 @@ pub async fn get_cart_by_user_hash(pool: &PgPool, hash_id: &i64) -> Result<Optio
         "#,
         hash_id
     )
-        .fetch_optional(pool)
-        .await
-        .map_err(AppError::Database)
+    .fetch_optional(pool)
+    .await
+    .map_err(AppError::Database)
 }
 
 pub async fn create_user_cart(pool: &PgPool, user_id: &i64) -> Result<UserCartModel, AppError> {
@@ -50,9 +56,9 @@ pub async fn create_user_cart(pool: &PgPool, user_id: &i64) -> Result<UserCartMo
         "#,
         user_id
     )
-        .fetch_one(pool)
-        .await
-        .map_err(AppError::Database)
+    .fetch_one(pool)
+    .await
+    .map_err(AppError::Database)
 }
 
 pub async fn create_hash_cart(pool: &PgPool, hash_id: &i64) -> Result<HashCartModel, AppError> {
@@ -65,9 +71,9 @@ pub async fn create_hash_cart(pool: &PgPool, hash_id: &i64) -> Result<HashCartMo
         "#,
         hash_id
     )
-        .fetch_one(pool)
-        .await
-        .map_err(AppError::Database)
+    .fetch_one(pool)
+    .await
+    .map_err(AppError::Database)
 }
 
 pub async fn delete_by_user_id(pool: &PgPool, user_id: &i64) -> Result<u64, AppError> {

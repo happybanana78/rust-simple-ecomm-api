@@ -1,7 +1,7 @@
-use sqlx::PgPool;
 use crate::cart::cart_items::dto::{AddItemCommand, RemoveItemCommand, UpdateItemCommand};
 use crate::cart::cart_items::model::CartItemModel;
 use crate::errors::error::AppError;
+use sqlx::PgPool;
 
 pub async fn get_items(pool: &PgPool, cart_id: &i64) -> Result<Vec<CartItemModel>, AppError> {
     sqlx::query_as!(
@@ -19,11 +19,14 @@ pub async fn add_item(pool: &PgPool, cmd: AddItemCommand) -> Result<u64, AppErro
         CartItemModel,
         r#"INSERT INTO cart_items (cart_id, product_id, price, quantity, created_at)
             VALUES ($1, $2, $3, $4, NOW());"#,
-        cmd.cart_id, cmd.product_id, cmd.price, cmd.quantity
+        cmd.cart_id,
+        cmd.product_id,
+        cmd.price,
+        cmd.quantity
     )
-        .execute(pool)
-        .await
-        .map_err(AppError::Database)?;
+    .execute(pool)
+    .await
+    .map_err(AppError::Database)?;
 
     Ok(result.rows_affected())
 }
@@ -32,11 +35,12 @@ pub async fn remove_item(pool: &PgPool, cmd: RemoveItemCommand) -> Result<u64, A
     let result = sqlx::query_as!(
         CartItemModel,
         "DELETE FROM cart_items WHERE cart_id = $1 AND product_id = $2;",
-        cmd.cart_id, cmd.product_id
+        cmd.cart_id,
+        cmd.product_id
     )
-        .execute(pool)
-        .await
-        .map_err(AppError::Database)?;
+    .execute(pool)
+    .await
+    .map_err(AppError::Database)?;
 
     Ok(result.rows_affected())
 }
@@ -45,11 +49,13 @@ pub async fn update_item(pool: &PgPool, cmd: UpdateItemCommand) -> Result<u64, A
     let result = sqlx::query_as!(
         CartItemModel,
         "UPDATE cart_items SET quantity = $1 WHERE cart_id = $2 AND product_id = $3;",
-        cmd.quantity, cmd.cart_id, cmd.product_id
+        cmd.quantity,
+        cmd.cart_id,
+        cmd.product_id
     )
-        .execute(pool)
-        .await
-        .map_err(AppError::Database)?;
+    .execute(pool)
+    .await
+    .map_err(AppError::Database)?;
 
     Ok(result.rows_affected())
 }

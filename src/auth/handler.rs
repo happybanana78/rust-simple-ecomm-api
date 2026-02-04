@@ -1,14 +1,14 @@
-use actix_web::{post, web, HttpResponse, Responder};
-use sqlx::PgPool;
-use validator::Validate;
 use crate::auth::dto::{LoginCommand, LoginDTO, PublicUser, RegisterCommand, RegisterDTO};
 use crate::auth::service;
 use crate::errors::error::AppError;
+use actix_web::{HttpResponse, Responder, post, web};
+use sqlx::PgPool;
+use validator::Validate;
 
 #[post("/auth/register")]
 pub async fn register(
     pool: web::Data<PgPool>,
-    body: web::Json<RegisterDTO>
+    body: web::Json<RegisterDTO>,
 ) -> Result<impl Responder, AppError> {
     body.validate()?;
 
@@ -20,7 +20,7 @@ pub async fn register(
 #[post("/auth/login")]
 pub async fn login(
     pool: web::Data<PgPool>,
-    body: web::Json<LoginDTO>
+    body: web::Json<LoginDTO>,
 ) -> Result<impl Responder, AppError> {
     body.validate()?;
 

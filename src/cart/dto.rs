@@ -1,9 +1,9 @@
-use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
-use validator::{Validate, ValidationError};
 use crate::cart::cart_items::dto::PublicCartItems;
 use crate::cart::cart_items::model::CartItemModel;
 use crate::cart::model::{HashCartModel, UserCartModel};
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
+use validator::{Validate, ValidationError};
 
 #[derive(Deserialize, Validate)]
 #[validate(schema(function = "check_validity"))]
@@ -18,7 +18,7 @@ pub struct GetCartDto {
 fn check_validity(dto: &GetCartDto) -> Result<(), ValidationError> {
     match (&dto.user_id, &dto.user_hash) {
         (None, None) => Err(ValidationError::new("user_id_or_hash_required")),
-        _ => Ok(())
+        _ => Ok(()),
     }
 }
 
@@ -38,15 +38,9 @@ pub enum GetCartCommandEnum {
 impl GetCartDto {
     pub fn into_command(self) -> GetCartCommandEnum {
         match (self.user_id, self.user_hash) {
-            (Some(user_id), None) => GetCartCommandEnum::ByUser(
-                CartByUserCommand { user_id }
-            ),
-            (None, Some(user_hash)) => GetCartCommandEnum::ByHash(
-                CartByHashCommand { user_hash }
-            ),
-            (Some(user_id), Some(_)) => GetCartCommandEnum::ByUser(
-                CartByUserCommand { user_id }
-            ),
+            (Some(user_id), None) => GetCartCommandEnum::ByUser(CartByUserCommand { user_id }),
+            (None, Some(user_hash)) => GetCartCommandEnum::ByHash(CartByHashCommand { user_hash }),
+            (Some(user_id), Some(_)) => GetCartCommandEnum::ByUser(CartByUserCommand { user_id }),
             (None, None) => unreachable!("DTO already validated"),
         }
     }
@@ -78,7 +72,10 @@ impl PublicUserCart {
             user_id: cart.user_id,
             total: cart.total,
             created_at: cart.created_at,
-            items: items.into_iter().map(|item| PublicCartItems::from(item)).collect()
+            items: items
+                .into_iter()
+                .map(|item| PublicCartItems::from(item))
+                .collect(),
         }
     }
 }
@@ -109,7 +106,10 @@ impl PublicHashCart {
             user_hash_id: cart.user_hash_id,
             total: cart.total,
             created_at: cart.created_at,
-            items: items.into_iter().map(|item| PublicCartItems::from(item)).collect()
+            items: items
+                .into_iter()
+                .map(|item| PublicCartItems::from(item))
+                .collect(),
         }
     }
 }

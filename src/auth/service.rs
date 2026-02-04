@@ -1,15 +1,14 @@
 use super::repository;
-use crate::roles::service as roles_service;
-use sqlx::PgPool;
 use crate::auth::dto::{AuthToken, LoginCommand, NewUser, PublicAuthToken, RegisterCommand};
 use crate::auth::model::UserModel;
 use crate::errors::error::AppError;
-use argon2::{password_hash::{PasswordHasher}, Argon2, PasswordVerifier};
-use argon2::password_hash::phc::PasswordHash;
 use crate::roles::dto::RoleEnum;
+use crate::roles::service as roles_service;
+use argon2::password_hash::phc::PasswordHash;
+use argon2::{Argon2, PasswordVerifier, password_hash::PasswordHasher};
+use sqlx::PgPool;
 
-pub async fn register(pool: &PgPool, cmd: RegisterCommand) -> Result<UserModel, AppError>
-{
+pub async fn register(pool: &PgPool, cmd: RegisterCommand) -> Result<UserModel, AppError> {
     let hashed_password = hash_password(cmd.password.as_str())?;
 
     let new_user = NewUser {
@@ -30,15 +29,15 @@ pub async fn register(pool: &PgPool, cmd: RegisterCommand) -> Result<UserModel, 
     }
 }
 
-pub async fn login(pool: &PgPool, cmd: LoginCommand) -> Result<PublicAuthToken, AppError>
-{
-    let user = repository::find_by_email(pool, &cmd.email).await?
+pub async fn login(pool: &PgPool, cmd: LoginCommand) -> Result<PublicAuthToken, AppError> {
+    let user = repository::find_by_email(pool, &cmd.email)
+        .await?
         .ok_or_else(|| AppError::Unauthorized("wrong credentials".to_string()))?;
 
     let valid_password = verify_password(&cmd.password, &user.password)?;
 
-    if ! valid_password {
-        return Err(AppError::Unauthorized("wrong credentials".to_string()))
+    if !valid_password {
+        return Err(AppError::Unauthorized("wrong credentials".to_string()));
     }
 
     let auth_token = get_auth_token(&pool, user.id).await?;
@@ -58,14 +57,12 @@ fn hash_password(password: &str) -> Result<String, AppError> {
 }
 
 fn verify_password(password: &str, hash: &str) -> Result<bool, AppError> {
-    let parsed_hash = PasswordHash::new(hash)
-        .map_err(|_| AppError::Internal("invalid password hash".into()))?;
+    let parsed_hash =
+        PasswordHash::new(hash).map_err(|_| AppError::Internal("invalid password hash".into()))?;
 
-    Ok(
-        Argon2::default()
-            .verify_password(password.as_bytes(), &parsed_hash)
-            .is_ok()
-    )
+    Ok(Argon2::default()
+        .verify_password(password.as_bytes(), &parsed_hash)
+        .is_ok())
 }
 
 async fn get_auth_token(pool: &PgPool, user_id: i64) -> Result<PublicAuthToken, AppError> {
@@ -80,8 +77,8 @@ async fn get_auth_token(pool: &PgPool, user_id: i64) -> Result<PublicAuthToken, 
         }
     };
 
-    if ! auth_token.is_expired() {
-        return Ok(PublicAuthToken::from(auth_token))
+    if !auth_token.is_expired() {
+        return Ok(PublicAuthToken::from(auth_token));
     }
 
     let auth_token = repository::save_token(pool, &auth_token).await?;

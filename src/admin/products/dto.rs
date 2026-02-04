@@ -1,6 +1,6 @@
+use crate::errors::error::AppError;
 use serde::Deserialize;
 use validator::Validate;
-use crate::errors::error::AppError;
 
 #[derive(Deserialize, Validate)]
 pub struct CreateProductDTO {
@@ -20,12 +20,10 @@ impl TryFrom<CreateProductDTO> for CreateProductCommand {
     type Error = AppError;
 
     fn try_from(dto: CreateProductDTO) -> Result<Self, Self::Error> {
-        Ok(
-            Self {
-                name: dto.name.unwrap(),
-                price: dto.price.unwrap(),
-            }
-        )
+        Ok(Self {
+            name: dto.name.unwrap(),
+            price: dto.price.unwrap(),
+        })
     }
 }
 
@@ -47,11 +45,9 @@ impl TryFrom<UpdateProductDTO> for UpdateProductCommand {
     type Error = AppError;
 
     fn try_from(dto: UpdateProductDTO) -> Result<Self, Self::Error> {
-        Ok(
-            Self {
-                name: dto.name.unwrap(),
-                price: dto.price.unwrap(),
-            }
-        )
+        Ok(Self {
+            name: dto.name.unwrap(),
+            price: dto.price.unwrap(),
+        })
     }
 }

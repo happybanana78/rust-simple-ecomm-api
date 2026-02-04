@@ -1,11 +1,11 @@
-use std::collections::HashSet;
-use chrono::{DateTime, Duration, Utc};
-use serde::{Deserialize, Serialize};
-use validator::{Validate, ValidationError};
-use uuid::Uuid;
 use crate::auth::model::{AuthTokenModel, UserModel};
 use crate::auth::traits::Scope;
 use crate::errors::error::AppError;
+use chrono::{DateTime, Duration, Utc};
+use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
+use uuid::Uuid;
+use validator::{Validate, ValidationError};
 
 #[derive(Deserialize, Validate)]
 #[validate(schema(function = "passwords_match"))]

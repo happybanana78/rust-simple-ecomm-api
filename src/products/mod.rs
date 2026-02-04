@@ -1,7 +1,7 @@
-mod service;
-mod model;
-mod repository;
-pub mod handler;
-pub mod routes;
 mod dto;
+pub mod handler;
+mod model;
 pub mod permission;
+mod repository;
+pub mod routes;
+mod service;

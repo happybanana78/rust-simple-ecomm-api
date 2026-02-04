@@ -1,7 +1,7 @@
-use serde::{Deserialize, Serialize};
-use validator::Validate;
 use crate::cart::cart_items::model::CartItemModel;
 use crate::errors::error::AppError;
+use serde::{Deserialize, Serialize};
+use validator::Validate;
 
 #[derive(Deserialize, Validate)]
 pub struct AddItemDto {

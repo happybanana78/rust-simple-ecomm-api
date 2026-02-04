@@ -1,5 +1,5 @@
-use serde::Serialize;
 use crate::products::model::ProductModel;
+use serde::Serialize;
 
 #[derive(Serialize)]
 pub struct PublicProduct {

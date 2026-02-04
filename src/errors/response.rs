@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use serde::Serialize;
+use std::collections::HashMap;
 
 #[derive(Serialize)]
 pub struct ErrorResponse {
@@ -9,7 +9,8 @@ pub struct ErrorResponse {
 
 #[derive(Serialize)]
 pub struct SuccessResponse<T>
-where T: Serialize
+where
+    T: Serialize,
 {
     pub message: String,
     pub data: Option<T>,
@@ -19,7 +20,7 @@ impl<T: Serialize> SuccessResponse<T> {
     pub fn ok(data: T) -> Self {
         Self {
             message: "success".to_string(),
-            data: Some(data)
+            data: Some(data),
         }
     }
 

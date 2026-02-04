@@ -1,10 +1,10 @@
-use sqlx::PgPool;
 use crate::cart::cart_items::model::CartItemModel;
+use crate::cart::cart_items::repository as cart_items_repository;
 use crate::cart::dto::{PublicHashCart, PublicUserCart};
 use crate::cart::repository;
-use crate::cart::cart_items::repository as cart_items_repository;
-use crate::users::service as users_service;
 use crate::errors::error::AppError;
+use crate::users::service as users_service;
+use sqlx::PgPool;
 
 /**
 * Returns cart for authenticated user
@@ -20,7 +20,7 @@ pub async fn get_cart_by_user(pool: &PgPool, user_id: i64) -> Result<PublicUserC
         Some(cart) => cart,
         None => {
             let cart = repository::create_user_cart(pool, &user.id).await?;
-            return Ok(PublicUserCart::new_from_model(cart))
+            return Ok(PublicUserCart::new_from_model(cart));
         }
     };
 
@@ -45,7 +45,7 @@ pub async fn get_cart_by_hash(pool: &PgPool, hash: String) -> Result<PublicHashC
         Some(cart) => cart,
         None => {
             let cart = repository::create_hash_cart(pool, &user_hash.id).await?;
-            return Ok(PublicHashCart::new_from_model(cart))
+            return Ok(PublicHashCart::new_from_model(cart));
         }
     };
 

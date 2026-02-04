@@ -1,8 +1,8 @@
-use sqlx::PgPool;
 use crate::cart::cart_items::dto::{AddItemCommand, RemoveItemCommand, UpdateItemCommand};
 use crate::cart::cart_items::model::CartItemModel;
 use crate::cart::cart_items::repository;
 use crate::errors::error::AppError;
+use sqlx::PgPool;
 
 pub async fn get_items(pool: &PgPool, cart_id: i64) -> Result<Vec<CartItemModel>, AppError> {
     repository::get_items(pool, &cart_id).await

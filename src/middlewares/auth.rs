@@ -1,12 +1,12 @@
-use std::rc::Rc;
-use std::task::{Context, Poll};
-use actix_web::dev::{Service, ServiceRequest, ServiceResponse, Transform};
-use actix_web::{Error, HttpMessage, HttpRequest, HttpResponse};
-use actix_web::body::{BoxBody, EitherBody};
-use futures_util::future::{ok, LocalBoxFuture, Ready};
-use sqlx::PgPool;
 use crate::auth::dto::AuthToken;
 use crate::auth::repository;
+use actix_web::body::{BoxBody, EitherBody};
+use actix_web::dev::{Service, ServiceRequest, ServiceResponse, Transform};
+use actix_web::{Error, HttpMessage, HttpRequest, HttpResponse};
+use futures_util::future::{LocalBoxFuture, Ready, ok};
+use sqlx::PgPool;
+use std::rc::Rc;
+use std::task::{Context, Poll};
 
 pub struct AuthMiddleware {
     pool: PgPool,
@@ -14,7 +14,7 @@ pub struct AuthMiddleware {
 
 impl AuthMiddleware {
     pub fn new(pool: PgPool) -> Self {
-        Self { pool}
+        Self { pool }
     }
 }
 
@@ -44,11 +44,7 @@ pub struct AuthMiddlewareInner<S> {
 
 impl<S, B> Service<ServiceRequest> for AuthMiddlewareInner<S>
 where
-    S: Service<
-        ServiceRequest,
-        Response = ServiceResponse<B>,
-        Error = Error
-    > + 'static,
+    S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error> + 'static,
     B: 'static,
 {
     type Response = ServiceResponse<EitherBody<BoxBody, B>>;
@@ -67,11 +63,9 @@ where
             let token = match extract_bearer_token(req.request()) {
                 Some(t) => t,
                 None => {
-                    return Ok(
-                        req.into_response(
-                            HttpResponse::Unauthorized().finish().map_into_left_body()
-                        )
-                    );
+                    return Ok(req.into_response(
+                        HttpResponse::Unauthorized().finish().map_into_left_body(),
+                    ));
                 }
             };
 
@@ -81,17 +75,14 @@ where
 
             if auth_token.is_expired() {
                 return Ok(
-                    req.into_response(
-                        HttpResponse::Unauthorized().finish().map_into_left_body()
-                    )
+                    req.into_response(HttpResponse::Unauthorized().finish().map_into_left_body())
                 );
             }
 
             req.extensions_mut().insert(auth_token.user_id);
             req.extensions_mut().insert(auth_token.scopes);
 
-            service.call(req).await
-                .map(|res| res.map_into_right_body())
+            service.call(req).await.map(|res| res.map_into_right_body())
         })
     }
 }

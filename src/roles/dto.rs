@@ -1,8 +1,8 @@
-use std::collections::HashSet;
-use std::str::FromStr;
 use crate::auth::traits::Scope;
 use crate::errors::error::AppError;
 use crate::products::permission::ProductScope;
+use std::collections::HashSet;
+use std::str::FromStr;
 
 pub struct Role {
     pub name: String,
@@ -27,17 +27,11 @@ impl RoleEnum {
                 let mut scopes = HashSet::new();
 
                 // product scopes
-                scopes.extend(
-                    ProductScope::all()
-                        .iter()
-                        .map(|s| s.as_str().to_string())
-                );
+                scopes.extend(ProductScope::all().iter().map(|s| s.as_str().to_string()));
 
                 scopes
-            },
-            RoleEnum::User => HashSet::from([
-                ProductScope::Read.as_str().to_string(),
-            ])
+            }
+            RoleEnum::User => HashSet::from([ProductScope::Read.as_str().to_string()]),
         }
     }
 }

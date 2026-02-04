@@ -1,10 +1,10 @@
-use std::collections::HashMap;
+use crate::errors::response::ErrorResponse;
 use actix_web::http::StatusCode;
 use actix_web::{HttpResponse, ResponseError};
 use log::error;
+use std::collections::HashMap;
 use thiserror::Error;
 use validator::ValidationErrors;
-use crate::errors::response::ErrorResponse;
 
 #[derive(Debug, Error)]
 pub enum AppError {
@@ -50,16 +50,14 @@ impl ResponseError for AppError {
             AppError::Validation(errors) => {
                 HttpResponse::UnprocessableEntity().json(ErrorResponse {
                     message: "validation failed".to_string(),
-                    errors: Some(extract_validation_errors(errors))
+                    errors: Some(extract_validation_errors(errors)),
                 })
             }
 
-            AppError::Unauthorized(err) => {
-                HttpResponse::Unauthorized().json(ErrorResponse {
-                    message: err.clone(),
-                    errors: None,
-                })
-            }
+            AppError::Unauthorized(err) => HttpResponse::Unauthorized().json(ErrorResponse {
+                message: err.clone(),
+                errors: None,
+            }),
 
             AppError::Internal(err) => {
                 error!("Internal error: {}", err);
@@ -72,7 +70,7 @@ impl ResponseError for AppError {
 
                 #[cfg(not(debug_assertions))]
                 HttpResponse::InternalServerError().json(ErrorResponse {
-                    message: "internal server error".to_string()
+                    message: "internal server error".to_string(),
                 })
             }
 
@@ -85,12 +83,10 @@ impl ResponseError for AppError {
                 })
             }
 
-            AppError::NotFound(err) => {
-                HttpResponse::NotFound().json(ErrorResponse {
-                    message: format!("{}", err),
-                    errors: None,
-                })
-            }
+            AppError::NotFound(err) => HttpResponse::NotFound().json(ErrorResponse {
+                message: format!("{}", err),
+                errors: None,
+            }),
 
             AppError::Database(err) => {
                 error!("Database error: {}", err);
@@ -103,7 +99,7 @@ impl ResponseError for AppError {
 
                 #[cfg(not(debug_assertions))]
                 HttpResponse::InternalServerError().json(ErrorResponse {
-                    message: "database error".to_string()
+                    message: "database error".to_string(),
                 })
             }
         }
@@ -116,9 +112,7 @@ fn extract_validation_errors(errors: &ValidationErrors) -> HashMap<String, Vec<S
     for (field, errs) in errors.field_errors() {
         let messages = errs
             .iter()
-            .map(|err| {
-                err.code.to_string()
-            })
+            .map(|err| err.code.to_string())
             .collect::<Vec<String>>();
 
         map.insert(field.to_string(), messages);

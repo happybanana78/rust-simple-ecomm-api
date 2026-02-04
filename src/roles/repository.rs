@@ -1,7 +1,7 @@
-use sqlx::PgPool;
 use crate::errors::error::AppError;
 use crate::roles::dto::RoleEnum;
 use crate::roles::model::RoleModel;
+use sqlx::PgPool;
 
 pub async fn get_user_role(pool: &PgPool, user_id: &i64) -> Result<RoleModel, AppError> {
     sqlx::query_as!(
@@ -16,9 +16,9 @@ pub async fn get_user_role(pool: &PgPool, user_id: &i64) -> Result<RoleModel, Ap
         "#,
         user_id
     )
-        .fetch_one(pool)
-        .await
-        .map_err(AppError::Database)
+    .fetch_one(pool)
+    .await
+    .map_err(AppError::Database)
 }
 
 pub async fn get_role_by_name(pool: &PgPool, role: &RoleEnum) -> Result<RoleModel, AppError> {
@@ -27,9 +27,9 @@ pub async fn get_role_by_name(pool: &PgPool, role: &RoleEnum) -> Result<RoleMode
         "SELECT id, name FROM roles WHERE name = $1;",
         role.as_str()
     )
-        .fetch_one(pool)
-        .await
-        .map_err(AppError::Database)
+    .fetch_one(pool)
+    .await
+    .map_err(AppError::Database)
 }
 
 pub async fn assign_role(pool: &PgPool, user_id: &i64, role_id: &i64) -> Result<u64, AppError> {
@@ -38,11 +38,12 @@ pub async fn assign_role(pool: &PgPool, user_id: &i64, role_id: &i64) -> Result<
         INSERT INTO user_has_roles (user_id, role_id)
         VALUES ($1, $2);
         "#,
-        user_id, role_id
+        user_id,
+        role_id
     )
-        .execute(pool)
-        .await
-        .map_err(AppError::Database)?;
+    .execute(pool)
+    .await
+    .map_err(AppError::Database)?;
 
     Ok(result.rows_affected())
 }

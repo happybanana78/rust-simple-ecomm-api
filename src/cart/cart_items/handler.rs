@@ -1,22 +1,17 @@
-use actix_web::{get, web, HttpResponse, Responder};
-use sqlx::PgPool;
-use validator::Validate;
 use crate::cart::cart_items::dto::{
-    AddItemCommand,
-    AddItemDto,
-    RemoveItemCommand,
-    RemoveItemDto,
-    UpdateItemCommand, 
-    UpdateItemDto
+    AddItemCommand, AddItemDto, RemoveItemCommand, RemoveItemDto, UpdateItemCommand, UpdateItemDto,
 };
 use crate::cart::cart_items::service;
 use crate::errors::error::AppError;
 use crate::errors::response::SuccessResponse;
+use actix_web::{HttpResponse, Responder, get, web};
+use sqlx::PgPool;
+use validator::Validate;
 
 #[get("/add")]
 pub async fn add_item(
     pool: web::Data<PgPool>,
-    body: web::Json<AddItemDto>
+    body: web::Json<AddItemDto>,
 ) -> Result<impl Responder, AppError> {
     body.validate()?;
 
@@ -28,7 +23,7 @@ pub async fn add_item(
 #[get("/remove")]
 pub async fn remove_item(
     pool: web::Data<PgPool>,
-    body: web::Json<RemoveItemDto>
+    body: web::Json<RemoveItemDto>,
 ) -> Result<impl Responder, AppError> {
     body.validate()?;
 
@@ -40,7 +35,7 @@ pub async fn remove_item(
 #[get("/update")]
 pub async fn update_item(
     pool: web::Data<PgPool>,
-    body: web::Json<UpdateItemDto>
+    body: web::Json<UpdateItemDto>,
 ) -> Result<impl Responder, AppError> {
     body.validate()?;
 
