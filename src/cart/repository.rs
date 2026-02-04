@@ -71,11 +71,7 @@ pub async fn create_hash_cart(pool: &PgPool, hash_id: &i64) -> Result<HashCartMo
 }
 
 pub async fn delete_by_user_id(pool: &PgPool, user_id: &i64) -> Result<u64, AppError> {
-    let result = sqlx::query_as!(
-        CartModel,
-        "DELETE FROM cart WHERE user_id = $1;",
-        user_id
-    )
+    let result = sqlx::query!("DELETE FROM cart WHERE user_id = $1;", user_id)
         .execute(pool)
         .await
         .map_err(AppError::Database)?;
@@ -84,11 +80,7 @@ pub async fn delete_by_user_id(pool: &PgPool, user_id: &i64) -> Result<u64, AppE
 }
 
 pub async fn delete_by_hash_id(pool: &PgPool, hash_id: &i64) -> Result<u64, AppError> {
-    let result = sqlx::query_as!(
-        CartModel,
-        "DELETE FROM cart WHERE user_hash_id = $1;",
-        hash_id
-    )
+    let result = sqlx::query!("DELETE FROM cart WHERE user_hash_id = $1;", hash_id)
         .execute(pool)
         .await
         .map_err(AppError::Database)?;

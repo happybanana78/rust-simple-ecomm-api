@@ -1,9 +1,9 @@
 use sqlx::PgPool;
 use crate::cart::cart_items::dto::{AddItemCommand, RemoveItemCommand, UpdateItemCommand};
-use crate::cart::model::CartItemModel;
+use crate::cart::cart_items::model::CartItemModel;
 use crate::errors::error::AppError;
 
-pub async fn get_items(pool: &PgPool, cart_id: i64) -> Result<Vec<CartItemModel>, AppError> {
+pub async fn get_items(pool: &PgPool, cart_id: &i64) -> Result<Vec<CartItemModel>, AppError> {
     sqlx::query_as!(
         CartItemModel,
         "SELECT id, cart_id, product_id, price, quantity, created_at FROM cart_items WHERE cart_id = $1;",

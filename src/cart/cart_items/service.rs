@@ -1,11 +1,11 @@
 use sqlx::PgPool;
 use crate::cart::cart_items::dto::{AddItemCommand, RemoveItemCommand, UpdateItemCommand};
+use crate::cart::cart_items::model::CartItemModel;
 use crate::cart::cart_items::repository;
-use crate::cart::model::CartItemModel;
 use crate::errors::error::AppError;
 
 pub async fn get_items(pool: &PgPool, cart_id: i64) -> Result<Vec<CartItemModel>, AppError> {
-    repository::get_items(pool, cart_id).await
+    repository::get_items(pool, &cart_id).await
 }
 
 pub async fn add_item(pool: &PgPool, cmd: AddItemCommand) -> Result<(), AppError> {

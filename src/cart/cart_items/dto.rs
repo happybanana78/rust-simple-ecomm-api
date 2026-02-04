@@ -1,5 +1,6 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use validator::Validate;
+use crate::cart::cart_items::model::CartItemModel;
 use crate::errors::error::AppError;
 
 #[derive(Deserialize, Validate)]
@@ -89,5 +90,26 @@ impl TryFrom<UpdateItemDto> for UpdateItemCommand {
             quantity: value.quantity.unwrap(),
             cart_id: value.cart_id.unwrap(),
         })
+    }
+}
+
+#[derive(Serialize)]
+pub struct PublicCartItems {
+    pub id: i64,
+    pub cart_id: i64,
+    pub product_id: i64,
+    pub price: f64,
+    pub quantity: i32,
+}
+
+impl From<CartItemModel> for PublicCartItems {
+    fn from(item: CartItemModel) -> Self {
+        PublicCartItems {
+            id: item.id,
+            cart_id: item.cart_id,
+            product_id: item.product_id,
+            price: item.price,
+            quantity: item.quantity,
+        }
     }
 }

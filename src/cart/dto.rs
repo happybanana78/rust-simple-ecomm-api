@@ -1,6 +1,8 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use validator::{Validate, ValidationError};
+use crate::cart::cart_items::dto::PublicCartItems;
+use crate::cart::cart_items::model::CartItemModel;
 use crate::cart::model::{HashCartModel, UserCartModel};
 
 #[derive(Deserialize, Validate)]
@@ -56,15 +58,27 @@ pub struct PublicUserCart {
     pub user_id: i64,
     pub total: f64,
     pub created_at: DateTime<Utc>,
+    pub items: Vec<PublicCartItems>,
 }
 
-impl From<UserCartModel> for PublicUserCart {
-    fn from(cart: UserCartModel) -> Self {
+impl PublicUserCart {
+    pub fn new_from_model(cart: UserCartModel) -> Self {
         PublicUserCart {
             id: cart.id,
             user_id: cart.user_id,
             total: cart.total,
             created_at: cart.created_at,
+            items: Vec::new(),
+        }
+    }
+
+    pub fn new_with_items(cart: UserCartModel, items: Vec<CartItemModel>) -> Self {
+        PublicUserCart {
+            id: cart.id,
+            user_id: cart.user_id,
+            total: cart.total,
+            created_at: cart.created_at,
+            items: items.into_iter().map(|item| PublicCartItems::from(item)).collect()
         }
     }
 }
@@ -75,20 +89,27 @@ pub struct PublicHashCart {
     pub user_hash_id: i64,
     pub total: f64,
     pub created_at: DateTime<Utc>,
+    pub items: Vec<PublicCartItems>,
 }
 
-impl From<HashCartModel> for PublicHashCart {
-    fn from(cart: HashCartModel) -> Self {
+impl PublicHashCart {
+    pub fn new_from_model(cart: HashCartModel) -> Self {
         PublicHashCart {
             id: cart.id,
             user_hash_id: cart.user_hash_id,
             total: cart.total,
             created_at: cart.created_at,
+            items: Vec::new(),
         }
     }
-}
 
-pub enum CartEnum {
-    UserCart(PublicUserCart),
-    HashCart(PublicHashCart),
+    pub fn new_with_items(cart: HashCartModel, items: Vec<CartItemModel>) -> Self {
+        PublicHashCart {
+            id: cart.id,
+            user_hash_id: cart.user_hash_id,
+            total: cart.total,
+            created_at: cart.created_at,
+            items: items.into_iter().map(|item| PublicCartItems::from(item)).collect()
+        }
+    }
 }
