@@ -1,12 +1,10 @@
 use crate::admin::products::routes as products_routes;
-use crate::middlewares::auth::AuthMiddleware;
 use actix_web::web;
-use sqlx::PgPool;
 
-pub fn routes(cfg: &mut web::ServiceConfig, pool: PgPool) {
+pub fn routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/admin")
-            .wrap(AuthMiddleware::new(pool))
+            // .wrap(AuthMiddleware::new(pool))
             .configure(products_routes::routes),
     );
 }

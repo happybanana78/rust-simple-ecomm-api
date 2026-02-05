@@ -4,23 +4,20 @@ use crate::admin::products::dto::{
 };
 use crate::errors::error::AppError;
 use crate::errors::response::SuccessResponse;
-use actix_web::{HttpResponse, Responder, delete, get, post, put, web};
+use actix_web::{HttpResponse, Responder, web};
 use sqlx::PgPool;
 use validator::Validate;
 
-#[get("")]
 pub async fn index(pool: web::Data<PgPool>) -> Result<impl Responder, AppError> {
     let products = service::index(&pool).await?;
     Ok(HttpResponse::Ok().json(SuccessResponse::ok(products)))
 }
 
-#[get("/{id}")]
 pub async fn show(pool: web::Data<PgPool>, id: web::Path<i64>) -> Result<impl Responder, AppError> {
     let product = service::show(&pool, id.into_inner()).await?;
     Ok(HttpResponse::Ok().json(SuccessResponse::ok(product)))
 }
 
-#[post("")]
 pub async fn create(
     pool: web::Data<PgPool>,
     body: web::Json<CreateProductDTO>,
@@ -32,7 +29,6 @@ pub async fn create(
     Ok(HttpResponse::Created().json(products))
 }
 
-#[put("/{id}")]
 pub async fn update(
     pool: web::Data<PgPool>,
     body: web::Json<UpdateProductDTO>,
@@ -46,7 +42,6 @@ pub async fn update(
     Ok(HttpResponse::NoContent().finish())
 }
 
-#[delete("/{id}")]
 pub async fn delete(
     pool: web::Data<PgPool>,
     id: web::Path<i64>,

@@ -1,20 +1,23 @@
 use crate::auth::dto::AuthToken;
 use crate::auth::repository;
+use crate::auth::traits::Scope;
 use actix_web::body::{BoxBody, EitherBody};
 use actix_web::dev::{Service, ServiceRequest, ServiceResponse, Transform};
+use actix_web::web::Data;
 use actix_web::{Error, HttpMessage, HttpRequest, HttpResponse};
 use futures_util::future::{LocalBoxFuture, Ready, ok};
 use sqlx::PgPool;
 use std::rc::Rc;
+use std::sync::Arc;
 use std::task::{Context, Poll};
 
 pub struct AuthMiddleware {
-    pool: PgPool,
+    permission_scope: Arc<dyn Scope + Send + Sync>,
 }
 
 impl AuthMiddleware {
-    pub fn new(pool: PgPool) -> Self {
-        Self { pool }
+    pub fn new(permission_scope: Arc<dyn Scope>) -> Self {
+        Self { permission_scope }
     }
 }
 
@@ -32,14 +35,14 @@ where
     fn new_transform(&self, service: S) -> Self::Future {
         ok(AuthMiddlewareInner {
             service: Rc::new(service),
-            pool: self.pool.clone(),
+            permission_scope: self.permission_scope.clone(),
         })
     }
 }
 
 pub struct AuthMiddlewareInner<S> {
     service: Rc<S>,
-    pool: PgPool,
+    permission_scope: Arc<dyn Scope + Send + Sync>,
 }
 
 impl<S, B> Service<ServiceRequest> for AuthMiddlewareInner<S>
@@ -57,7 +60,13 @@ where
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
         let service = self.service.clone();
-        let pool = self.pool.clone();
+        let pool = req
+            .app_data::<Data<PgPool>>()
+            .expect("PgPool missing from app data")
+            .get_ref()
+            .clone();
+
+        let required_scope = self.permission_scope.as_str();
 
         Box::pin(async move {
             let token = match extract_bearer_token(req.request()) {
@@ -69,11 +78,21 @@ where
                 }
             };
 
-            let auth_token_model = repository::get_token(&pool, token).await?;
+            let Some(auth_token_model) = repository::get_token(&pool, token).await? else {
+                return Ok(
+                    req.into_response(HttpResponse::Unauthorized().finish().map_into_left_body())
+                );
+            };
 
             let auth_token = AuthToken::from(auth_token_model);
 
             if auth_token.is_expired() {
+                return Ok(
+                    req.into_response(HttpResponse::Unauthorized().finish().map_into_left_body())
+                );
+            }
+
+            if !auth_token.scopes.contains(required_scope) {
                 return Ok(
                     req.into_response(HttpResponse::Unauthorized().finish().map_into_left_body())
                 );
@@ -87,7 +106,7 @@ where
     }
 }
 
-pub fn extract_bearer_token(req: &HttpRequest) -> Option<String> {
+fn extract_bearer_token(req: &HttpRequest) -> Option<String> {
     req.headers()
         .get("Authorization")
         .and_then(|h| h.to_str().ok())

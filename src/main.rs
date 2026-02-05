@@ -26,7 +26,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(web::Data::new(pool.clone()))
             .configure(auth::routes::routes)
-            .configure(|cfg| admin::routes::routes(cfg, pool.clone()))
+            .configure(admin::routes::routes)
             .configure(products::routes::routes)
             .configure(cart::routes::routes)
     })
