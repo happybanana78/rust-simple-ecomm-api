@@ -152,3 +152,9 @@ impl From<UserModel> for PublicUser {
         }
     }
 }
+
+#[derive(Clone, Copy)]
+pub struct AuthUserId(pub i64);
+
+#[derive(Clone)]
+pub struct AuthScopes(pub HashSet<String>);

@@ -1,4 +1,4 @@
-use crate::auth::dto::AuthToken;
+use crate::auth::dto::{AuthScopes, AuthToken, AuthUserId};
 use crate::auth::repository;
 use crate::auth::traits::Scope;
 use actix_web::body::{BoxBody, EitherBody};
@@ -12,11 +12,11 @@ use std::sync::Arc;
 use std::task::{Context, Poll};
 
 pub struct AuthMiddleware {
-    permission_scope: Arc<dyn Scope + Send + Sync>,
+    permission_scope: Option<Arc<dyn Scope + Send + Sync>>,
 }
 
 impl AuthMiddleware {
-    pub fn new(permission_scope: Arc<dyn Scope>) -> Self {
+    pub fn new(permission_scope: Option<Arc<dyn Scope + Send + Sync>>) -> Self {
         Self { permission_scope }
     }
 }
@@ -42,7 +42,7 @@ where
 
 pub struct AuthMiddlewareInner<S> {
     service: Rc<S>,
-    permission_scope: Arc<dyn Scope + Send + Sync>,
+    permission_scope: Option<Arc<dyn Scope + Send + Sync>>,
 }
 
 impl<S, B> Service<ServiceRequest> for AuthMiddlewareInner<S>
@@ -66,7 +66,7 @@ where
             .get_ref()
             .clone();
 
-        let required_scope = self.permission_scope.as_str();
+        let required_scope = self.permission_scope.as_ref().map(|scope| scope.as_str());
 
         Box::pin(async move {
             let token = match extract_bearer_token(req.request()) {
@@ -92,14 +92,14 @@ where
                 );
             }
 
-            if !auth_token.scopes.contains(required_scope) {
+            if required_scope.is_some_and(|scope| !auth_token.scopes.contains(scope)) {
                 return Ok(
                     req.into_response(HttpResponse::Unauthorized().finish().map_into_left_body())
                 );
             }
 
-            req.extensions_mut().insert(auth_token.user_id);
-            req.extensions_mut().insert(auth_token.scopes);
+            req.extensions_mut().insert(AuthUserId(auth_token.user_id));
+            req.extensions_mut().insert(AuthScopes(auth_token.scopes));
 
             service.call(req).await.map(|res| res.map_into_right_body())
         })

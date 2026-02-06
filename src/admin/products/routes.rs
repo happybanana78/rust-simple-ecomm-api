@@ -10,27 +10,27 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
         web::scope("/products")
             .service(
                 resource("/list")
-                    .wrap(AuthMiddleware::new(Arc::new(ProductScope::List)))
+                    .wrap(AuthMiddleware::new(Some(Arc::new(ProductScope::List))))
                     .route(get().to(handler::index)),
             )
             .service(
                 resource("/get/{id}")
-                    .wrap(AuthMiddleware::new(Arc::new(ProductScope::Read)))
+                    .wrap(AuthMiddleware::new(Some(Arc::new(ProductScope::Read))))
                     .route(get().to(handler::show)),
             )
             .service(
                 resource("/create")
-                    .wrap(AuthMiddleware::new(Arc::new(ProductScope::Create)))
+                    .wrap(AuthMiddleware::new(Some(Arc::new(ProductScope::Create))))
                     .route(post().to(handler::create)),
             )
             .service(
                 resource("/update/{id}")
-                    .wrap(AuthMiddleware::new(Arc::new(ProductScope::Update)))
+                    .wrap(AuthMiddleware::new(Some(Arc::new(ProductScope::Update))))
                     .route(put().to(handler::update)),
             )
             .service(
                 resource("/delete/{id}")
-                    .wrap(AuthMiddleware::new(Arc::new(ProductScope::Delete)))
+                    .wrap(AuthMiddleware::new(Some(Arc::new(ProductScope::Delete))))
                     .route(delete().to(handler::delete)),
             ),
     );

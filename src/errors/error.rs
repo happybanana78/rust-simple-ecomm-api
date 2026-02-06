@@ -14,6 +14,9 @@ pub enum AppError {
     #[error("unauthorized: {0:?}")]
     Unauthorized(String),
 
+    #[error("forbidden: {0:?}")]
+    Forbidden(String),
+
     #[error("internal error: {0}")]
     Internal(String),
 
@@ -38,6 +41,7 @@ impl ResponseError for AppError {
         match self {
             AppError::Validation(_) => StatusCode::UNPROCESSABLE_ENTITY,
             AppError::Unauthorized(_) => StatusCode::UNAUTHORIZED,
+            AppError::Forbidden(_) => StatusCode::FORBIDDEN,
             AppError::Internal(_) => StatusCode::INTERNAL_SERVER_ERROR,
             AppError::Conflict(_) => StatusCode::UNPROCESSABLE_ENTITY,
             AppError::NotFound(_) => StatusCode::NOT_FOUND,
@@ -55,6 +59,11 @@ impl ResponseError for AppError {
             }
 
             AppError::Unauthorized(err) => HttpResponse::Unauthorized().json(ErrorResponse {
+                message: err.clone(),
+                errors: None,
+            }),
+
+            AppError::Forbidden(err) => HttpResponse::Forbidden().json(ErrorResponse {
                 message: err.clone(),
                 errors: None,
             }),

@@ -24,9 +24,7 @@ pub async fn get_cart_by_user(pool: &PgPool, user_id: i64) -> Result<PublicUserC
         }
     };
 
-    let cart_items: Vec<CartItemModel> = cart_items_repository::get_items(&pool, &cart.id).await?;
-
-    // TODO: add authentication check
+    let cart_items: Vec<CartItemModel> = cart_items_repository::get_items(pool, &cart.id).await?;
 
     Ok(PublicUserCart::new_with_items(cart, cart_items))
 }
