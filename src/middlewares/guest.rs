@@ -1,3 +1,4 @@
+use crate::errors::response::ErrorResponse;
 use crate::users::dto::{GuestDto, GuestToken};
 use crate::users::repository as user_repository;
 use actix_web::body::{BoxBody, EitherBody};
@@ -60,7 +61,7 @@ where
                 None => {
                     return Ok(req.into_response(
                         HttpResponse::Unauthorized()
-                            .body("missing guest token")
+                            .json(ErrorResponse::new("missing guest token".to_string()))
                             .map_into_left_body(),
                     ));
                 }
@@ -70,7 +71,7 @@ where
             else {
                 return Ok(req.into_response(
                     HttpResponse::Unauthorized()
-                        .body("token not found")
+                        .json(ErrorResponse::new("token not found".to_string()))
                         .map_into_left_body(),
                 ));
             };

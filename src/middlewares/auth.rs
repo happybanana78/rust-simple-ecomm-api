@@ -1,6 +1,7 @@
 use crate::auth::dto::{AuthScopes, AuthToken, AuthUserId};
 use crate::auth::repository;
 use crate::auth::traits::Scope;
+use crate::errors::response::ErrorResponse;
 use actix_web::body::{BoxBody, EitherBody};
 use actix_web::dev::{Service, ServiceRequest, ServiceResponse, Transform};
 use actix_web::web::Data;
@@ -73,29 +74,37 @@ where
                 Some(t) => t,
                 None => {
                     return Ok(req.into_response(
-                        HttpResponse::Unauthorized().finish().map_into_left_body(),
+                        HttpResponse::Unauthorized()
+                            .json(ErrorResponse::new("missing bearer".to_string()))
+                            .map_into_left_body(),
                     ));
                 }
             };
 
             let Some(auth_token_model) = repository::get_token(&pool, token).await? else {
-                return Ok(
-                    req.into_response(HttpResponse::Unauthorized().finish().map_into_left_body())
-                );
+                return Ok(req.into_response(
+                    HttpResponse::Unauthorized()
+                        .json(ErrorResponse::new("invalid token".to_string()))
+                        .map_into_left_body(),
+                ));
             };
 
             let auth_token = AuthToken::from(auth_token_model);
 
             if auth_token.is_expired() {
-                return Ok(
-                    req.into_response(HttpResponse::Unauthorized().finish().map_into_left_body())
-                );
+                return Ok(req.into_response(
+                    HttpResponse::Unauthorized()
+                        .json(ErrorResponse::new("expired token".to_string()))
+                        .map_into_left_body(),
+                ));
             }
 
             if required_scope.is_some_and(|scope| !auth_token.scopes.contains(scope)) {
-                return Ok(
-                    req.into_response(HttpResponse::Unauthorized().finish().map_into_left_body())
-                );
+                return Ok(req.into_response(
+                    HttpResponse::Unauthorized()
+                        .json(ErrorResponse::new("permission not sufficient".to_string()))
+                        .map_into_left_body(),
+                ));
             }
 
             req.extensions_mut().insert(AuthUserId(auth_token.user_id));

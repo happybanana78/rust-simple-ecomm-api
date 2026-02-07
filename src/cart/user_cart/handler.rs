@@ -42,6 +42,8 @@ pub async fn add_item(
 
     let command = AddItemCommand::new(body.into_inner(), cart_id);
 
+    // TODO: validate that the product exists
+
     cart_items_service::add_item(&pool, command).await?;
     Ok(HttpResponse::Ok().json(SuccessResponse::ok(())))
 }

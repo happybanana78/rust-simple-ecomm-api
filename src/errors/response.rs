@@ -7,6 +7,15 @@ pub struct ErrorResponse {
     pub errors: Option<HashMap<String, Vec<String>>>,
 }
 
+impl ErrorResponse {
+    pub fn new(message: String) -> Self {
+        Self {
+            message,
+            errors: None,
+        }
+    }
+}
+
 #[derive(Serialize)]
 pub struct SuccessResponse<T>
 where
