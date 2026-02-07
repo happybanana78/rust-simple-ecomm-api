@@ -1,4 +1,4 @@
-mod dto;
+pub mod dto;
 mod model;
-mod repository;
+pub mod repository;
 pub mod service;

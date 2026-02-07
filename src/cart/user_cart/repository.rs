@@ -1,4 +1,4 @@
-use crate::cart::model::{HashCartModel, UserCartModel};
+use crate::cart::user_cart::model::{UserCartIdModel, UserCartModel};
 use crate::errors::error::AppError;
 use sqlx::PgPool;
 
@@ -24,22 +24,19 @@ pub async fn get_cart_by_user_id(
     .map_err(AppError::Database)
 }
 
-pub async fn get_cart_by_user_hash(
+pub async fn get_cart_id(
     pool: &PgPool,
-    hash_id: &i64,
-) -> Result<Option<HashCartModel>, AppError> {
+    user_id: &i64,
+) -> Result<Option<UserCartIdModel>, AppError> {
     sqlx::query_as!(
-        HashCartModel,
+        UserCartIdModel,
         r#"
         SELECT
-            id,
-            user_hash_id AS "user_hash_id!",
-            total,
-            created_at
+            id
         FROM cart
-        WHERE user_hash_id = $1;
+        WHERE user_id = $1;
         "#,
-        hash_id
+        user_id
     )
     .fetch_optional(pool)
     .await
@@ -61,32 +58,8 @@ pub async fn create_user_cart(pool: &PgPool, user_id: &i64) -> Result<UserCartMo
     .map_err(AppError::Database)
 }
 
-pub async fn create_hash_cart(pool: &PgPool, hash_id: &i64) -> Result<HashCartModel, AppError> {
-    sqlx::query_as!(
-        HashCartModel,
-        r#"
-        INSERT INTO cart (user_hash_id, total, created_at)
-        VALUES ($1, 0, NOW())
-        RETURNING id, user_hash_id AS "user_hash_id!", total, created_at;
-        "#,
-        hash_id
-    )
-    .fetch_one(pool)
-    .await
-    .map_err(AppError::Database)
-}
-
 pub async fn delete_by_user_id(pool: &PgPool, user_id: &i64) -> Result<u64, AppError> {
     let result = sqlx::query!("DELETE FROM cart WHERE user_id = $1;", user_id)
-        .execute(pool)
-        .await
-        .map_err(AppError::Database)?;
-
-    Ok(result.rows_affected())
-}
-
-pub async fn delete_by_hash_id(pool: &PgPool, hash_id: &i64) -> Result<u64, AppError> {
-    let result = sqlx::query!("DELETE FROM cart WHERE user_hash_id = $1;", hash_id)
         .execute(pool)
         .await
         .map_err(AppError::Database)?;

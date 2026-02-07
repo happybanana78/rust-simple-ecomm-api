@@ -1,5 +1,4 @@
 use crate::cart::cart_items::model::CartItemModel;
-use crate::errors::error::AppError;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
@@ -13,9 +12,6 @@ pub struct AddItemDto {
 
     #[validate(required, range(min = 1))]
     pub quantity: Option<i32>,
-
-    #[validate(required, range(min = 1))]
-    pub cart_id: Option<i64>,
 }
 
 pub struct AddItemCommand {
@@ -25,16 +21,14 @@ pub struct AddItemCommand {
     pub cart_id: i64,
 }
 
-impl TryFrom<AddItemDto> for AddItemCommand {
-    type Error = AppError;
-
-    fn try_from(value: AddItemDto) -> Result<Self, Self::Error> {
-        Ok(Self {
-            product_id: value.product_id.unwrap(),
-            price: value.price.unwrap(),
-            quantity: value.quantity.unwrap(),
-            cart_id: value.cart_id.unwrap(),
-        })
+impl AddItemCommand {
+    pub fn new(dto: AddItemDto, cart_id: i64) -> Self {
+        Self {
+            product_id: dto.product_id.unwrap(),
+            price: dto.price.unwrap(),
+            quantity: dto.quantity.unwrap(),
+            cart_id,
+        }
     }
 }
 
@@ -42,9 +36,6 @@ impl TryFrom<AddItemDto> for AddItemCommand {
 pub struct RemoveItemDto {
     #[validate(required, range(min = 1))]
     pub product_id: Option<i64>,
-
-    #[validate(required, range(min = 1))]
-    pub cart_id: Option<i64>,
 }
 
 pub struct RemoveItemCommand {
@@ -52,14 +43,12 @@ pub struct RemoveItemCommand {
     pub cart_id: i64,
 }
 
-impl TryFrom<RemoveItemDto> for RemoveItemCommand {
-    type Error = AppError;
-
-    fn try_from(value: RemoveItemDto) -> Result<Self, Self::Error> {
-        Ok(Self {
-            product_id: value.product_id.unwrap(),
-            cart_id: value.cart_id.unwrap(),
-        })
+impl RemoveItemCommand {
+    pub fn new(dto: RemoveItemDto, cart_id: i64) -> Self {
+        Self {
+            product_id: dto.product_id.unwrap(),
+            cart_id,
+        }
     }
 }
 
@@ -67,9 +56,6 @@ impl TryFrom<RemoveItemDto> for RemoveItemCommand {
 pub struct UpdateItemDto {
     #[validate(required, range(min = 1))]
     pub product_id: Option<i64>,
-
-    #[validate(required, range(min = 1))]
-    pub cart_id: Option<i64>,
 
     #[validate(required, range(min = 1))]
     pub quantity: Option<i32>,
@@ -81,15 +67,13 @@ pub struct UpdateItemCommand {
     pub quantity: i32,
 }
 
-impl TryFrom<UpdateItemDto> for UpdateItemCommand {
-    type Error = AppError;
-
-    fn try_from(value: UpdateItemDto) -> Result<Self, Self::Error> {
-        Ok(Self {
-            product_id: value.product_id.unwrap(),
-            quantity: value.quantity.unwrap(),
-            cart_id: value.cart_id.unwrap(),
-        })
+impl UpdateItemCommand {
+    pub fn new(dto: UpdateItemDto, cart_id: i64) -> Self {
+        Self {
+            product_id: dto.product_id.unwrap(),
+            quantity: dto.quantity.unwrap(),
+            cart_id,
+        }
     }
 }
 

@@ -1,8 +1,10 @@
 use crate::auth::model::{AuthTokenModel, UserModel};
 use crate::auth::traits::Scope;
+use crate::cart::user_cart::service as user_cart_service;
 use crate::errors::error::AppError;
 use chrono::{DateTime, Duration, Utc};
 use serde::{Deserialize, Serialize};
+use sqlx::PgPool;
 use std::collections::HashSet;
 use uuid::Uuid;
 use validator::{Validate, ValidationError};
@@ -155,6 +157,12 @@ impl From<UserModel> for PublicUser {
 
 #[derive(Clone, Copy)]
 pub struct AuthUserId(pub i64);
+
+impl AuthUserId {
+    pub async fn get_cart_id(&self, pool: &PgPool) -> Result<i64, AppError> {
+        user_cart_service::get_cart_id_by_user(pool, &self.0).await
+    }
+}
 
 #[derive(Clone)]
 pub struct AuthScopes(pub HashSet<String>);
