@@ -9,3 +9,5 @@ pub fn routes(cfg: &mut ServiceConfig) {
             .service(handler::update_item),
     );
 }
+
+// TODO: work on cart items routes (add to cart and so on)

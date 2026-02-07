@@ -3,22 +3,33 @@ use crate::cart::cart_items::model::CartItemModel;
 use crate::cart::model::{HashCartModel, UserCartModel};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use validator::{Validate, ValidationError};
+use validator::Validate;
 
 #[derive(Deserialize, Validate)]
-#[validate(schema(function = "check_validity"))]
-pub struct GetCartDto {
+pub struct GetUserCartDto {
+    #[validate(required)]
     pub user_id: Option<i64>,
+}
+
+impl GetUserCartDto {
+    pub fn into_command(self) -> CartByUserCommand {
+        CartByUserCommand {
+            user_id: self.user_id.unwrap(),
+        }
+    }
+}
+
+#[derive(Deserialize, Validate)]
+pub struct GetGuestCartDto {
+    #[validate(required)]
     pub user_hash: Option<String>,
 }
 
-/**
-* One of the two fields must be present
-*/
-fn check_validity(dto: &GetCartDto) -> Result<(), ValidationError> {
-    match (&dto.user_id, &dto.user_hash) {
-        (None, None) => Err(ValidationError::new("user_id_or_hash_required")),
-        _ => Ok(()),
+impl GetGuestCartDto {
+    pub fn into_command(self) -> CartByHashCommand {
+        CartByHashCommand {
+            user_hash: self.user_hash.unwrap(),
+        }
     }
 }
 
@@ -28,22 +39,6 @@ pub struct CartByUserCommand {
 
 pub struct CartByHashCommand {
     pub user_hash: String,
-}
-
-pub enum GetCartCommandEnum {
-    ByUser(CartByUserCommand),
-    ByHash(CartByHashCommand),
-}
-
-impl GetCartDto {
-    pub fn into_command(self) -> GetCartCommandEnum {
-        match (self.user_id, self.user_hash) {
-            (Some(user_id), None) => GetCartCommandEnum::ByUser(CartByUserCommand { user_id }),
-            (None, Some(user_hash)) => GetCartCommandEnum::ByHash(CartByHashCommand { user_hash }),
-            (Some(user_id), Some(_)) => GetCartCommandEnum::ByUser(CartByUserCommand { user_id }),
-            (None, None) => unreachable!("DTO already validated"),
-        }
-    }
 }
 
 #[derive(Serialize)]
