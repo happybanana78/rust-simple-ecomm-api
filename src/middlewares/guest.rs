@@ -1,12 +1,11 @@
 use crate::errors::response::ErrorResponse;
+use crate::state::AppState;
 use crate::users::dto::{GuestDto, GuestToken};
-use crate::users::repository as user_repository;
 use actix_web::body::{BoxBody, EitherBody};
 use actix_web::dev::{Service, ServiceRequest, ServiceResponse, Transform};
 use actix_web::web::Data;
 use actix_web::{Error, HttpMessage, HttpRequest, HttpResponse};
 use futures_util::future::{LocalBoxFuture, Ready, ok};
-use sqlx::PgPool;
 use std::rc::Rc;
 use std::task::{Context, Poll};
 
@@ -49,11 +48,12 @@ where
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
         let service = self.service.clone();
-        let pool = req
-            .app_data::<Data<PgPool>>()
-            .expect("PgPool missing from app data")
-            .get_ref()
-            .clone();
+        let state = req
+            .app_data::<Data<AppState>>()
+            .expect("App State missing from app data")
+            .get_ref();
+
+        let user_service = state.user_service.clone();
 
         Box::pin(async move {
             let user_hash = match extract_hash_token(req.request()) {
@@ -67,7 +67,7 @@ where
                 }
             };
 
-            let Some(user_hash_model) = user_repository::get_user_hash(&pool, &user_hash).await?
+            let Some(user_hash_model) = user_service.get_user_hash(user_hash.as_str()).await?
             else {
                 return Ok(req.into_response(
                     HttpResponse::Unauthorized()

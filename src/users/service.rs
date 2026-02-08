@@ -1,12 +1,25 @@
 use crate::errors::error::AppError;
 use crate::users::model::{UserHashModel, UserModel};
-use crate::users::repository;
+use crate::users::repository::UserRepository;
 use sqlx::PgPool;
 
-pub async fn get_user_by_id(pool: &PgPool, user_id: &i64) -> Result<Option<UserModel>, AppError> {
-    repository::get_user_by_id(pool, user_id).await
+#[derive(Clone)]
+pub struct UserService {
+    repository: UserRepository,
 }
 
-pub async fn get_user_hash(pool: &PgPool, hash: &str) -> Result<Option<UserHashModel>, AppError> {
-    repository::get_user_hash(pool, hash).await
+impl UserService {
+    pub fn new(pool: PgPool) -> Self {
+        Self {
+            repository: UserRepository::new(pool),
+        }
+    }
+
+    pub async fn get_user_by_id(&self, user_id: &i64) -> Result<Option<UserModel>, AppError> {
+        self.repository.get_user_by_id(user_id).await
+    }
+
+    pub async fn get_user_hash(&self, hash: &str) -> Result<Option<UserHashModel>, AppError> {
+        self.repository.get_user_hash(hash).await
+    }
 }

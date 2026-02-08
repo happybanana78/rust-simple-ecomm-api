@@ -1,46 +1,63 @@
 use crate::cart::cart_items::model::CartItemModel;
-use crate::cart::cart_items::repository as cart_items_repository;
+use crate::cart::cart_items::repository::CartItemsRepository;
 use crate::cart::user_cart::dto::PublicUserCart;
-use crate::cart::user_cart::repository;
+use crate::cart::user_cart::repository::UserCartRepository;
 use crate::errors::error::AppError;
-use crate::users::service as users_service;
+use crate::users::service::UserService;
 use sqlx::PgPool;
 
-/**
-* Returns cart for authenticated user
-*/
-pub async fn get_cart_by_user(pool: &PgPool, user_id: &i64) -> Result<PublicUserCart, AppError> {
-    let user = users_service::get_user_by_id(pool, user_id)
-        .await?
-        .ok_or_else(|| AppError::NotFound("user not found".to_string()))?;
-
-    let cart = repository::get_cart_by_user_id(pool, &user.id).await?;
-
-    let cart = match cart {
-        Some(cart) => cart,
-        None => {
-            let cart = repository::create_user_cart(pool, &user.id).await?;
-            return Ok(PublicUserCart::new_from_model(cart));
-        }
-    };
-
-    let cart_items: Vec<CartItemModel> = cart_items_repository::get_items(pool, &cart.id).await?;
-
-    Ok(PublicUserCart::new_with_items(cart, cart_items))
+pub struct UserCartService {
+    repository: UserCartRepository,
+    cart_items_repository: CartItemsRepository,
+    user_service: UserService,
 }
 
-pub async fn get_cart_id_by_user(pool: &PgPool, user_id: &i64) -> Result<i64, AppError> {
-    let user = users_service::get_user_by_id(pool, user_id)
-        .await?
-        .ok_or_else(|| AppError::NotFound("user not found".to_string()))?;
+impl UserCartService {
+    pub fn new(pool: PgPool) -> Self {
+        Self {
+            repository: UserCartRepository::new(pool.clone()),
+            cart_items_repository: CartItemsRepository::new(pool.clone()),
+            user_service: UserService::new(pool.clone()),
+        }
+    }
 
-    let cart_id = repository::get_cart_id(pool, &user.id).await?;
+    pub async fn get_cart_by_user(&self, user_id: &i64) -> Result<PublicUserCart, AppError> {
+        let user = self
+            .user_service
+            .get_user_by_id(user_id)
+            .await?
+            .ok_or_else(|| AppError::NotFound("user not found".to_string()))?;
 
-    match cart_id {
-        Some(cart_id) => Ok(cart_id.id),
-        None => {
-            let cart = repository::create_user_cart(pool, &user.id).await?;
-            Ok(cart.id)
+        let cart = self.repository.get_cart_by_user_id(&user.id).await?;
+
+        let cart = match cart {
+            Some(cart) => cart,
+            None => {
+                let cart = self.repository.create_user_cart(&user.id).await?;
+                return Ok(PublicUserCart::new_from_model(cart));
+            }
+        };
+
+        let cart_items: Vec<CartItemModel> = self.cart_items_repository.get_items(&cart.id).await?;
+
+        Ok(PublicUserCart::new_with_items(cart, cart_items))
+    }
+
+    pub async fn get_cart_id_by_user(&self, user_id: &i64) -> Result<i64, AppError> {
+        let user = self
+            .user_service
+            .get_user_by_id(user_id)
+            .await?
+            .ok_or_else(|| AppError::NotFound("user not found".to_string()))?;
+
+        let cart_id = self.repository.get_cart_id(&user.id).await?;
+
+        match cart_id {
+            Some(cart_id) => Ok(cart_id.id),
+            None => {
+                let cart = self.repository.create_user_cart(&user.id).await?;
+                Ok(cart.id)
+            }
         }
     }
 }

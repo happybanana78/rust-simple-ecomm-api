@@ -1,1 +1,10 @@
+pub mod admin;
+pub mod auth;
+pub mod cart;
 pub mod db;
+pub mod errors;
+pub mod middlewares;
+pub mod products;
+pub mod roles;
+pub mod state;
+pub mod users;
