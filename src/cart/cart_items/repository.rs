@@ -59,3 +59,40 @@ pub async fn update_item(pool: &PgPool, cmd: UpdateItemCommand) -> Result<u64, A
 
     Ok(result.rows_affected())
 }
+
+pub async fn check_product_exist_in_cart(
+    pool: &PgPool,
+    product_id: &i64,
+) -> Result<bool, AppError> {
+    sqlx::query_scalar!(
+        r#"SELECT EXISTS(
+            SELECT 1 FROM cart_items WHERE product_id = $1
+        )
+        as "exists!";
+        "#,
+        product_id
+    )
+    .fetch_one(pool)
+    .await
+    .map_err(AppError::Database)
+}
+
+pub async fn get_cart_product_quantity(
+    pool: &PgPool,
+    cart_id: &i64,
+    product_id: &i64,
+) -> Result<i32, AppError> {
+    sqlx::query_scalar!(
+        r#"
+        SELECT
+            quantity
+        FROM cart_items
+        WHERE cart_id = $1 AND product_id = $2;
+        "#,
+        cart_id,
+        product_id
+    )
+    .fetch_one(pool)
+    .await
+    .map_err(AppError::Database)
+}
