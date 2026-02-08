@@ -18,7 +18,7 @@ pub async fn show(pool: &PgPool, id: i64) -> Result<ProductModel, AppError> {
 }
 
 pub async fn check(pool: &PgPool, id: &i64) -> Result<bool, AppError> {
-    let product = repository::check_exist(pool, id).await?;
+    let product = repository::check_exist_and_active(pool, id).await?;
 
     match product {
         Some(_) => Ok(true),

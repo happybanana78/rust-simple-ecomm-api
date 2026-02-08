@@ -13,7 +13,8 @@ pub async fn index(pool: &PgPool) -> Result<Vec<ProductModel>, AppError> {
             quantity,
             configurable,
             is_active
-        FROM products;
+        FROM products
+        WHERE is_active = true;
         "#,
     }
     .fetch_all(pool)
@@ -33,7 +34,7 @@ pub async fn show(pool: &PgPool, id: i64) -> Result<Option<ProductModel>, AppErr
             configurable,
             is_active
         FROM products
-        WHERE id = $1;
+        WHERE id = $1 AND is_active = true;
         "#,
         id,
     }
@@ -42,10 +43,13 @@ pub async fn show(pool: &PgPool, id: i64) -> Result<Option<ProductModel>, AppErr
     .map_err(AppError::Database)
 }
 
-pub async fn check_exist(pool: &PgPool, id: &i64) -> Result<Option<ProductIdModel>, AppError> {
+pub async fn check_exist_and_active(
+    pool: &PgPool,
+    id: &i64,
+) -> Result<Option<ProductIdModel>, AppError> {
     sqlx::query_as! {
         ProductIdModel,
-        "SELECT id FROM products WHERE id = $1;",
+        "SELECT id FROM products WHERE id = $1 AND is_active = true;",
         id,
     }
     .fetch_optional(pool)
