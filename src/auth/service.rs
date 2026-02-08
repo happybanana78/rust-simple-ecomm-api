@@ -19,13 +19,15 @@ pub async fn register(pool: &PgPool, cmd: RegisterCommand) -> Result<UserModel, 
 
     let user = repository::find_by_email(pool, &new_user.email).await?;
 
-    // TODO: implement database transactions
-
     match user {
         Some(_) => Err(AppError::Conflict("user already exists".to_string())),
         None => {
-            let user = repository::register(pool, new_user).await?;
-            roles_service::assign_role(pool, &user.id, &RoleEnum::User).await?;
+            let mut tx = pool.begin().await.map_err(AppError::Database)?;
+
+            let user = repository::register(&mut *tx, new_user).await?;
+            roles_service::assign_role(&mut tx, &user.id, &RoleEnum::User).await?;
+
+            tx.commit().await.map_err(AppError::Database)?;
             Ok(user)
         }
     }

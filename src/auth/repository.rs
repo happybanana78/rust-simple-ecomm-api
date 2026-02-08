@@ -1,17 +1,21 @@
 use super::model::{AuthTokenModel, UserModel};
 use crate::auth::dto::{AuthToken, NewUser};
 use crate::errors::error::AppError;
-use sqlx::PgPool;
 use sqlx::types::Json;
+use sqlx::{Executor, PgPool, Postgres};
 use std::collections::HashSet;
 
-pub async fn register(pool: &PgPool, user: NewUser) -> Result<UserModel, AppError> {
-    sqlx::query_as! {
-        UserModel,
+pub async fn register<'e, E>(executor: E, user: NewUser) -> Result<UserModel, AppError>
+where
+    E: Executor<'e, Database = Postgres>,
+{
+    sqlx::query_as::<_, UserModel>(
         "INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING *;",
-        user.username, user.email, user.hashed_password
-    }
-    .fetch_one(pool)
+    )
+    .bind(&user.username)
+    .bind(&user.email)
+    .bind(&user.hashed_password)
+    .fetch_one(executor)
     .await
     .map_err(AppError::Database)
 }

@@ -1,7 +1,7 @@
 use crate::errors::error::AppError;
 use crate::roles::dto::RoleEnum;
 use crate::roles::model::RoleModel;
-use sqlx::PgPool;
+use sqlx::{Executor, PgPool, Postgres};
 
 pub async fn get_user_role(pool: &PgPool, user_id: &i64) -> Result<RoleModel, AppError> {
     sqlx::query_as!(
@@ -21,18 +21,24 @@ pub async fn get_user_role(pool: &PgPool, user_id: &i64) -> Result<RoleModel, Ap
     .map_err(AppError::Database)
 }
 
-pub async fn get_role_by_name(pool: &PgPool, role: &RoleEnum) -> Result<RoleModel, AppError> {
+pub async fn get_role_by_name<'e, E>(executor: E, role: &RoleEnum) -> Result<RoleModel, AppError>
+where
+    E: Executor<'e, Database = Postgres>,
+{
     sqlx::query_as!(
         RoleModel,
         "SELECT id, name FROM roles WHERE name = $1;",
         role.as_str()
     )
-    .fetch_one(pool)
+    .fetch_one(executor)
     .await
     .map_err(AppError::Database)
 }
 
-pub async fn assign_role(pool: &PgPool, user_id: &i64, role_id: &i64) -> Result<u64, AppError> {
+pub async fn assign_role<'e, E>(executor: E, user_id: &i64, role_id: &i64) -> Result<u64, AppError>
+where
+    E: Executor<'e, Database = Postgres>,
+{
     let result = sqlx::query!(
         r#"
         INSERT INTO user_has_roles (user_id, role_id)
@@ -41,7 +47,7 @@ pub async fn assign_role(pool: &PgPool, user_id: &i64, role_id: &i64) -> Result<
         user_id,
         role_id
     )
-    .execute(pool)
+    .execute(executor)
     .await
     .map_err(AppError::Database)?;
 
