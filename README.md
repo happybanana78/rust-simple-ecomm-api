@@ -83,14 +83,23 @@ The server will start at `http://127.0.0.1:8080`
 | PUT    | /admin/products/update/{id} | Update product    |
 | DELETE | /admin/products/delete/{id} | Delete product    |
 
-### Cart
+### Cart (Authenticated User)
 
-| Method | Endpoint           | Description          |
-|--------|--------------------|----------------------|
-| POST   | /cart/get          | Get user cart        |
-| GET    | /cart/items/add    | Add item to cart     |
-| GET    | /cart/items/remove | Remove item          |
-| GET    | /cart/items/update | Update item quantity |
+| Method | Endpoint         | Description          |
+|--------|------------------|----------------------|
+| GET    | /cart/user/get   | Get user cart        |
+| POST   | /cart/user/add   | Add item to cart     |
+| PUT    | /cart/user/update| Update item quantity |
+| DELETE | /cart/user/remove| Remove item          |
+
+### Cart (Guest)
+
+| Method | Endpoint          | Description          |
+|--------|-------------------|----------------------|
+| GET    | /cart/guest/get   | Get guest cart       |
+| POST   | /cart/guest/add   | Add item to cart     |
+| PUT    | /cart/guest/update| Update item quantity |
+| DELETE | /cart/guest/remove| Remove item          |
 
 ## Authentication
 
