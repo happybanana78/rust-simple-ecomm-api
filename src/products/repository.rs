@@ -54,7 +54,7 @@ impl ProductRepository {
 
     pub async fn check_exist_and_active(
         &self,
-        id: &i64,
+        id: i64,
     ) -> Result<Option<ProductIdModel>, AppError> {
         sqlx::query_as! {
             ProductIdModel,
@@ -83,8 +83,8 @@ impl ProductRepository {
 
     pub async fn update_product_stock(
         &self,
-        product_id: &i64,
-        new_quantity: &i32,
+        product_id: i64,
+        new_quantity: i32,
     ) -> Result<u64, AppError> {
         let result = sqlx::query!(
             r#"

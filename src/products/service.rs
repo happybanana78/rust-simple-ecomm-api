@@ -1,6 +1,6 @@
 use super::model::ProductModel;
 use crate::errors::error::AppError;
-use crate::products::dto::PublicProduct;
+use crate::products::dto::{PublicProduct, UpdateStockDto};
 use crate::products::repository::ProductRepository;
 use crate::products::traits::IntoPublic;
 use sqlx::PgPool;
@@ -39,12 +39,29 @@ impl ProductService {
         Ok(product.into_public())
     }
 
-    pub async fn exist(&self, id: &i64) -> Result<bool, AppError> {
+    pub async fn exist(&self, id: i64) -> Result<bool, AppError> {
         let product = self.repository.check_exist_and_active(id).await?;
 
         match product {
             Some(_) => Ok(true),
             None => Ok(false),
         }
+    }
+
+    pub async fn update_stock(&self, dto: UpdateStockDto) -> Result<u64, AppError> {
+        let product = self
+            .repository
+            .check_exist_and_active(dto.get_product_id())
+            .await?;
+
+        if product.is_none() {
+            return Err(AppError::NotFound("Product not found".to_string()));
+        }
+
+        dto.check_quantity()?;
+
+        self.repository
+            .update_product_stock(dto.get_product_id(), dto.get_quantity())
+            .await
     }
 }
