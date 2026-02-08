@@ -85,12 +85,12 @@ The server will start at `http://127.0.0.1:8080`
 
 ### Cart (Authenticated User)
 
-| Method | Endpoint         | Description          |
-|--------|------------------|----------------------|
-| GET    | /cart/user/get   | Get user cart        |
-| POST   | /cart/user/add   | Add item to cart     |
-| PUT    | /cart/user/update| Update item quantity |
-| DELETE | /cart/user/remove| Remove item          |
+| Method | Endpoint          | Description          |
+|--------|-------------------|----------------------|
+| GET    | /cart/user/get    | Get user cart        |
+| POST   | /cart/user/add    | Add item to cart     |
+| PUT    | /cart/user/update | Update item quantity |
+| DELETE | /cart/user/remove | Remove item          |
 
 ### Cart (Guest)
 
