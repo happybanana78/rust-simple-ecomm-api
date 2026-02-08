@@ -5,6 +5,9 @@ use serde::Serialize;
 pub struct PublicProduct {
     pub name: String,
     pub price: f64,
+    pub quantity: i32,
+    pub configurable: bool,
+    pub is_active: bool,
 }
 
 impl From<ProductModel> for PublicProduct {
@@ -12,6 +15,9 @@ impl From<ProductModel> for PublicProduct {
         Self {
             name: product.name,
             price: product.price,
+            quantity: product.quantity,
+            configurable: product.configurable,
+            is_active: product.is_active,
         }
     }
 }

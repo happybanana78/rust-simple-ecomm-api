@@ -1,4 +1,3 @@
-use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 
@@ -7,7 +6,9 @@ pub struct ProductModel {
     pub id: i64,
     pub name: String,
     pub price: f64,
-    pub created_at: DateTime<Utc>,
+    pub quantity: i32,
+    pub configurable: bool,
+    pub is_active: bool,
 }
 
 #[derive(FromRow)]

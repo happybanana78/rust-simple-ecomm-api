@@ -9,11 +9,21 @@ pub struct CreateProductDTO {
 
     #[validate(required, range(min = 0.0))]
     pub price: Option<f64>,
+
+    #[validate(range(min = 0))]
+    pub quantity: Option<i32>,
+
+    pub configurable: Option<bool>,
+
+    pub is_active: Option<bool>,
 }
 
 pub struct CreateProductCommand {
     pub name: String,
     pub price: f64,
+    pub quantity: i32,
+    pub configurable: bool,
+    pub is_active: bool,
 }
 
 impl TryFrom<CreateProductDTO> for CreateProductCommand {
@@ -23,6 +33,9 @@ impl TryFrom<CreateProductDTO> for CreateProductCommand {
         Ok(Self {
             name: dto.name.unwrap(),
             price: dto.price.unwrap(),
+            quantity: dto.quantity.unwrap_or(0),
+            configurable: dto.configurable.unwrap_or(false),
+            is_active: dto.is_active.unwrap_or(true),
         })
     }
 }
@@ -34,11 +47,21 @@ pub struct UpdateProductDTO {
 
     #[validate(required, range(min = 0.0))]
     pub price: Option<f64>,
+
+    #[validate(range(min = 0))]
+    pub quantity: Option<i32>,
+
+    pub configurable: Option<bool>,
+
+    pub is_active: Option<bool>,
 }
 
 pub struct UpdateProductCommand {
     pub name: String,
     pub price: f64,
+    pub quantity: i32,
+    pub configurable: bool,
+    pub is_active: bool,
 }
 
 impl TryFrom<UpdateProductDTO> for UpdateProductCommand {
@@ -48,6 +71,9 @@ impl TryFrom<UpdateProductDTO> for UpdateProductCommand {
         Ok(Self {
             name: dto.name.unwrap(),
             price: dto.price.unwrap(),
+            quantity: dto.quantity.unwrap_or(0),
+            configurable: dto.configurable.unwrap_or(false),
+            is_active: dto.is_active.unwrap_or(true),
         })
     }
 }
