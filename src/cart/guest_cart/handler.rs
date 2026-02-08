@@ -12,11 +12,7 @@ pub async fn get_guest_cart(
     request: HttpRequest,
     state: web::Data<AppState>,
 ) -> Result<impl Responder, AppError> {
-    let guest_token = request
-        .extensions()
-        .get::<GuestToken>()
-        .map(|s| s.0.clone())
-        .ok_or(AppError::Unauthorized("guest token missing".to_string()))?;
+    let guest_token = extract_guest_token(&request)?;
 
     Ok(HttpResponse::Ok().json(SuccessResponse::ok(
         state
@@ -33,11 +29,7 @@ pub async fn add_item(
 ) -> Result<impl Responder, AppError> {
     body.validate()?;
 
-    let guest_token = request
-        .extensions()
-        .get::<GuestToken>()
-        .map(|s| s.0.clone())
-        .ok_or(AppError::Unauthorized("guest token missing".to_string()))?;
+    let guest_token = extract_guest_token(&request)?;
 
     let cart_id = state
         .guest_cart_service
@@ -57,11 +49,7 @@ pub async fn update_item(
 ) -> Result<impl Responder, AppError> {
     body.validate()?;
 
-    let guest_token = request
-        .extensions()
-        .get::<GuestToken>()
-        .map(|s| s.0.clone())
-        .ok_or(AppError::Unauthorized("guest token missing".to_string()))?;
+    let guest_token = extract_guest_token(&request)?;
 
     let cart_id = state
         .guest_cart_service
@@ -81,11 +69,7 @@ pub async fn remove_item(
 ) -> Result<impl Responder, AppError> {
     body.validate()?;
 
-    let guest_token = request
-        .extensions()
-        .get::<GuestToken>()
-        .map(|s| s.0.clone())
-        .ok_or(AppError::Unauthorized("guest token missing".to_string()))?;
+    let guest_token = extract_guest_token(&request)?;
 
     let cart_id = state
         .guest_cart_service
@@ -96,4 +80,11 @@ pub async fn remove_item(
 
     state.cart_items_service.remove_item(command).await?;
     Ok(HttpResponse::Ok().json(SuccessResponse::<()>::empty()))
+}
+
+fn extract_guest_token(req: &HttpRequest) -> Result<String, AppError> {
+    req.extensions()
+        .get::<GuestToken>()
+        .map(|s| s.0.clone())
+        .ok_or(AppError::Unauthorized("guest token missing".to_string()))
 }

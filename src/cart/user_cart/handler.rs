@@ -12,11 +12,7 @@ pub async fn get_user_cart(
     request: HttpRequest,
     state: web::Data<AppState>,
 ) -> Result<impl Responder, AppError> {
-    let auth_user_id = request
-        .extensions()
-        .get::<AuthUserId>()
-        .map(|id| id.0)
-        .ok_or(AppError::Unauthorized("unauthorized".to_string()))?;
+    let auth_user_id = extract_auth_user_id(&request)?;
 
     Ok(HttpResponse::Ok().json(SuccessResponse::ok(
         state
@@ -33,11 +29,7 @@ pub async fn add_item(
 ) -> Result<impl Responder, AppError> {
     body.validate()?;
 
-    let auth_user_id = request
-        .extensions()
-        .get::<AuthUserId>()
-        .map(|id| id.0)
-        .ok_or(AppError::Unauthorized("unauthorized".to_string()))?;
+    let auth_user_id = extract_auth_user_id(&request)?;
 
     let cart_id = state
         .user_cart_service
@@ -51,8 +43,6 @@ pub async fn add_item(
         return Err(AppError::NotFound("product not found".to_string()));
     }
 
-    // TODO: handle code repetition (mostly in checks)
-
     state.cart_items_service.add_item(command).await?;
     Ok(HttpResponse::Ok().json(SuccessResponse::ok(())))
 }
@@ -64,11 +54,7 @@ pub async fn update_item(
 ) -> Result<impl Responder, AppError> {
     body.validate()?;
 
-    let auth_user_id = request
-        .extensions()
-        .get::<AuthUserId>()
-        .map(|id| id.0)
-        .ok_or(AppError::Unauthorized("unauthorized".to_string()))?;
+    let auth_user_id = extract_auth_user_id(&request)?;
 
     let cart_id = state
         .user_cart_service
@@ -93,11 +79,7 @@ pub async fn remove_item(
 ) -> Result<impl Responder, AppError> {
     body.validate()?;
 
-    let auth_user_id = request
-        .extensions()
-        .get::<AuthUserId>()
-        .map(|id| id.0)
-        .ok_or(AppError::Unauthorized("unauthorized".to_string()))?;
+    let auth_user_id = extract_auth_user_id(&request)?;
 
     let cart_id = state
         .user_cart_service
@@ -113,4 +95,11 @@ pub async fn remove_item(
 
     state.cart_items_service.remove_item(command).await?;
     Ok(HttpResponse::Ok().json(SuccessResponse::<()>::empty()))
+}
+
+fn extract_auth_user_id(req: &HttpRequest) -> Result<i64, AppError> {
+    req.extensions()
+        .get::<AuthUserId>()
+        .map(|id| id.0)
+        .ok_or(AppError::Unauthorized("unauthorized".to_string()))
 }
