@@ -45,7 +45,7 @@ pub async fn remove_item(pool: &PgPool, cmd: RemoveItemCommand) -> Result<u64, A
     Ok(result.rows_affected())
 }
 
-pub async fn update_item(pool: &PgPool, cmd: UpdateItemCommand) -> Result<u64, AppError> {
+pub async fn update_item(pool: &PgPool, cmd: &UpdateItemCommand) -> Result<u64, AppError> {
     let result = sqlx::query_as!(
         CartItemModel,
         "UPDATE cart_items SET quantity = $1 WHERE cart_id = $2 AND product_id = $3;",

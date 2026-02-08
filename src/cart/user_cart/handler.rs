@@ -48,6 +48,8 @@ pub async fn add_item(
         return Err(AppError::NotFound("product not found".to_string()));
     }
 
+    // TODO: handle code repetition (mostly in checks)
+
     cart_items_service::add_item(&pool, command).await?;
     Ok(HttpResponse::Ok().json(SuccessResponse::ok(())))
 }

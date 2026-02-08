@@ -34,3 +34,5 @@ async fn main() -> std::io::Result<()> {
     .run()
     .await
 }
+
+// TODO: add orders and stock handling
