@@ -2,10 +2,19 @@ use super::model::{ProductIdModel, ProductModel};
 use crate::errors::error::AppError;
 use sqlx::PgPool;
 
-pub async fn index(pool: &PgPool) -> Result<Vec<ProductModel>, AppError> {
-    sqlx::query_as! {
-        ProductModel,
-        r#"
+pub struct ProductRepository {
+    pool: PgPool,
+}
+
+impl ProductRepository {
+    pub fn new(pool: PgPool) -> Self {
+        Self { pool }
+    }
+
+    pub async fn index(&self) -> Result<Vec<ProductModel>, AppError> {
+        sqlx::query_as! {
+            ProductModel,
+            r#"
         SELECT
             id,
             name,
@@ -16,16 +25,16 @@ pub async fn index(pool: &PgPool) -> Result<Vec<ProductModel>, AppError> {
         FROM products
         WHERE is_active = true;
         "#,
+        }
+        .fetch_all(&self.pool)
+        .await
+        .map_err(AppError::Database)
     }
-    .fetch_all(pool)
-    .await
-    .map_err(AppError::Database)
-}
 
-pub async fn show(pool: &PgPool, id: i64) -> Result<Option<ProductModel>, AppError> {
-    sqlx::query_as! {
-        ProductModel,
-        r#"
+    pub async fn show(&self, id: &i64) -> Result<Option<ProductModel>, AppError> {
+        sqlx::query_as! {
+            ProductModel,
+            r#"
         SELECT
             id,
             name,
@@ -36,58 +45,59 @@ pub async fn show(pool: &PgPool, id: i64) -> Result<Option<ProductModel>, AppErr
         FROM products
         WHERE id = $1 AND is_active = true;
         "#,
-        id,
+            id,
+        }
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(AppError::Database)
     }
-    .fetch_optional(pool)
-    .await
-    .map_err(AppError::Database)
-}
 
-pub async fn check_exist_and_active(
-    pool: &PgPool,
-    id: &i64,
-) -> Result<Option<ProductIdModel>, AppError> {
-    sqlx::query_as! {
-        ProductIdModel,
-        "SELECT id FROM products WHERE id = $1 AND is_active = true;",
-        id,
+    pub async fn check_exist_and_active(
+        &self,
+        id: &i64,
+    ) -> Result<Option<ProductIdModel>, AppError> {
+        sqlx::query_as! {
+            ProductIdModel,
+            "SELECT id FROM products WHERE id = $1 AND is_active = true;",
+            id,
+        }
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(AppError::Database)
     }
-    .fetch_optional(pool)
-    .await
-    .map_err(AppError::Database)
-}
 
-pub async fn get_product_stock(pool: &PgPool, product_id: &i64) -> Result<i32, AppError> {
-    sqlx::query_scalar!(
-        r#"
+    pub async fn get_product_stock(&self, product_id: &i64) -> Result<i32, AppError> {
+        sqlx::query_scalar!(
+            r#"
         SELECT
             quantity
         FROM products
         WHERE id = $1;
         "#,
-        product_id
-    )
-    .fetch_one(pool)
-    .await
-    .map_err(AppError::Database)
-}
+            product_id
+        )
+        .fetch_one(&self.pool)
+        .await
+        .map_err(AppError::Database)
+    }
 
-pub async fn update_product_stock(
-    pool: &PgPool,
-    product_id: &i64,
-    new_quantity: &i32,
-) -> Result<u64, AppError> {
-    let result = sqlx::query!(
-        r#"
+    pub async fn update_product_stock(
+        &self,
+        product_id: &i64,
+        new_quantity: &i32,
+    ) -> Result<u64, AppError> {
+        let result = sqlx::query!(
+            r#"
         UPDATE products
         SET quantity = $1 WHERE id = $2;
         "#,
-        new_quantity,
-        product_id
-    )
-    .execute(pool)
-    .await
-    .map_err(AppError::Database)?;
+            new_quantity,
+            product_id
+        )
+        .execute(&self.pool)
+        .await
+        .map_err(AppError::Database)?;
 
-    Ok(result.rows_affected())
+        Ok(result.rows_affected())
+    }
 }

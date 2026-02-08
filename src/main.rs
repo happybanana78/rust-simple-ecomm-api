@@ -1,8 +1,3 @@
-use actix_web::{App, HttpServer, web};
-use dotenvy::dotenv;
-use sqlx::PgPool;
-use std::env;
-
 mod admin;
 mod auth;
 mod cart;
@@ -10,7 +5,14 @@ mod errors;
 mod middlewares;
 mod products;
 mod roles;
+mod state;
 mod users;
+
+use actix_web::{App, HttpServer, web};
+use dotenvy::dotenv;
+use sqlx::PgPool;
+use state::AppState;
+use std::env;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -24,7 +26,7 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
-            .app_data(web::Data::new(pool.clone()))
+            .app_data(web::Data::new(AppState::new(pool.clone())))
             .configure(auth::routes::routes)
             .configure(admin::routes::routes)
             .configure(products::routes::routes)
