@@ -1,4 +1,4 @@
-use super::model::ProductModel;
+use super::model::{ProductIdModel, ProductModel};
 use crate::errors::error::AppError;
 use sqlx::PgPool;
 
@@ -16,6 +16,17 @@ pub async fn show(pool: &PgPool, id: i64) -> Result<Option<ProductModel>, AppErr
     sqlx::query_as! {
         ProductModel,
         "SELECT id, name, price, created_at FROM products WHERE id = $1;",
+        id,
+    }
+    .fetch_optional(pool)
+    .await
+    .map_err(AppError::Database)
+}
+
+pub async fn check_exist(pool: &PgPool, id: &i64) -> Result<Option<ProductIdModel>, AppError> {
+    sqlx::query_as! {
+        ProductIdModel,
+        "SELECT id FROM products WHERE id = $1;",
         id,
     }
     .fetch_optional(pool)
