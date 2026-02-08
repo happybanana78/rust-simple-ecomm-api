@@ -94,12 +94,12 @@ The server will start at `http://127.0.0.1:8080`
 
 ### Cart (Guest)
 
-| Method | Endpoint          | Description          |
-|--------|-------------------|----------------------|
-| GET    | /cart/guest/get   | Get guest cart       |
-| POST   | /cart/guest/add   | Add item to cart     |
-| PUT    | /cart/guest/update| Update item quantity |
-| DELETE | /cart/guest/remove| Remove item          |
+| Method | Endpoint           | Description          |
+|--------|--------------------|----------------------|
+| GET    | /cart/guest/get    | Get guest cart       |
+| POST   | /cart/guest/add    | Add item to cart     |
+| PUT    | /cart/guest/update | Update item quantity |
+| DELETE | /cart/guest/remove | Remove item          |
 
 ## Authentication
 
