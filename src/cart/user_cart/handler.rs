@@ -38,7 +38,7 @@ pub async fn add_item(
 
     let command = AddItemCommand::new(body.into_inner(), cart_id);
 
-    let product = state.product_service.exist(&command.product_id).await?;
+    let product = state.product_service.exist(command.product_id).await?;
     if !product {
         return Err(AppError::NotFound("product not found".to_string()));
     }
@@ -63,7 +63,7 @@ pub async fn update_item(
 
     let command = UpdateItemCommand::new(body.into_inner(), cart_id);
 
-    let product = state.product_service.exist(&command.product_id).await?;
+    let product = state.product_service.exist(command.product_id).await?;
     if !product {
         return Err(AppError::NotFound("product not found".to_string()));
     }
@@ -88,7 +88,7 @@ pub async fn remove_item(
 
     let command = RemoveItemCommand::new(body.into_inner(), cart_id);
 
-    let product = state.product_service.exist(&command.product_id).await?;
+    let product = state.product_service.exist(command.product_id).await?;
     if !product {
         return Err(AppError::NotFound("product not found".to_string()));
     }

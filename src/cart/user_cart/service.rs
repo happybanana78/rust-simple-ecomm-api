@@ -3,6 +3,7 @@ use crate::cart::cart_items::repository::CartItemsRepository;
 use crate::cart::user_cart::dto::PublicUserCart;
 use crate::cart::user_cart::repository::UserCartRepository;
 use crate::errors::error::AppError;
+use crate::traits::IsRepository;
 use crate::users::service::UserService;
 use sqlx::PgPool;
 

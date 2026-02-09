@@ -3,6 +3,7 @@ use crate::errors::error::AppError;
 use crate::products::dto::{PublicProduct, UpdateStockDto};
 use crate::products::repository::ProductRepository;
 use crate::products::traits::IntoPublic;
+use crate::traits::HasQuantity;
 use sqlx::PgPool;
 
 pub struct ProductService {
@@ -51,17 +52,21 @@ impl ProductService {
     pub async fn update_stock(&self, dto: UpdateStockDto) -> Result<u64, AppError> {
         let product = self
             .repository
-            .check_exist_and_active(dto.get_product_id())
+            .check_exist_and_active(dto.product_id)
             .await?;
 
         if product.is_none() {
             return Err(AppError::NotFound("Product not found".to_string()));
         }
 
-        dto.check_quantity()?;
+        if !dto.is_safe_quantity() {
+            return Err(AppError::Internal(
+                "Quantity cannot be negative".to_string(),
+            ));
+        }
 
         self.repository
-            .update_product_stock(dto.get_product_id(), dto.get_quantity())
+            .update_product_stock(dto.product_id, dto.quantity)
             .await
     }
 }

@@ -6,6 +6,7 @@ mod middlewares;
 mod products;
 mod roles;
 mod state;
+mod traits;
 mod users;
 
 use actix_web::{App, HttpServer, web};

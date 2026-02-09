@@ -7,4 +7,5 @@ pub mod middlewares;
 pub mod products;
 pub mod roles;
 pub mod state;
+pub mod traits;
 pub mod users;

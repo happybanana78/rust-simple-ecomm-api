@@ -1,17 +1,22 @@
 use crate::cart::cart_items::dto::{AddItemCommand, RemoveItemCommand, UpdateItemCommand};
 use crate::cart::cart_items::model::CartItemModel;
 use crate::errors::error::AppError;
+use crate::traits::IsRepository;
 use sqlx::PgPool;
 
 pub struct CartItemsRepository {
     pool: PgPool,
 }
 
-impl CartItemsRepository {
-    pub fn new(pool: PgPool) -> Self {
+impl IsRepository<PgPool> for CartItemsRepository {
+    type Repository = CartItemsRepository;
+
+    fn new(pool: PgPool) -> Self::Repository {
         Self { pool }
     }
+}
 
+impl CartItemsRepository {
     pub async fn get_items(&self, cart_id: &i64) -> Result<Vec<CartItemModel>, AppError> {
         sqlx::query_as!(
         CartItemModel,

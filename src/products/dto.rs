@@ -1,5 +1,5 @@
-use crate::errors::error::AppError;
 use crate::products::model::ProductModel;
+use crate::traits::HasQuantity;
 use serde::Serialize;
 
 #[derive(Serialize)]
@@ -26,8 +26,8 @@ impl From<ProductModel> for PublicProduct {
 }
 
 pub struct UpdateStockDto {
-    product_id: i64,
-    quantity: i32,
+    pub product_id: i64,
+    pub quantity: i32,
 }
 
 impl UpdateStockDto {
@@ -37,21 +37,10 @@ impl UpdateStockDto {
             quantity,
         }
     }
+}
 
-    pub fn get_product_id(&self) -> i64 {
-        self.product_id
-    }
-
-    pub fn get_quantity(&self) -> i32 {
+impl HasQuantity for UpdateStockDto {
+    fn get_quantity(&self) -> i32 {
         self.quantity
-    }
-
-    pub fn check_quantity(&self) -> Result<(), AppError> {
-        if self.quantity < 0 {
-            return Err(AppError::Internal(
-                "Quantity cannot be negative".to_string(),
-            ));
-        }
-        Ok(())
     }
 }
