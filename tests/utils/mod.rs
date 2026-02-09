@@ -8,6 +8,7 @@ use ecomm::products::routes::routes as products_routes;
 use ecomm::state::AppState;
 use sqlx::{PgPool, postgres::PgPoolOptions};
 use std::env;
+use uuid::Uuid;
 
 pub struct TestDatabase {
     pub pool: PgPool,
@@ -23,6 +24,8 @@ impl TestDatabase {
         let test_db_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
         let admin_db_url = env::var("ADMIN_DATABASE_URL").expect("ADMIN_DATABASE_URL must be set");
         let test_db_name = env::var("TEST_DATABASE_NAME").expect("TEST_DATABASE_NAME must be set");
+
+        let test_db_name = format!("{}{}", test_db_name, Uuid::new_v4().simple());
 
         let admin_pool = PgPoolOptions::new()
             .max_connections(5)
