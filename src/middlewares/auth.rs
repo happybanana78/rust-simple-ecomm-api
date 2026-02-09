@@ -81,6 +81,8 @@ where
                 }
             };
 
+            println!("Token gigi: {}", token);
+
             let Some(auth_token_model) = auth_service.get_token_if_exist(token).await? else {
                 return Ok(req.into_response(
                     HttpResponse::Unauthorized()

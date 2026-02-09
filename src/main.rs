@@ -10,15 +10,15 @@ mod traits;
 mod users;
 
 use actix_web::{App, HttpServer, web};
-use dotenvy::dotenv;
+use dotenvy::from_filename;
 use sqlx::PgPool;
 use state::AppState;
 use std::env;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    dotenv().ok();
-    env_logger::init();
+    from_filename(".env.dev").ok();
+    env_logger::try_init().ok();
 
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let pool = PgPool::connect(&database_url)

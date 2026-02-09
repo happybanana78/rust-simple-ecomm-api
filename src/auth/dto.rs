@@ -52,7 +52,7 @@ impl TryFrom<RegisterDTO> for RegisterCommand {
     }
 }
 
-#[derive(Deserialize, Validate)]
+#[derive(Serialize, Deserialize, Validate)]
 pub struct LoginDTO {
     #[validate(required, length(min = 1))]
     pub email: Option<String>,

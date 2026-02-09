@@ -2,7 +2,7 @@ use crate::cart::cart_items::model::CartItemModel;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
-#[derive(Deserialize, Validate)]
+#[derive(Serialize, Deserialize, Validate)]
 pub struct AddItemDto {
     #[validate(required, range(min = 1))]
     pub product_id: Option<i64>,

@@ -1,4 +1,6 @@
 /target
 .env
+.env.dev
+.env.test
 .sqlx
 .idea

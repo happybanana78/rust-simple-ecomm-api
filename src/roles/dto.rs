@@ -8,6 +8,7 @@ pub struct Role {
     pub name: String,
 }
 
+#[derive(Debug)]
 pub enum RoleEnum {
     Admin,
     User,
