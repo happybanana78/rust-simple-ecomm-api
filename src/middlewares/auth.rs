@@ -1,13 +1,12 @@
 use crate::auth::dto::{AuthScopes, AuthToken, AuthUserId};
-use crate::auth::repository;
 use crate::auth::traits::Scope;
 use crate::errors::response::ErrorResponse;
+use crate::state::AppState;
 use actix_web::body::{BoxBody, EitherBody};
 use actix_web::dev::{Service, ServiceRequest, ServiceResponse, Transform};
 use actix_web::web::Data;
 use actix_web::{Error, HttpMessage, HttpRequest, HttpResponse};
 use futures_util::future::{LocalBoxFuture, Ready, ok};
-use sqlx::PgPool;
 use std::rc::Rc;
 use std::sync::Arc;
 use std::task::{Context, Poll};
@@ -61,11 +60,12 @@ where
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
         let service = self.service.clone();
-        let pool = req
-            .app_data::<Data<PgPool>>()
-            .expect("PgPool missing from app data")
-            .get_ref()
-            .clone();
+        let state = req
+            .app_data::<Data<AppState>>()
+            .expect("App State missing from app data")
+            .get_ref();
+
+        let auth_service = state.auth_service.clone();
 
         let required_scope = self.permission_scope.as_ref().map(|scope| scope.as_str());
 
@@ -81,7 +81,7 @@ where
                 }
             };
 
-            let Some(auth_token_model) = repository::get_token(&pool, token).await? else {
+            let Some(auth_token_model) = auth_service.get_token_if_exist(token).await? else {
                 return Ok(req.into_response(
                     HttpResponse::Unauthorized()
                         .json(ErrorResponse::new("invalid token".to_string()))
