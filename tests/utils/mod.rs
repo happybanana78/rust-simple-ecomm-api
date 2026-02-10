@@ -21,7 +21,7 @@ impl TestDatabase {
         from_filename(".env.test").ok();
         env_logger::try_init().ok();
 
-        let test_db_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+        let test_db_url = env::var("TEST_DATABASE_URL").expect("TEST_DATABASE_URL must be set");
         let admin_db_url = env::var("ADMIN_DATABASE_URL").expect("ADMIN_DATABASE_URL must be set");
         let test_db_name = env::var("TEST_DATABASE_NAME").expect("TEST_DATABASE_NAME must be set");
 
@@ -40,7 +40,7 @@ impl TestDatabase {
 
         let test_pool = PgPoolOptions::new()
             .max_connections(5)
-            .connect(&test_db_url)
+            .connect(&format!("{}{}", test_db_url, test_db_name))
             .await
             .expect("Failed to connect to test database");
 
@@ -94,12 +94,10 @@ pub async fn auto_login(srv: &TestServer, email: String) -> String {
 
     let body = res.json::<serde_json::Value>().await.unwrap();
 
-    body.get("token")
-        .unwrap()
-        .as_str()
-        .unwrap()
-        .trim_matches('"')
-        .to_string()
+    match body.get("token") {
+        Some(token) => token.as_str().unwrap().trim_matches('"').to_string(),
+        None => body.get("message").unwrap().to_string(),
+    }
 }
 
 pub async fn seed_roles(pool: &PgPool) {

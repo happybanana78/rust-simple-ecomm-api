@@ -20,7 +20,7 @@ async fn main() -> std::io::Result<()> {
     from_filename(".env.dev").ok();
     env_logger::try_init().ok();
 
-    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let database_url = env::var("DEV_DATABASE_URL").expect("DEV_DATABASE_URL must be set");
     let pool = PgPool::connect(&database_url)
         .await
         .expect("Failed to create pool");
