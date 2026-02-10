@@ -5,6 +5,7 @@ pub mod db;
 pub mod errors;
 pub mod middlewares;
 pub mod products;
+pub mod responses;
 pub mod roles;
 pub mod state;
 pub mod traits;

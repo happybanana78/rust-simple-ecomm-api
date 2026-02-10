@@ -2,9 +2,9 @@ use crate::cart::cart_items::dto::PublicCartItems;
 use crate::cart::cart_items::model::CartItemModel;
 use crate::cart::user_cart::model::UserCartModel;
 use chrono::{DateTime, Utc};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct PublicUserCart {
     pub id: i64,
     pub user_id: i64,

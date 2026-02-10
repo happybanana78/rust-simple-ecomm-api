@@ -77,7 +77,7 @@ impl UpdateItemCommand {
     }
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct PublicCartItems {
     pub id: i64,
     pub cart_id: i64,

@@ -4,6 +4,7 @@ mod cart;
 mod errors;
 mod middlewares;
 mod products;
+mod responses;
 mod roles;
 mod state;
 mod traits;
