@@ -2,7 +2,7 @@ use crate::cart::cart_items::dto::{
     AddItemCommand, AddItemDto, RemoveItemCommand, RemoveItemDto, UpdateItemCommand, UpdateItemDto,
 };
 use crate::errors::error::AppError;
-use crate::errors::response::SuccessResponse;
+use crate::responses::error_responses::SuccessResponse;
 use crate::state::AppState;
 use crate::users::dto::GuestToken;
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, Responder, web};

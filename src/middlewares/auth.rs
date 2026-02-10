@@ -1,6 +1,6 @@
 use crate::auth::dto::{AuthScopes, AuthToken, AuthUserId};
 use crate::auth::traits::Scope;
-use crate::errors::response::ErrorResponse;
+use crate::responses::error_responses::ErrorResponse;
 use crate::state::AppState;
 use actix_web::body::{BoxBody, EitherBody};
 use actix_web::dev::{Service, ServiceRequest, ServiceResponse, Transform};

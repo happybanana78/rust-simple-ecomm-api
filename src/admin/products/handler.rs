@@ -3,7 +3,7 @@ use crate::admin::products::dto::{
     CreateProductCommand, CreateProductDTO, UpdateProductCommand, UpdateProductDTO,
 };
 use crate::errors::error::AppError;
-use crate::errors::response::SuccessResponse;
+use crate::responses::error_responses::SuccessResponse;
 use actix_web::{HttpResponse, Responder, web};
 use sqlx::PgPool;
 use validator::Validate;

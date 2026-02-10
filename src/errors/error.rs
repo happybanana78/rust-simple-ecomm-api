@@ -1,4 +1,4 @@
-use crate::errors::response::ErrorResponse;
+use crate::responses::error_responses::ErrorResponse;
 use actix_web::http::StatusCode;
 use actix_web::{HttpResponse, ResponseError};
 use log::error;

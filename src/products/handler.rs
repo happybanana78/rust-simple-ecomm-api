@@ -1,6 +1,6 @@
 use crate::errors::error::AppError;
-use crate::errors::response::SuccessResponse;
 use crate::products::dto::PublicProduct;
+use crate::responses::error_responses::SuccessResponse;
 use crate::state::AppState;
 use actix_web::{HttpResponse, Responder, web};
 

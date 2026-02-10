@@ -1,4 +1,4 @@
-use crate::errors::response::ErrorResponse;
+use crate::responses::error_responses::ErrorResponse;
 use crate::state::AppState;
 use crate::users::dto::{GuestDto, GuestToken};
 use actix_web::body::{BoxBody, EitherBody};
