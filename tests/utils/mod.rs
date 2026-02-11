@@ -74,6 +74,35 @@ impl TestDatabase {
     }
 }
 
+pub struct TestContext {
+    pub database: TestDatabase,
+    pub srv: TestServer,
+    pub auth_token: Option<String>,
+}
+
+impl TestContext {
+    pub async fn new(user_token_email: Option<String>) -> Self {
+        let test_db = TestDatabase::new().await;
+
+        seed_roles(&test_db.pool).await;
+        seed_users(&test_db.pool).await;
+        seed_products(&test_db.pool).await;
+
+        let test_server = create_test_server(test_db.pool.clone());
+
+        let token = match user_token_email {
+            Some(email) => Some(auto_login(&test_server, email).await),
+            None => None,
+        };
+
+        Self {
+            database: test_db,
+            srv: test_server,
+            auth_token: token,
+        }
+    }
+}
+
 pub fn create_test_server(pool: PgPool) -> TestServer {
     actix_test::start(move || {
         App::new()
