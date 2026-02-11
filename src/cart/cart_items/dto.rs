@@ -32,7 +32,7 @@ impl AddItemCommand {
     }
 }
 
-#[derive(Deserialize, Validate)]
+#[derive(Serialize, Deserialize, Validate)]
 pub struct RemoveItemDto {
     #[validate(required, range(min = 1))]
     pub product_id: Option<i64>,
@@ -52,7 +52,7 @@ impl RemoveItemCommand {
     }
 }
 
-#[derive(Deserialize, Validate)]
+#[derive(Serialize, Deserialize, Validate)]
 pub struct UpdateItemDto {
     #[validate(required, range(min = 1))]
     pub product_id: Option<i64>,
