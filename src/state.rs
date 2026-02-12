@@ -1,3 +1,4 @@
+use crate::admin::products::service::AdminProductService;
 use crate::auth::service::AuthService;
 use crate::cart::cart_items::service::CartItemsService;
 use crate::cart::guest_cart::service::GuestCartService;
@@ -13,6 +14,9 @@ pub struct AppState {
     pub guest_cart_service: GuestCartService,
     pub cart_items_service: CartItemsService,
     pub user_service: UserService,
+
+    // admin services
+    pub admin_product_service: AdminProductService,
 }
 
 impl AppState {
@@ -23,7 +27,10 @@ impl AppState {
             user_cart_service: UserCartService::new(pool.clone()),
             guest_cart_service: GuestCartService::new(pool.clone()),
             cart_items_service: CartItemsService::new(pool.clone()),
-            user_service: UserService::new(pool),
+            user_service: UserService::new(pool.clone()),
+
+            // admin services
+            admin_product_service: AdminProductService::new(pool),
         }
     }
 }

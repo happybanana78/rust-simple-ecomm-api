@@ -4,6 +4,7 @@ pub mod cart;
 pub mod db;
 pub mod errors;
 pub mod middlewares;
+pub mod pagination;
 pub mod products;
 pub mod responses;
 pub mod roles;

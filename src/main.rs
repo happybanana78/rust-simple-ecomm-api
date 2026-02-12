@@ -3,6 +3,7 @@ mod auth;
 mod cart;
 mod errors;
 mod middlewares;
+mod pagination;
 mod products;
 mod responses;
 mod roles;

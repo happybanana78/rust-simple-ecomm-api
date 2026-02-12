@@ -1,6 +1,46 @@
+use crate::admin::products::filters::ProductFilters;
+use crate::admin::products::model::AdminProductModel;
 use crate::errors::error::AppError;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use validator::Validate;
+
+#[derive(Serialize)]
+pub struct AdminPublicProduct {
+    pub id: i64,
+    pub name: String,
+    pub price: f64,
+    pub quantity: i32,
+    pub configurable: bool,
+    pub is_active: bool,
+}
+
+impl From<AdminProductModel> for AdminPublicProduct {
+    fn from(product: AdminProductModel) -> Self {
+        Self {
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            quantity: product.quantity,
+            configurable: product.configurable,
+            is_active: product.is_active,
+        }
+    }
+}
+
+#[derive(Deserialize, Validate)]
+pub struct IndexProductDTO {
+    #[validate(required, range(min = 1))]
+    pub page: Option<i64>,
+
+    #[validate(required, range(min = 1))]
+    pub limit: Option<i64>,
+
+    #[validate(length(min = 1))]
+    pub search: Option<String>,
+
+    #[validate(nested)]
+    pub filters: Option<ProductFilters>,
+}
 
 #[derive(Deserialize, Validate)]
 pub struct CreateProductDTO {

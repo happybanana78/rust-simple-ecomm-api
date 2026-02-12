@@ -1,6 +1,8 @@
 mod dto;
+mod filters;
 mod handler;
 mod model;
 mod repository;
 pub mod routes;
-mod service;
+pub mod service;
+pub mod traits;
