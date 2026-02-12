@@ -14,7 +14,7 @@ pub async fn index(
 ) -> Result<impl Responder, AppError> {
     body.validate()?;
 
-    let pagination = Paginate::new(body.page.unwrap(), body.limit.unwrap());
+    let pagination = Paginate::new_from_page(body.page.unwrap(), body.limit.unwrap());
 
     // TODO: handle search and filters
 

@@ -18,11 +18,9 @@ impl Paginate {
         Paginate { limit, offset }
     }
 
-    pub fn default() -> Self {
-        Paginate {
-            limit: 10,
-            offset: 0,
-        }
+    pub fn new_from_page(page: i64, limit: i64) -> Self {
+        let offset = (page - 1) * limit;
+        Paginate { limit, offset }
     }
 }
 
