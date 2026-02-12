@@ -1,3 +1,5 @@
+use crate::admin::products::model::AdminProductDummy;
+use fake::{Fake, Faker};
 use sqlx::PgPool;
 
 pub async fn seed_roles(pool: &PgPool) -> Result<(), sqlx::Error> {
@@ -44,6 +46,31 @@ pub async fn seed_admin_user(pool: &PgPool) -> Result<(), sqlx::Error> {
     )
     .execute(pool)
     .await?;
+
+    Ok(())
+}
+
+pub async fn seed_dummy_products(pool: &PgPool) -> Result<(), sqlx::Error> {
+    let products: Vec<AdminProductDummy> = (0..100)
+        .map(|_| Faker.fake::<AdminProductDummy>())
+        .collect();
+
+    for p in products {
+        sqlx::query!(
+            r#"
+            INSERT INTO products (name, price, quantity, configurable, is_active, created_at)
+            VALUES ($1, $2, $3, $4, $5, $6)
+            "#,
+            p.name,
+            p.price,
+            p.quantity,
+            false,
+            true,
+            p.created_at
+        )
+        .execute(pool)
+        .await?;
+    }
 
     Ok(())
 }
