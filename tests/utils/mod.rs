@@ -167,10 +167,11 @@ pub async fn seed_users(pool: &PgPool) {
 }
 
 pub async fn seed_products(pool: &PgPool) {
+    // ids 1 and 2
     sqlx::query!(
-        "INSERT INTO products (id, name, price, quantity, is_active) VALUES
-         (1, 'Test Product 1', 10.99, 10, true),
-         (2, 'Test Product 2', 20.99, 12, false)
+        "INSERT INTO products (name, price, quantity, is_active) VALUES
+         ('Test Product 1', 10.99, 10, true),
+         ('Test Product 2', 20.99, 12, false)
          ON CONFLICT (id) DO NOTHING;"
     )
     .execute(pool)

@@ -62,7 +62,7 @@ impl TryFrom<IndexProductDTO> for ProductFilters {
     }
 }
 
-#[derive(Deserialize, Validate)]
+#[derive(Serialize, Deserialize, Validate)]
 pub struct CreateProductDTO {
     #[validate(required, length(min = 3))]
     pub name: Option<String>,
@@ -100,7 +100,7 @@ impl TryFrom<CreateProductDTO> for CreateProductCommand {
     }
 }
 
-#[derive(Deserialize, Validate)]
+#[derive(Serialize, Deserialize, Validate)]
 pub struct UpdateProductDTO {
     #[validate(required, length(min = 3))]
     pub name: Option<String>,

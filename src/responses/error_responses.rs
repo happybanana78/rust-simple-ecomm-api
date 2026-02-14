@@ -1,8 +1,8 @@
 use crate::pagination::Paginate;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct ErrorResponse {
     pub message: String,
     pub errors: Option<HashMap<String, Vec<String>>>,

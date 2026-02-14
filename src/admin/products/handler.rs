@@ -2,6 +2,7 @@ use crate::admin::products::dto::{
     CreateProductCommand, CreateProductDTO, IndexProductDTO, UpdateProductCommand, UpdateProductDTO,
 };
 use crate::admin::products::filters::ProductFilters;
+use crate::admin::products::traits::IntoPublic;
 use crate::errors::error::AppError;
 use crate::pagination::Paginate;
 use crate::responses::error_responses::SuccessResponse;
@@ -48,9 +49,12 @@ pub async fn create(
 ) -> Result<impl Responder, AppError> {
     body.validate()?;
 
+    // TODO: handle product already exists error
+
     let command = CreateProductCommand::try_from(body.into_inner())?;
-    let products = state.admin_product_service.create(command).await?;
-    Ok(HttpResponse::Created().json(products))
+    let product = state.admin_product_service.create(command).await?;
+
+    Ok(HttpResponse::Created().json(SuccessResponse::ok(product.into_public())))
 }
 
 pub async fn update(
