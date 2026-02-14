@@ -87,13 +87,13 @@ impl ResponseError for AppError {
                 error!("Conflict error: {}", err);
 
                 HttpResponse::InternalServerError().json(ErrorResponse {
-                    message: format!("{}", err),
+                    message: err.to_string(),
                     errors: None,
                 })
             }
 
             AppError::NotFound(err) => HttpResponse::NotFound().json(ErrorResponse {
-                message: format!("{}", err),
+                message: err.to_string(),
                 errors: None,
             }),
 
