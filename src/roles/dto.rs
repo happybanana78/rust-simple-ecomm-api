@@ -32,7 +32,7 @@ impl RoleEnum {
 
                 scopes
             }
-            RoleEnum::User => HashSet::from([ProductScope::Read.as_str().to_string()]),
+            RoleEnum::User => HashSet::from([]),
         }
     }
 }
