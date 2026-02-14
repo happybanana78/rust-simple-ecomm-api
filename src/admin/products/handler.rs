@@ -1,6 +1,7 @@
 use crate::admin::products::dto::{
     CreateProductCommand, CreateProductDTO, IndexProductDTO, UpdateProductCommand, UpdateProductDTO,
 };
+use crate::admin::products::filters::ProductFilters;
 use crate::errors::error::AppError;
 use crate::pagination::Paginate;
 use crate::responses::error_responses::SuccessResponse;
@@ -10,20 +11,23 @@ use validator::Validate;
 
 pub async fn index(
     state: web::Data<AppState>,
-    body: web::Json<IndexProductDTO>,
+    body: web::Query<IndexProductDTO>,
 ) -> Result<impl Responder, AppError> {
     body.validate()?;
 
-    let pagination = Paginate::new_from_page(body.page.unwrap(), body.limit.unwrap());
+    let pagination = Paginate::new(body.limit.unwrap(), body.page.unwrap());
 
-    // TODO: handle search and filters
+    let filters = ProductFilters::try_from(body.clone().into_inner())?;
 
     let products = state
         .admin_product_service
-        .get_all_paginated_public(&pagination, &body.filters, &body.search)
+        .get_all_paginated_public(&pagination, &filters, &body.search)
         .await?;
 
-    Ok(HttpResponse::Ok().json(SuccessResponse::ok(products.data)))
+    Ok(HttpResponse::Ok().json(SuccessResponse::ok_with_pagination(
+        products.data,
+        pagination,
+    )))
 }
 
 pub async fn show(

@@ -1,3 +1,4 @@
+use crate::pagination::Paginate;
 use serde::Serialize;
 use std::collections::HashMap;
 
@@ -23,6 +24,7 @@ where
 {
     pub message: String,
     pub data: Option<T>,
+    pub meta: Option<Paginate>,
 }
 
 impl<T: Serialize> SuccessResponse<T> {
@@ -30,6 +32,15 @@ impl<T: Serialize> SuccessResponse<T> {
         Self {
             message: "success".to_string(),
             data: Some(data),
+            meta: None,
+        }
+    }
+
+    pub fn ok_with_pagination(data: T, pagination: Paginate) -> Self {
+        Self {
+            message: "success".to_string(),
+            data: Some(data),
+            meta: Some(pagination),
         }
     }
 
@@ -37,6 +48,7 @@ impl<T: Serialize> SuccessResponse<T> {
         Self {
             message: "success".to_string(),
             data: None,
+            meta: None,
         }
     }
 }

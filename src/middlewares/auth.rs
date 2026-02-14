@@ -101,7 +101,7 @@ where
 
             if required_scope.is_some_and(|scope| !auth_token.scopes.contains(scope)) {
                 return Ok(req.into_response(
-                    HttpResponse::Unauthorized()
+                    HttpResponse::Forbidden()
                         .json(ErrorResponse::new("permission not sufficient".to_string()))
                         .map_into_left_body(),
                 ));

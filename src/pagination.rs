@@ -1,3 +1,5 @@
+use serde::{Deserialize, Serialize};
+
 pub struct DataCollection<T> {
     pub data: Vec<T>,
 }
@@ -8,23 +10,23 @@ impl<T> DataCollection<T> {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Paginate {
     pub limit: i64,
-    pub offset: i64,
+    pub page: i64,
 }
 
 impl Paginate {
-    pub fn new(limit: i64, offset: i64) -> Self {
-        Paginate { limit, offset }
+    pub fn new(limit: i64, page: i64) -> Self {
+        Paginate { limit, page }
     }
 
-    pub fn new_from_page(page: i64, limit: i64) -> Self {
-        let offset = (page - 1) * limit;
-        Paginate { limit, offset }
+    pub fn get_offset(&self) -> i64 {
+        (self.page - 1) * self.limit
     }
 }
 
+#[derive(Debug, Deserialize)]
 pub struct PaginatedDataCollection<T> {
     pub data: Vec<T>,
     pub pagination: Paginate,

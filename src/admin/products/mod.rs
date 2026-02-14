@@ -1,5 +1,5 @@
-mod dto;
-mod filters;
+pub mod dto;
+pub mod filters;
 mod handler;
 pub mod model;
 mod repository;

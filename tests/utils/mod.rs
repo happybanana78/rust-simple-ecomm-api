@@ -1,6 +1,7 @@
 use actix_test::TestServer;
 use actix_web::{App, web};
 use dotenvy::from_filename;
+use ecomm::admin::routes::routes as admin_routes;
 use ecomm::auth::dto::LoginDTO;
 use ecomm::auth::routes::routes as auth_routes;
 use ecomm::cart::routes::routes as cart_routes;
@@ -108,6 +109,7 @@ pub fn create_test_server(pool: PgPool) -> TestServer {
         App::new()
             .app_data(web::Data::new(AppState::new(pool.clone())))
             .configure(auth_routes)
+            .configure(admin_routes)
             .configure(products_routes)
             .configure(cart_routes)
     })
@@ -145,7 +147,10 @@ pub async fn seed_users(pool: &PgPool) {
     sqlx::query!(
         "INSERT INTO users (id, email, username, password) VALUES
          (1, 'test1@test.com', 'Test1', '$argon2id$v=19$m=19456,t=2,p=1$cvMtKFBV7DMHHq7DLLCDAg$JbZ3kqb47wjU5IxeZmeea/6yYIC8Yz6Xqe1KwgWwroc'),
-         (2, 'test2@test.com', 'Test2', '$argon2id$v=19$m=19456,t=2,p=1$cvMtKFBV7DMHHq7DLLCDAg$JbZ3kqb47wjU5IxeZmeea/6yYIC8Yz6Xqe1KwgWwroc')
+         (2, 'test2@test.com', 'Test2', '$argon2id$v=19$m=19456,t=2,p=1$cvMtKFBV7DMHHq7DLLCDAg$JbZ3kqb47wjU5IxeZmeea/6yYIC8Yz6Xqe1KwgWwroc'),
+
+         (3, 'admin1@admin.com', 'Admin1', '$argon2id$v=19$m=19456,t=2,p=1$cvMtKFBV7DMHHq7DLLCDAg$JbZ3kqb47wjU5IxeZmeea/6yYIC8Yz6Xqe1KwgWwroc'),
+         (4, 'admin2@admin.com', 'Admin2', '$argon2id$v=19$m=19456,t=2,p=1$cvMtKFBV7DMHHq7DLLCDAg$JbZ3kqb47wjU5IxeZmeea/6yYIC8Yz6Xqe1KwgWwroc')
          ON CONFLICT (id) DO NOTHING;"
     )
         .execute(pool)
@@ -153,7 +158,7 @@ pub async fn seed_users(pool: &PgPool) {
         .expect("Failed to seed user test data");
 
     sqlx::query!(
-        "INSERT INTO user_has_roles (user_id, role_id) VALUES (1, 2), (2, 2)
+        "INSERT INTO user_has_roles (user_id, role_id) VALUES (1, 2), (2, 2), (3, 1), (4, 1)
          ON CONFLICT DO NOTHING;"
     )
     .execute(pool)
@@ -163,9 +168,9 @@ pub async fn seed_users(pool: &PgPool) {
 
 pub async fn seed_products(pool: &PgPool) {
     sqlx::query!(
-        "INSERT INTO products (id, name, price, quantity) VALUES
-         (1, 'Test Product 1', 10.99, 10),
-         (2, 'Test Product 2', 20.99, 12)
+        "INSERT INTO products (id, name, price, quantity, is_active) VALUES
+         (1, 'Test Product 1', 10.99, 10, true),
+         (2, 'Test Product 2', 20.99, 12, false)
          ON CONFLICT (id) DO NOTHING;"
     )
     .execute(pool)

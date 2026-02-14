@@ -4,7 +4,7 @@ use crate::errors::error::AppError;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct AdminPublicProduct {
     pub id: i64,
     pub name: String,
@@ -27,7 +27,7 @@ impl From<AdminProductModel> for AdminPublicProduct {
     }
 }
 
-#[derive(Deserialize, Validate)]
+#[derive(Serialize, Deserialize, Validate, Clone)]
 pub struct IndexProductDTO {
     #[validate(required, range(min = 1))]
     pub page: Option<i64>,
@@ -38,8 +38,28 @@ pub struct IndexProductDTO {
     #[validate(length(min = 1))]
     pub search: Option<String>,
 
-    #[validate(nested)]
-    pub filters: Option<ProductFilters>,
+    #[validate(range(min = 0.0))]
+    pub price_min: Option<f64>,
+
+    #[validate(range(min = 0.0))]
+    pub price_max: Option<f64>,
+
+    pub in_stock: Option<bool>,
+
+    pub is_active: Option<bool>,
+}
+
+impl TryFrom<IndexProductDTO> for ProductFilters {
+    type Error = AppError;
+
+    fn try_from(dto: IndexProductDTO) -> Result<Self, Self::Error> {
+        Ok(Self {
+            price_min: dto.price_min,
+            price_max: dto.price_max,
+            in_stock: dto.in_stock,
+            is_active: dto.is_active,
+        })
+    }
 }
 
 #[derive(Deserialize, Validate)]

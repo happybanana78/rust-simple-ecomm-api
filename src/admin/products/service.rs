@@ -26,7 +26,7 @@ impl AdminProductService {
     pub async fn get_all_paginated(
         &self,
         pagination: &Paginate,
-        filters: &Option<ProductFilters>,
+        filters: &ProductFilters,
         search: &Option<String>,
     ) -> Result<PaginatedDataCollection<AdminProductModel>, AppError> {
         let data = self
@@ -44,7 +44,7 @@ impl AdminProductService {
     pub async fn get_all_paginated_public(
         &self,
         pagination: &Paginate,
-        filters: &Option<ProductFilters>,
+        filters: &ProductFilters,
         search: &Option<String>,
     ) -> Result<PaginatedDataCollection<AdminPublicProduct>, AppError> {
         let data = self.get_all_paginated(pagination, filters, search).await?;

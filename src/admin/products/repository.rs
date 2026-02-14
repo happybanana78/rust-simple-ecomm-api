@@ -38,7 +38,7 @@ impl AdminProductRepository {
         &self,
         pagination: &Paginate,
         search: &Option<String>,
-        filters: &Option<ProductFilters>,
+        filters: &ProductFilters,
     ) -> Result<Vec<AdminProductModel>, AppError> {
         let mut qb = QueryBuilder::<Postgres>::new(
             r#"
@@ -62,72 +62,69 @@ impl AdminProductRepository {
             qb.push_bind(format!("%{}%", search));
         }
 
-        // handle filters
-        if let Some(filters) = filters {
-            // in stock
-            if let Some(in_stock) = filters.in_stock {
-                if has_where {
-                    qb.push(" AND ");
-                } else {
-                    qb.push(" WHERE ");
-                    has_where = true;
-                }
-
-                if in_stock {
-                    qb.push(" quantity > 0");
-                } else {
-                    qb.push(" quantity = 0");
-                }
+        // in stock
+        if let Some(in_stock) = filters.in_stock {
+            if has_where {
+                qb.push(" AND ");
+            } else {
+                qb.push(" WHERE ");
+                has_where = true;
             }
 
-            // is active
-            if let Some(is_active) = filters.is_active {
-                if has_where {
-                    qb.push(" AND ");
-                } else {
-                    qb.push(" WHERE ");
-                    has_where = true;
-                }
+            if in_stock {
+                qb.push(" quantity > 0");
+            } else {
+                qb.push(" quantity = 0");
+            }
+        }
 
-                if is_active {
-                    qb.push(" is_active IS TRUE ");
-                } else {
-                    qb.push(" is_active IS FALSE ");
-                }
+        // is active
+        if let Some(is_active) = filters.is_active {
+            if has_where {
+                qb.push(" AND ");
+            } else {
+                qb.push(" WHERE ");
+                has_where = true;
             }
 
-            // min price
-            if let Some(min_price) = filters.price_min {
-                if has_where {
-                    qb.push(" AND ");
-                } else {
-                    qb.push(" WHERE ");
-                    has_where = true;
-                }
+            if is_active {
+                qb.push(" is_active IS TRUE ");
+            } else {
+                qb.push(" is_active IS FALSE ");
+            }
+        }
 
-                qb.push(" price >= ");
-                qb.push_bind(min_price);
+        // min price
+        if let Some(min_price) = filters.price_min {
+            if has_where {
+                qb.push(" AND ");
+            } else {
+                qb.push(" WHERE ");
+                has_where = true;
             }
 
-            // max price
-            if let Some(max_price) = filters.price_max {
-                if has_where {
-                    qb.push(" AND ");
-                } else {
-                    qb.push(" WHERE ");
-                    has_where = true;
-                }
+            qb.push(" price >= ");
+            qb.push_bind(min_price);
+        }
 
-                qb.push(" price <= ");
-                qb.push_bind(max_price);
+        // max price
+        if let Some(max_price) = filters.price_max {
+            if has_where {
+                qb.push(" AND ");
+            } else {
+                qb.push(" WHERE ");
+                has_where = true;
             }
+
+            qb.push(" price <= ");
+            qb.push_bind(max_price);
         }
 
         // handle pagination
         qb.push(" LIMIT ");
         qb.push_bind(pagination.limit);
         qb.push(" OFFSET ");
-        qb.push_bind(pagination.offset);
+        qb.push_bind(pagination.get_offset());
 
         let query = qb.build_query_as::<AdminProductModel>();
 
