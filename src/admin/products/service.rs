@@ -1,5 +1,6 @@
 use super::model::AdminProductModel;
 use crate::admin::products::dto::{AdminPublicProduct, CreateProductCommand, UpdateProductCommand};
+use crate::admin::products::filters::ProductFilters;
 use crate::admin::products::repository::AdminProductRepository;
 use crate::admin::products::traits::IntoPublic;
 use crate::errors::error::AppError;
@@ -24,10 +25,15 @@ impl AdminProductService {
 
     pub async fn get_all_paginated(
         &self,
-        pagination: Paginate,
+        pagination: &Paginate,
+        filters: &Option<ProductFilters>,
+        search: &Option<String>,
     ) -> Result<PaginatedDataCollection<AdminProductModel>, AppError> {
-        let data = self.repository.index_paginated(&pagination).await?;
-        Ok(PaginatedDataCollection::new(data, pagination))
+        let data = self
+            .repository
+            .index_paginated(pagination, search, filters)
+            .await?;
+        Ok(PaginatedDataCollection::new(data, pagination.clone()))
     }
 
     pub async fn get_all_public(&self) -> Result<DataCollection<AdminPublicProduct>, AppError> {
@@ -37,9 +43,11 @@ impl AdminProductService {
 
     pub async fn get_all_paginated_public(
         &self,
-        pagination: Paginate,
+        pagination: &Paginate,
+        filters: &Option<ProductFilters>,
+        search: &Option<String>,
     ) -> Result<PaginatedDataCollection<AdminPublicProduct>, AppError> {
-        let data = self.get_all_paginated(pagination).await?;
+        let data = self.get_all_paginated(pagination, filters, search).await?;
         Ok(data.into_public())
     }
 

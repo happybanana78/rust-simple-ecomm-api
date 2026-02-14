@@ -10,4 +10,6 @@ pub struct ProductFilters {
     pub price_max: Option<f64>,
 
     pub in_stock: Option<bool>,
+
+    pub is_active: Option<bool>,
 }

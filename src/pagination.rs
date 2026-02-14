@@ -8,6 +8,7 @@ impl<T> DataCollection<T> {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct Paginate {
     pub limit: i64,
     pub offset: i64,

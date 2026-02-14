@@ -20,7 +20,7 @@ pub async fn index(
 
     let products = state
         .admin_product_service
-        .get_all_paginated_public(pagination)
+        .get_all_paginated_public(&pagination, &body.filters, &body.search)
         .await?;
 
     Ok(HttpResponse::Ok().json(SuccessResponse::ok(products.data)))
