@@ -40,4 +40,9 @@ async fn main() -> std::io::Result<()> {
     .await
 }
 
-// TODO: add orders and stock handling
+// TODO: handle categories
+// TODO: handle product images
+// TODO: handle product videos
+// TODO: handle product reviews
+// TODO: handle review replies
+// TODO: handle review attachments
