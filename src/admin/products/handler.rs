@@ -49,8 +49,6 @@ pub async fn create(
 ) -> Result<impl Responder, AppError> {
     body.validate()?;
 
-    // TODO: handle product already exists error
-
     let command = CreateProductCommand::try_from(body.into_inner())?;
     let product = state.admin_product_service.create(command).await?;
 
