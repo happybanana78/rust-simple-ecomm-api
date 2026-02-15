@@ -43,7 +43,7 @@ impl ResponseError for AppError {
             AppError::Unauthorized(_) => StatusCode::UNAUTHORIZED,
             AppError::Forbidden(_) => StatusCode::FORBIDDEN,
             AppError::Internal(_) => StatusCode::INTERNAL_SERVER_ERROR,
-            AppError::Conflict(_) => StatusCode::UNPROCESSABLE_ENTITY,
+            AppError::Conflict(_) => StatusCode::BAD_REQUEST,
             AppError::NotFound(_) => StatusCode::NOT_FOUND,
             AppError::Database(_) => StatusCode::INTERNAL_SERVER_ERROR,
         }
@@ -86,7 +86,7 @@ impl ResponseError for AppError {
             AppError::Conflict(err) => {
                 error!("Conflict error: {}", err);
 
-                HttpResponse::InternalServerError().json(ErrorResponse {
+                HttpResponse::BadRequest().json(ErrorResponse {
                     message: err.to_string(),
                     errors: None,
                 })

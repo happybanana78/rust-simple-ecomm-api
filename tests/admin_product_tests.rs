@@ -413,6 +413,27 @@ async fn test_admin_product_create_unprocessable_entity() {
 }
 
 #[actix_rt::test]
+async fn test_admin_product_create_product_already_exists() {
+    let context = utils::TestContext::new(Some("admin1@admin.com".to_string())).await;
+
+    let payload = CreateProductDTO {
+        name: Some("Test Product New 1".to_string()),
+        price: Some(100.0),
+        quantity: Some(10),
+        configurable: Some(false),
+        is_active: Some(true),
+    };
+
+    create_product(&context, &payload).await;
+
+    let res = create_product(&context, &payload).await;
+
+    assert_eq!(res.status(), StatusCode::BAD_REQUEST);
+
+    context.database.cleanup().await;
+}
+
+#[actix_rt::test]
 async fn test_admin_product_update() {
     let context = utils::TestContext::new(Some("admin1@admin.com".to_string())).await;
 
@@ -475,6 +496,27 @@ async fn test_admin_product_update_unprocessable_entity() {
     let res = update_product(&context, &payload, 1).await;
 
     assert_eq!(res.status(), StatusCode::UNPROCESSABLE_ENTITY);
+
+    context.database.cleanup().await;
+}
+
+#[actix_rt::test]
+async fn test_admin_product_update_product_already_exists() {
+    let context = utils::TestContext::new(Some("admin1@admin.com".to_string())).await;
+
+    let payload = UpdateProductDTO {
+        name: Some("Test Product Edited 1".to_string()),
+        price: Some(100.0),
+        quantity: Some(10),
+        configurable: Some(false),
+        is_active: Some(true),
+    };
+
+    update_product(&context, &payload, 1).await;
+
+    let res = update_product(&context, &payload, 1).await;
+
+    assert_eq!(res.status(), StatusCode::BAD_REQUEST);
 
     context.database.cleanup().await;
 }

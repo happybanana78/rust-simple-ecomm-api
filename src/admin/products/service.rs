@@ -67,16 +67,37 @@ impl AdminProductService {
     }
 
     pub async fn create(&self, cmd: CreateProductCommand) -> Result<AdminProductModel, AppError> {
-        self.repository.create(cmd).await
+        let product_already_exists = self.check_exist_with_same_name(&cmd.name).await?;
+
+        if product_already_exists {
+            Err(AppError::Conflict(
+                "Product with the same name already exists".to_string(),
+            ))
+        } else {
+            self.repository.create(cmd).await
+        }
     }
 
     pub async fn update(&self, cmd: UpdateProductCommand, id: i64) -> Result<u64, AppError> {
         self.get_one(id).await?;
-        self.repository.update(cmd, id).await
+
+        let product_already_exists = self.check_exist_with_same_name(&cmd.name).await?;
+
+        if product_already_exists {
+            Err(AppError::Conflict(
+                "Product with the same name already exists".to_string(),
+            ))
+        } else {
+            self.repository.update(cmd, id).await
+        }
     }
 
     pub async fn delete(&self, id: i64) -> Result<u64, AppError> {
         self.get_one(id).await?;
         self.repository.delete(id).await
+    }
+
+    pub async fn check_exist_with_same_name(&self, name: &str) -> Result<bool, AppError> {
+        self.repository.check_existence_by_name(name).await
     }
 }

@@ -200,4 +200,18 @@ impl AdminProductRepository {
 
         Ok(result.rows_affected())
     }
+
+    pub async fn check_existence_by_name(&self, name: &str) -> Result<bool, AppError> {
+        sqlx::query_scalar! {
+            r#"
+            SELECT EXISTS (
+                SELECT 1 FROM products WHERE name = $1
+            ) AS "exists!";
+            "#,
+            name,
+        }
+        .fetch_one(&self.pool)
+        .await
+        .map_err(AppError::Database)
+    }
 }
