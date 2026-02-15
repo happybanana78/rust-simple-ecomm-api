@@ -58,6 +58,18 @@ async fn update_product(
         .unwrap()
 }
 
+async fn delete_product(context: &utils::TestContext, product_id: i64) -> ClientResponse {
+    let auth_token = context.auth_token.clone().unwrap();
+
+    context
+        .srv
+        .delete(format!("/admin/products/delete/{}", product_id))
+        .insert_header(("Authorization", format!("Bearer {}", auth_token)))
+        .send()
+        .await
+        .unwrap()
+}
+
 #[actix_rt::test]
 async fn test_admin_product_index() {
     let context = utils::TestContext::new(Some("admin1@admin.com".to_string())).await;
@@ -486,4 +498,39 @@ async fn test_admin_product_update_product_not_found() {
     context.database.cleanup().await;
 }
 
-// TODO: Add test for admin product delete
+#[actix_rt::test]
+async fn test_admin_product_delete() {
+    let context = utils::TestContext::new(Some("admin1@admin.com".to_string())).await;
+
+    let mut res = delete_product(&context, 1).await;
+
+    assert!(
+        res.status().is_success(),
+        "detailed error: {:#?}",
+        res.json::<ErrorResponse>().await.unwrap()
+    );
+
+    context.database.cleanup().await;
+}
+
+#[actix_rt::test]
+async fn test_admin_product_delete_unauthorized_user() {
+    let context = utils::TestContext::new(Some("test1@test.com".to_string())).await;
+
+    let res = delete_product(&context, 1).await;
+
+    assert_eq!(res.status(), StatusCode::FORBIDDEN);
+
+    context.database.cleanup().await;
+}
+
+#[actix_rt::test]
+async fn test_admin_product_delete_product_not_found() {
+    let context = utils::TestContext::new(Some("admin1@admin.com".to_string())).await;
+
+    let res = delete_product(&context, 180).await;
+
+    assert_eq!(res.status(), StatusCode::NOT_FOUND);
+
+    context.database.cleanup().await;
+}
