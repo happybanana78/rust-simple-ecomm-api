@@ -71,6 +71,7 @@ impl AdminProductService {
     }
 
     pub async fn update(&self, cmd: UpdateProductCommand, id: i64) -> Result<u64, AppError> {
+        self.get_one(id).await?;
         self.repository.update(cmd, id).await
     }
 

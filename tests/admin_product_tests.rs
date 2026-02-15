@@ -1,5 +1,8 @@
+use actix_test::ClientResponse;
 use actix_web::http::StatusCode;
-use ecomm::admin::products::dto::{AdminPublicProduct, CreateProductDTO, IndexProductDTO};
+use ecomm::admin::products::dto::{
+    AdminPublicProduct, CreateProductDTO, IndexProductDTO, UpdateProductDTO,
+};
 use ecomm::responses::api_responses::{LocalApiPaginatedResponse, LocalApiResponse};
 use ecomm::responses::error_responses::ErrorResponse;
 
@@ -10,6 +13,49 @@ fn get_index_url(payload: IndexProductDTO) -> String {
         "/admin/products/list?{}",
         serde_urlencoded::to_string(payload).unwrap()
     )
+}
+
+async fn get_product(context: &utils::TestContext, product_id: i64) -> ClientResponse {
+    let auth_token = context.auth_token.clone().unwrap();
+
+    context
+        .srv
+        .get(format!("/admin/products/get/{}", product_id))
+        .insert_header(("Authorization", format!("Bearer {}", auth_token)))
+        .send()
+        .await
+        .unwrap()
+}
+
+async fn create_product(
+    context: &utils::TestContext,
+    payload: &CreateProductDTO,
+) -> ClientResponse {
+    let auth_token = context.auth_token.clone().unwrap();
+
+    context
+        .srv
+        .post("/admin/products/create")
+        .insert_header(("Authorization", format!("Bearer {}", auth_token)))
+        .send_json(&payload)
+        .await
+        .unwrap()
+}
+
+async fn update_product(
+    context: &utils::TestContext,
+    payload: &UpdateProductDTO,
+    product_id: i64,
+) -> ClientResponse {
+    let auth_token = context.auth_token.clone().unwrap();
+
+    context
+        .srv
+        .put(format!("/admin/products/update/{}", product_id))
+        .insert_header(("Authorization", format!("Bearer {}", auth_token)))
+        .send_json(&payload)
+        .await
+        .unwrap()
 }
 
 #[actix_rt::test]
@@ -216,15 +262,7 @@ async fn test_admin_product_index_no_token() {
 async fn test_admin_product_show() {
     let context = utils::TestContext::new(Some("admin1@admin.com".to_string())).await;
 
-    let auth_token = context.auth_token.unwrap();
-
-    let mut res = context
-        .srv
-        .get("/admin/products/get/1")
-        .insert_header(("Authorization", format!("Bearer {}", auth_token)))
-        .send()
-        .await
-        .unwrap();
+    let mut res = get_product(&context, 1).await;
 
     assert!(
         res.status().is_success(),
@@ -239,15 +277,7 @@ async fn test_admin_product_show() {
 async fn test_admin_product_show_product_not_found() {
     let context = utils::TestContext::new(Some("admin1@admin.com".to_string())).await;
 
-    let auth_token = context.auth_token.unwrap();
-
-    let res = context
-        .srv
-        .get("/admin/products/get/70")
-        .insert_header(("Authorization", format!("Bearer {}", auth_token)))
-        .send()
-        .await
-        .unwrap();
+    let res = get_product(&context, 70).await;
 
     assert_eq!(res.status(), StatusCode::NOT_FOUND);
 
@@ -258,15 +288,7 @@ async fn test_admin_product_show_product_not_found() {
 async fn test_admin_product_show_unauthorized_user() {
     let context = utils::TestContext::new(Some("test1@test.com".to_string())).await;
 
-    let auth_token = context.auth_token.unwrap();
-
-    let res = context
-        .srv
-        .get("/admin/products/get/1")
-        .insert_header(("Authorization", format!("Bearer {}", auth_token)))
-        .send()
-        .await
-        .unwrap();
+    let res = get_product(&context, 1).await;
 
     assert_eq!(res.status(), StatusCode::FORBIDDEN);
 
@@ -293,8 +315,6 @@ async fn test_admin_product_show_no_token() {
 async fn test_admin_product_create() {
     let context = utils::TestContext::new(Some("admin1@admin.com".to_string())).await;
 
-    let auth_token = context.auth_token.unwrap();
-
     let payload = CreateProductDTO {
         name: Some("Test Product New 1".to_string()),
         price: Some(100.0),
@@ -303,13 +323,7 @@ async fn test_admin_product_create() {
         is_active: Some(true),
     };
 
-    let mut res = context
-        .srv
-        .post("/admin/products/create")
-        .insert_header(("Authorization", format!("Bearer {}", auth_token)))
-        .send_json(&payload)
-        .await
-        .unwrap();
+    let mut res = create_product(&context, &payload).await;
 
     assert!(
         res.status().is_success(),
@@ -324,4 +338,152 @@ async fn test_admin_product_create() {
     context.database.cleanup().await;
 }
 
-// TODO: Add test for admin product, update, delete, ecc...
+#[actix_rt::test]
+async fn test_admin_product_create_unauthorized_user() {
+    let context = utils::TestContext::new(Some("test1@test.com".to_string())).await;
+
+    let payload = CreateProductDTO {
+        name: Some("Test Product New 1".to_string()),
+        price: Some(100.0),
+        quantity: Some(10),
+        configurable: Some(false),
+        is_active: Some(true),
+    };
+
+    let res = create_product(&context, &payload).await;
+
+    assert_eq!(res.status(), StatusCode::FORBIDDEN);
+
+    context.database.cleanup().await;
+}
+
+#[actix_rt::test]
+async fn test_admin_product_create_no_token() {
+    let context = utils::TestContext::new(Some("admin1@admin.com".to_string())).await;
+
+    let payload = CreateProductDTO {
+        name: Some("Test Product New 1".to_string()),
+        price: Some(100.0),
+        quantity: Some(10),
+        configurable: Some(false),
+        is_active: Some(true),
+    };
+
+    let res = context
+        .srv
+        .post("/admin/products/create")
+        .send_json(&payload)
+        .await
+        .unwrap();
+
+    assert_eq!(res.status(), StatusCode::UNAUTHORIZED);
+
+    context.database.cleanup().await;
+}
+
+#[actix_rt::test]
+async fn test_admin_product_create_unprocessable_entity() {
+    let context = utils::TestContext::new(Some("admin1@admin.com".to_string())).await;
+
+    let payload = CreateProductDTO {
+        name: None,
+        price: None,
+        quantity: None,
+        configurable: None,
+        is_active: None,
+    };
+
+    let res = create_product(&context, &payload).await;
+
+    assert_eq!(res.status(), StatusCode::UNPROCESSABLE_ENTITY);
+
+    context.database.cleanup().await;
+}
+
+#[actix_rt::test]
+async fn test_admin_product_update() {
+    let context = utils::TestContext::new(Some("admin1@admin.com".to_string())).await;
+
+    let payload = UpdateProductDTO {
+        name: Some("Test Product Edited 1".to_string()),
+        price: Some(100.0),
+        quantity: Some(10),
+        configurable: Some(false),
+        is_active: Some(true),
+    };
+
+    let mut res = update_product(&context, &payload, 1).await;
+
+    assert!(
+        res.status().is_success(),
+        "detailed error: {:#?}",
+        res.json::<ErrorResponse>().await.unwrap()
+    );
+
+    let mut get_product_res = get_product(&context, 1).await;
+
+    let body: LocalApiResponse<AdminPublicProduct> = get_product_res.json().await.unwrap();
+
+    assert_eq!(body.get_data().name, "Test Product Edited 1");
+
+    context.database.cleanup().await;
+}
+
+#[actix_rt::test]
+async fn test_admin_product_update_unauthorized_user() {
+    let context = utils::TestContext::new(Some("test1@test.com".to_string())).await;
+
+    let payload = UpdateProductDTO {
+        name: Some("Test Product Edited 1".to_string()),
+        price: Some(100.0),
+        quantity: Some(10),
+        configurable: Some(false),
+        is_active: Some(true),
+    };
+
+    let res = update_product(&context, &payload, 1).await;
+
+    assert_eq!(res.status(), StatusCode::FORBIDDEN);
+
+    context.database.cleanup().await;
+}
+
+#[actix_rt::test]
+async fn test_admin_product_update_unprocessable_entity() {
+    let context = utils::TestContext::new(Some("admin1@admin.com".to_string())).await;
+
+    let payload = UpdateProductDTO {
+        name: None,
+        price: None,
+        quantity: None,
+        configurable: None,
+        is_active: None,
+    };
+
+    let res = update_product(&context, &payload, 1).await;
+
+    assert_eq!(res.status(), StatusCode::UNPROCESSABLE_ENTITY);
+
+    context.database.cleanup().await;
+}
+
+#[actix_rt::test]
+async fn test_admin_product_update_product_not_found() {
+    let context = utils::TestContext::new(Some("admin1@admin.com".to_string())).await;
+
+    let payload = UpdateProductDTO {
+        name: Some("Test Product Edited 1".to_string()),
+        price: Some(100.0),
+        quantity: Some(10),
+        configurable: Some(false),
+        is_active: Some(true),
+    };
+
+    let res = update_product(&context, &payload, 270).await;
+
+    assert_eq!(res.status(), StatusCode::NOT_FOUND);
+
+    context.database.cleanup().await;
+}
+
+// TODO: Add test for admin product delete
