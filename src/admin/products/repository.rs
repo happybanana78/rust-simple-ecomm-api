@@ -189,8 +189,7 @@ impl AdminProductRepository {
     }
 
     pub async fn delete(&self, id: i64) -> Result<u64, AppError> {
-        let result = sqlx::query_as! {
-            Product,
+        let result = sqlx::query! {
             "DELETE FROM products WHERE id = $1;",
             id
         }
