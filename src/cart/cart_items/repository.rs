@@ -8,11 +8,15 @@ pub struct CartItemsRepository {
     pool: PgPool,
 }
 
-impl IsRepository<PgPool> for CartItemsRepository {
-    type Repository = CartItemsRepository;
+impl IsRepository for CartItemsRepository {
+    type Repository = Self;
 
     fn new(pool: PgPool) -> Self::Repository {
         Self { pool }
+    }
+
+    fn get_pool(&self) -> &PgPool {
+        &self.pool
     }
 }
 
