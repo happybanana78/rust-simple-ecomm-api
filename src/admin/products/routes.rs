@@ -1,6 +1,6 @@
 use super::handler;
+use crate::admin::products::permission::ProductScope;
 use crate::middlewares::auth::AuthMiddleware;
-use crate::products::permission::ProductScope;
 use actix_web::web;
 use actix_web::web::{delete, get, post, put, resource};
 use std::sync::Arc;

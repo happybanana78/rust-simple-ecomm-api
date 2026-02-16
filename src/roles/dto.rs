@@ -1,6 +1,6 @@
+use crate::admin::products::permission::ProductScope;
 use crate::auth::traits::Scope;
 use crate::errors::error::AppError;
-use crate::products::permission::ProductScope;
 use std::collections::HashSet;
 use std::str::FromStr;
 

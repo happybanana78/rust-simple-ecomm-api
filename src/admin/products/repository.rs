@@ -173,7 +173,7 @@ impl AdminProductRepository {
 
     pub async fn update(&self, cmd: UpdateProductCommand, id: i64) -> Result<u64, AppError> {
         let result = sqlx::query_as! {
-            Product,
+            AdminProductModel,
             r#"
         UPDATE products
         SET (name, price, quantity, configurable, is_active) = ($1, $2, $3, $4, $5)

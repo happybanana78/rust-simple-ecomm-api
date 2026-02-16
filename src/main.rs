@@ -10,6 +10,7 @@ mod roles;
 mod state;
 mod traits;
 mod users;
+mod validation_utils;
 
 use actix_web::{App, HttpServer, web};
 use dotenvy::from_filename;
