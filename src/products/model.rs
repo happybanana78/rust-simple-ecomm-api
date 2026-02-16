@@ -5,6 +5,7 @@ use sqlx::FromRow;
 pub struct ProductModel {
     pub id: i64,
     pub name: String,
+    pub slug: String,
     pub price: f64,
     pub quantity: i32,
     pub configurable: bool,

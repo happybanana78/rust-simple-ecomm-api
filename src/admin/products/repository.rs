@@ -30,6 +30,7 @@ impl AdminProductRepository {
         SELECT
             id,
             name,
+            slug,
             price,
             quantity,
             configurable,
@@ -54,6 +55,7 @@ impl AdminProductRepository {
             SELECT
                 products.id,
                 products.name,
+                products.slug,
                 products.price,
                 products.quantity,
                 products.configurable,
@@ -174,6 +176,7 @@ impl AdminProductRepository {
         SELECT
             id,
             name,
+            slug,
             price,
             quantity,
             configurable,
@@ -197,11 +200,11 @@ impl AdminProductRepository {
         sqlx::query_as! {
             AdminProductModel,
             r#"
-        INSERT INTO products (name, price, quantity, configurable, is_active)
-        VALUES ($1, $2, $3, $4, $5)
+        INSERT INTO products (name, slug, price, quantity, configurable, is_active)
+        VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING *;
         "#,
-            cmd.name, cmd.price, cmd.quantity, cmd.configurable, cmd.is_active
+            cmd.name, cmd.slug, cmd.price, cmd.quantity, cmd.configurable, cmd.is_active
         }
         .fetch_one(executor)
         .await
@@ -218,10 +221,10 @@ impl AdminProductRepository {
             AdminProductModel,
             r#"
         UPDATE products
-        SET (name, price, quantity, configurable, is_active) = ($1, $2, $3, $4, $5)
-        WHERE id = $6;
+        SET (name, slug, price, quantity, configurable, is_active) = ($1, $2, $3, $4, $5, $6)
+        WHERE id = $7;
         "#,
-            cmd.name, cmd.price, cmd.quantity, cmd.configurable, cmd.is_active, id
+            cmd.name, cmd.slug, cmd.price, cmd.quantity, cmd.configurable, cmd.is_active, id
         }
         .execute(executor)
         .await
@@ -246,14 +249,14 @@ impl AdminProductRepository {
         Ok(result.rows_affected())
     }
 
-    pub async fn check_existence_by_name(&self, name: &str) -> Result<bool, AppError> {
+    pub async fn check_existence_by_slug(&self, slug: &str) -> Result<bool, AppError> {
         sqlx::query_scalar! {
             r#"
             SELECT EXISTS (
-                SELECT 1 FROM products WHERE name = $1
+                SELECT 1 FROM products WHERE slug = $1
             ) AS "exists!";
             "#,
-            name,
+            slug,
         }
         .fetch_one(&self.pool)
         .await

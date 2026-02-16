@@ -18,6 +18,7 @@ impl ProductRepository {
         SELECT
             id,
             name,
+            slug,
             price,
             quantity,
             configurable,
@@ -31,21 +32,22 @@ impl ProductRepository {
         .map_err(AppError::Database)
     }
 
-    pub async fn show(&self, id: &i64) -> Result<Option<ProductModel>, AppError> {
+    pub async fn show(&self, slug: &str) -> Result<Option<ProductModel>, AppError> {
         sqlx::query_as! {
             ProductModel,
             r#"
         SELECT
             id,
             name,
+            slug,
             price,
             quantity,
             configurable,
             is_active
         FROM products
-        WHERE id = $1 AND is_active = true;
+        WHERE slug = $1 AND is_active = true;
         "#,
-            id,
+            slug,
         }
         .fetch_optional(&self.pool)
         .await

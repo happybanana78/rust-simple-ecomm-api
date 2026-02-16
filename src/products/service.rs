@@ -25,8 +25,8 @@ impl ProductService {
         Ok(products.into_public())
     }
 
-    pub async fn get_one(&self, id: &i64) -> Result<ProductModel, AppError> {
-        let product = self.repository.show(id).await?;
+    pub async fn get_one(&self, slug: &str) -> Result<ProductModel, AppError> {
+        let product = self.repository.show(slug).await?;
 
         match product {
             Some(product) => Ok(product),
@@ -34,8 +34,8 @@ impl ProductService {
         }
     }
 
-    pub async fn get_one_public(&self, id: &i64) -> Result<PublicProduct, AppError> {
-        let product = self.get_one(id).await?;
+    pub async fn get_one_public(&self, slug: &str) -> Result<PublicProduct, AppError> {
+        let product = self.get_one(slug).await?;
 
         Ok(product.into_public())
     }

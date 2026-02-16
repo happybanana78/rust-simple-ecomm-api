@@ -22,3 +22,4 @@ tokio = { version = "1.49.0", features = ["rt", "rt-multi-thread", "macros"] }
 actix-rt = "2.11.0"
 actix-test = "0.1.5"
 fake = { version = "4.4.0", features = ["derive", "chrono"] }
+rand = "0.9.2"

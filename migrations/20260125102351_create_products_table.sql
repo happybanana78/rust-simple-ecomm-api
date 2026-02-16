@@ -2,6 +2,7 @@ CREATE TABLE products
 (
     id           BIGSERIAL PRIMARY KEY,
     name         TEXT             NOT NULL,
+    slug         TEXT             NOT NULL UNIQUE,
     price        DOUBLE PRECISION NOT NULL,
     quantity     INTEGER          NOT NULL DEFAULT 0,
     configurable BOOLEAN          NOT NULL DEFAULT FALSE,

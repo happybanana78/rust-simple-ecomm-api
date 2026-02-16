@@ -1,5 +1,4 @@
 use crate::errors::error::AppError;
-use crate::products::dto::PublicProduct;
 use crate::responses::error_responses::SuccessResponse;
 use crate::state::AppState;
 use actix_web::{HttpResponse, Responder, web};
@@ -12,12 +11,12 @@ pub async fn index(state: web::Data<AppState>) -> Result<impl Responder, AppErro
 
 pub async fn show(
     state: web::Data<AppState>,
-    id: web::Path<i64>,
+    slug: web::Path<String>,
 ) -> Result<impl Responder, AppError> {
     let product = state
         .product_service
-        .get_one_public(&id.into_inner())
+        .get_one_public(slug.into_inner().as_str())
         .await?;
 
-    Ok(HttpResponse::Ok().json(SuccessResponse::ok(PublicProduct::from(product))))
+    Ok(HttpResponse::Ok().json(SuccessResponse::ok(product)))
 }

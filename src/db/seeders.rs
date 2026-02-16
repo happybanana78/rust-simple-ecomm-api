@@ -58,14 +58,15 @@ pub async fn seed_dummy_products(pool: &PgPool) -> Result<(), sqlx::Error> {
     for p in products {
         sqlx::query!(
             r#"
-            INSERT INTO products (name, price, quantity, configurable, is_active, created_at)
-            VALUES ($1, $2, $3, $4, $5, $6)
+            INSERT INTO products (name, slug, price, quantity, configurable, is_active, created_at)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
             "#,
             p.name,
+            p.slug,
             p.price,
             p.quantity,
-            false,
-            true,
+            p.configurable,
+            p.is_active,
             p.created_at
         )
         .execute(pool)

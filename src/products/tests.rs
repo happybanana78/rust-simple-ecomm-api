@@ -6,6 +6,7 @@ fn create_test_product(id: i64) -> ProductModel {
     ProductModel {
         id,
         name: format!("Product {}", id),
+        slug: format!("product-{}", id),
         price: 99.99,
         quantity: 10,
         configurable: true,
@@ -63,6 +64,7 @@ fn test_public_product_with_decimal_price() {
     let product = PublicProduct {
         id: 1,
         name: "Precise Price".to_string(),
+        slug: "precise-price".to_string(),
         price: 12.345,
         quantity: 100,
         configurable: false,
@@ -77,6 +79,7 @@ fn test_public_product_with_zero_price() {
     let product = PublicProduct {
         id: 1,
         name: "Free Item".to_string(),
+        slug: "free-item".to_string(),
         price: 0.0,
         quantity: 1000,
         configurable: false,
@@ -91,6 +94,7 @@ fn test_public_product_with_large_quantity() {
     let product = PublicProduct {
         id: 1,
         name: "Bulk Item".to_string(),
+        slug: "bulk-item".to_string(),
         price: 0.99,
         quantity: i32::MAX,
         configurable: false,
@@ -105,6 +109,7 @@ fn test_public_product_with_unicode_name() {
     let product = PublicProduct {
         id: 1,
         name: "商品 🛒 Product".to_string(),
+        slug: "商品-🛒-Product".to_string(),
         price: 25.00,
         quantity: 10,
         configurable: false,
@@ -119,6 +124,7 @@ fn test_public_product_with_empty_name() {
     let product = PublicProduct {
         id: 1,
         name: String::new(),
+        slug: "".to_string(),
         price: 10.00,
         quantity: 1,
         configurable: false,
@@ -134,6 +140,7 @@ fn test_public_product_with_long_name() {
     let product = PublicProduct {
         id: 1,
         name: long_name.clone(),
+        slug: long_name.clone(),
         price: 15.99,
         quantity: 5,
         configurable: false,

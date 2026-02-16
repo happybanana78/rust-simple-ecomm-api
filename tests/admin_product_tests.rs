@@ -80,6 +80,7 @@ async fn test_admin_product_index() {
         page: Some(1),
         limit: Some(10),
         search: None,
+        category: None,
         price_min: None,
         price_max: None,
         in_stock: None,
@@ -115,6 +116,7 @@ async fn test_admin_product_index_incomplete_query_params() {
         page: None,
         limit: Some(10),
         search: None,
+        category: None,
         price_min: None,
         price_max: None,
         in_stock: None,
@@ -146,6 +148,7 @@ async fn test_admin_product_index_search() {
         page: Some(1),
         limit: Some(10),
         search: Some("Test Product 1".to_string()),
+        category: None,
         price_min: None,
         price_max: None,
         in_stock: None,
@@ -186,6 +189,7 @@ async fn test_admin_product_index_simple_filter() {
         page: Some(1),
         limit: Some(10),
         search: None,
+        category: None,
         price_min: None,
         price_max: None,
         in_stock: None,
@@ -226,6 +230,7 @@ async fn test_admin_product_index_wrong_token() {
         page: Some(1),
         limit: Some(10),
         search: None,
+        category: None,
         price_min: None,
         price_max: None,
         in_stock: None,
@@ -255,6 +260,7 @@ async fn test_admin_product_index_no_token() {
         page: Some(1),
         limit: Some(10),
         search: None,
+        category: None,
         price_min: None,
         price_max: None,
         in_stock: None,
@@ -329,6 +335,7 @@ async fn test_admin_product_create() {
 
     let payload = CreateProductDTO {
         name: Some("Test Product New 1".to_string()),
+        slug: Some("test-product-new-1".to_string()),
         categories: Some(vec![1, 2]),
         price: Some(100.0),
         quantity: Some(10),
@@ -357,6 +364,7 @@ async fn test_admin_product_create_unauthorized_user() {
 
     let payload = CreateProductDTO {
         name: Some("Test Product New 1".to_string()),
+        slug: Some("test-product-new-1".to_string()),
         categories: Some(vec![1, 2]),
         price: Some(100.0),
         quantity: Some(10),
@@ -377,6 +385,7 @@ async fn test_admin_product_create_no_token() {
 
     let payload = CreateProductDTO {
         name: Some("Test Product New 1".to_string()),
+        slug: Some("test-product-new-1".to_string()),
         categories: Some(vec![1, 2]),
         price: Some(100.0),
         quantity: Some(10),
@@ -402,6 +411,7 @@ async fn test_admin_product_create_unprocessable_entity() {
 
     let payload = CreateProductDTO {
         name: None,
+        slug: None,
         categories: None,
         price: None,
         quantity: None,
@@ -422,6 +432,7 @@ async fn test_admin_product_create_product_already_exists() {
 
     let payload = CreateProductDTO {
         name: Some("Test Product New 1".to_string()),
+        slug: Some("test-product-new-1".to_string()),
         categories: Some(vec![1]),
         price: Some(100.0),
         quantity: Some(10),
@@ -444,6 +455,7 @@ async fn test_admin_product_create_category_not_found() {
 
     let payload = CreateProductDTO {
         name: Some("Test Product New 1".to_string()),
+        slug: Some("test-product-new-1".to_string()),
         categories: Some(vec![1, 24]),
         price: Some(100.0),
         quantity: Some(10),
@@ -464,6 +476,7 @@ async fn test_admin_product_update() {
 
     let payload = UpdateProductDTO {
         name: Some("Test Product Edited 1".to_string()),
+        slug: Some("test-product-edited-1".to_string()),
         categories: Some(vec![1, 2]),
         price: Some(100.0),
         quantity: Some(10),
@@ -494,6 +507,7 @@ async fn test_admin_product_update_unauthorized_user() {
 
     let payload = UpdateProductDTO {
         name: Some("Test Product Edited 1".to_string()),
+        slug: Some("test-product-edited-1".to_string()),
         categories: Some(vec![1, 2]),
         price: Some(100.0),
         quantity: Some(10),
@@ -514,6 +528,7 @@ async fn test_admin_product_update_unprocessable_entity() {
 
     let payload = UpdateProductDTO {
         name: None,
+        slug: None,
         categories: None,
         price: None,
         quantity: None,
@@ -534,6 +549,7 @@ async fn test_admin_product_update_product_already_exists() {
 
     let payload = UpdateProductDTO {
         name: Some("Test Product Edited 1".to_string()),
+        slug: Some("test-product-edited-1".to_string()),
         categories: Some(vec![1, 2]),
         price: Some(100.0),
         quantity: Some(10),
@@ -556,6 +572,7 @@ async fn test_admin_product_update_category_not_found() {
 
     let payload = UpdateProductDTO {
         name: Some("Test Product Edited 1".to_string()),
+        slug: Some("test-product-edited-1".to_string()),
         categories: Some(vec![1, 20]),
         price: Some(100.0),
         quantity: Some(10),
@@ -576,6 +593,7 @@ async fn test_admin_product_update_product_not_found() {
 
     let payload = UpdateProductDTO {
         name: Some("Test Product Edited 1".to_string()),
+        slug: Some("test-product-edited-1".to_string()),
         categories: Some(vec![1, 2]),
         price: Some(100.0),
         quantity: Some(10),

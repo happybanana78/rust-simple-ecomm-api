@@ -7,6 +7,7 @@ use crate::admin::products::traits::IntoPublic;
 use crate::errors::error::AppError;
 use crate::pagination::{DataCollection, Paginate, PaginatedDataCollection};
 use crate::traits::IsRepository;
+use crate::validation_utils::validate_slug;
 use sqlx::PgPool;
 
 pub struct AdminProductService {
@@ -71,11 +72,13 @@ impl AdminProductService {
     }
 
     pub async fn create(&self, cmd: CreateProductCommand) -> Result<AdminProductModel, AppError> {
-        let product_already_exists = self.check_exist_with_same_name(&cmd.name).await?;
+        validate_slug(&cmd.slug)?;
+
+        let product_already_exists = self.check_exist_with_same_slug(&cmd.slug).await?;
 
         if product_already_exists {
             return Err(AppError::Conflict(
-                "Product with the same name already exists".to_string(),
+                "Product with the same slug already exists".to_string(),
             ));
         }
 
@@ -109,13 +112,15 @@ impl AdminProductService {
     }
 
     pub async fn update(&self, cmd: UpdateProductCommand, id: i64) -> Result<(), AppError> {
+        validate_slug(&cmd.slug)?;
+
         self.get_one(id).await?;
 
-        let product_already_exists = self.check_exist_with_same_name(&cmd.name).await?;
+        let product_already_exists = self.check_exist_with_same_slug(&cmd.slug).await?;
 
         if product_already_exists {
             return Err(AppError::Conflict(
-                "Product with the same name already exists".to_string(),
+                "Product with the same slug already exists".to_string(),
             ));
         }
 
@@ -145,9 +150,7 @@ impl AdminProductService {
             }
         }
 
-        self.repository
-            .update(self.repository.get_pool(), cmd, id)
-            .await?;
+        self.repository.update(&mut *tx, cmd, id).await?;
 
         self.repository.commit_transaction(tx).await
     }
@@ -157,7 +160,7 @@ impl AdminProductService {
         self.repository.delete(self.repository.get_pool(), id).await
     }
 
-    pub async fn check_exist_with_same_name(&self, name: &str) -> Result<bool, AppError> {
-        self.repository.check_existence_by_name(name).await
+    pub async fn check_exist_with_same_slug(&self, name: &str) -> Result<bool, AppError> {
+        self.repository.check_existence_by_slug(name).await
     }
 }
