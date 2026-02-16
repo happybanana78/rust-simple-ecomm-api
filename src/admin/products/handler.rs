@@ -79,5 +79,4 @@ pub async fn delete(
     Ok(HttpResponse::NoContent().finish())
 }
 
-// TODO: handle category
 // TODO: add slug to product

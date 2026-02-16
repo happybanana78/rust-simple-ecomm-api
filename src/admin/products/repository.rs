@@ -52,22 +52,46 @@ impl AdminProductRepository {
         let mut qb = QueryBuilder::<Postgres>::new(
             r#"
             SELECT
-                id,
-                name,
-                price,
-                quantity,
-                configurable,
-                is_active,
-                created_at
+                products.id,
+                products.name,
+                products.price,
+                products.quantity,
+                products.configurable,
+                products.is_active,
+                products.created_at
             FROM products
         "#,
         );
 
         let mut has_where = false;
 
+        // category
+        if let Some(category) = filters.category {
+            qb.push(
+                " JOIN product_has_categories ON product_has_categories.product_id = products.id ",
+            );
+
+            if has_where {
+                qb.push(" AND ");
+            } else {
+                qb.push(" WHERE ");
+                has_where = true;
+            }
+
+            qb.push(" product_has_categories.category_id = ");
+            qb.push_bind(category);
+        }
+
         // handle search
         if let Some(search) = search {
-            qb.push(" WHERE name ILIKE ");
+            if has_where {
+                qb.push(" AND ");
+            } else {
+                qb.push(" WHERE ");
+                has_where = true;
+            }
+
+            qb.push(" products.name ILIKE ");
             qb.push_bind(format!("%{}%", search));
         }
 
@@ -81,9 +105,9 @@ impl AdminProductRepository {
             }
 
             if in_stock {
-                qb.push(" quantity > 0");
+                qb.push(" products.quantity > 0 ");
             } else {
-                qb.push(" quantity = 0");
+                qb.push(" products.quantity = 0 ");
             }
         }
 
@@ -97,9 +121,9 @@ impl AdminProductRepository {
             }
 
             if is_active {
-                qb.push(" is_active IS TRUE ");
+                qb.push(" products.is_active IS TRUE ");
             } else {
-                qb.push(" is_active IS FALSE ");
+                qb.push(" products.is_active IS FALSE ");
             }
         }
 
@@ -112,7 +136,7 @@ impl AdminProductRepository {
                 has_where = true;
             }
 
-            qb.push(" price >= ");
+            qb.push(" products.price >= ");
             qb.push_bind(min_price);
         }
 
@@ -125,7 +149,7 @@ impl AdminProductRepository {
                 has_where = true;
             }
 
-            qb.push(" price <= ");
+            qb.push(" products.price <= ");
             qb.push_bind(max_price);
         }
 
@@ -230,24 +254,6 @@ impl AdminProductRepository {
             ) AS "exists!";
             "#,
             name,
-        }
-        .fetch_one(&self.pool)
-        .await
-        .map_err(AppError::Database)
-    }
-
-    pub async fn check_existence_on_category(
-        &self,
-        product_id: i64,
-        category_id: i64,
-    ) -> Result<bool, AppError> {
-        sqlx::query_scalar! {
-            r#"
-            SELECT EXISTS (
-                SELECT 1 FROM product_has_categories WHERE product_id = $1 AND category_id = $2
-            ) AS "exists!";
-            "#,
-            product_id, category_id
         }
         .fetch_one(&self.pool)
         .await

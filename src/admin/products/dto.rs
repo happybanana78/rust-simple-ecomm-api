@@ -38,6 +38,9 @@ pub struct IndexProductDTO {
     #[validate(length(min = 1))]
     pub search: Option<String>,
 
+    #[validate(range(min = 1))]
+    pub category: Option<i64>,
+
     #[validate(range(min = 0.0))]
     pub price_min: Option<f64>,
 
@@ -54,6 +57,7 @@ impl TryFrom<IndexProductDTO> for ProductFilters {
 
     fn try_from(dto: IndexProductDTO) -> Result<Self, Self::Error> {
         Ok(Self {
+            category: dto.category,
             price_min: dto.price_min,
             price_max: dto.price_max,
             in_stock: dto.in_stock,
