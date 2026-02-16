@@ -1,20 +1,24 @@
 use super::model::AdminProductModel;
+use crate::admin::categories::repository::AdminCategoryRepository;
 use crate::admin::products::dto::{AdminPublicProduct, CreateProductCommand, UpdateProductCommand};
 use crate::admin::products::filters::ProductFilters;
 use crate::admin::products::repository::AdminProductRepository;
 use crate::admin::products::traits::IntoPublic;
 use crate::errors::error::AppError;
 use crate::pagination::{DataCollection, Paginate, PaginatedDataCollection};
+use crate::traits::IsRepository;
 use sqlx::PgPool;
 
 pub struct AdminProductService {
     repository: AdminProductRepository,
+    category_repository: AdminCategoryRepository,
 }
 
 impl AdminProductService {
     pub fn new(pool: PgPool) -> Self {
         Self {
-            repository: AdminProductRepository::new(pool),
+            repository: AdminProductRepository::new(pool.clone()),
+            category_repository: AdminCategoryRepository::new(pool),
         }
     }
 
@@ -70,31 +74,87 @@ impl AdminProductService {
         let product_already_exists = self.check_exist_with_same_name(&cmd.name).await?;
 
         if product_already_exists {
-            Err(AppError::Conflict(
+            return Err(AppError::Conflict(
                 "Product with the same name already exists".to_string(),
-            ))
-        } else {
-            self.repository.create(cmd).await
+            ));
         }
+
+        let mut tx = self.repository.start_transaction().await?;
+
+        let product = self.repository.create(&mut *tx, &cmd).await?;
+
+        if let Some(categories) = &cmd.categories {
+            for category_id in categories {
+                let category = self
+                    .category_repository
+                    .check_existence_by_id(*category_id)
+                    .await?;
+
+                if !category {
+                    return Err(AppError::NotFound(format!(
+                        "Category with id {} not found",
+                        category_id
+                    )));
+                }
+
+                self.repository
+                    .attach_product_to_category(&mut *tx, product.id, *category_id)
+                    .await?;
+            }
+        }
+
+        self.repository.commit_transaction(tx).await?;
+
+        Ok(product)
     }
 
-    pub async fn update(&self, cmd: UpdateProductCommand, id: i64) -> Result<u64, AppError> {
+    pub async fn update(&self, cmd: UpdateProductCommand, id: i64) -> Result<(), AppError> {
         self.get_one(id).await?;
 
         let product_already_exists = self.check_exist_with_same_name(&cmd.name).await?;
 
         if product_already_exists {
-            Err(AppError::Conflict(
+            return Err(AppError::Conflict(
                 "Product with the same name already exists".to_string(),
-            ))
-        } else {
-            self.repository.update(cmd, id).await
+            ));
         }
+
+        let mut tx = self.repository.start_transaction().await?;
+
+        if let Some(categories) = &cmd.categories {
+            self.repository
+                .detach_product_from_all_categories(&mut *tx, id)
+                .await?;
+
+            for category_id in categories {
+                let category = self
+                    .category_repository
+                    .check_existence_by_id(*category_id)
+                    .await?;
+
+                if !category {
+                    return Err(AppError::NotFound(format!(
+                        "Category with id {} not found",
+                        category_id
+                    )));
+                }
+
+                self.repository
+                    .attach_product_to_category(&mut *tx, id, *category_id)
+                    .await?;
+            }
+        }
+
+        self.repository
+            .update(self.repository.get_pool(), cmd, id)
+            .await?;
+
+        self.repository.commit_transaction(tx).await
     }
 
     pub async fn delete(&self, id: i64) -> Result<u64, AppError> {
         self.get_one(id).await?;
-        self.repository.delete(id).await
+        self.repository.delete(self.repository.get_pool(), id).await
     }
 
     pub async fn check_exist_with_same_name(&self, name: &str) -> Result<bool, AppError> {

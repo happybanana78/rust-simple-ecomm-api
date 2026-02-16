@@ -152,6 +152,39 @@ impl AdminCategoryRepository {
         Ok(result.rows_affected())
     }
 
+    pub async fn get_categories_by_product(
+        &self,
+        product_id: i64,
+    ) -> Result<Vec<AdminCategoryModel>, AppError> {
+        sqlx::query_as! {
+            AdminCategoryModel,
+            r#"
+            SELECT categories.id, categories.name, categories.slug, categories.is_active, categories.created_at
+            FROM categories
+            INNER JOIN product_has_categories ON categories.id = product_has_categories.category_id
+            WHERE product_has_categories.product_id = $1;
+            "#,
+            product_id
+        }
+        .fetch_all(&self.pool)
+        .await
+        .map_err(AppError::Database)
+    }
+
+    pub async fn check_existence_by_id(&self, id: i64) -> Result<bool, AppError> {
+        sqlx::query_scalar! {
+            r#"
+            SELECT EXISTS (
+                SELECT 1 FROM categories WHERE id = $1
+            ) AS "exists!";
+            "#,
+            id,
+        }
+        .fetch_one(&self.pool)
+        .await
+        .map_err(AppError::Database)
+    }
+
     pub async fn check_existence_by_name(&self, name: &str) -> Result<bool, AppError> {
         sqlx::query_scalar! {
             r#"

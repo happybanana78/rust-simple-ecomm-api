@@ -329,6 +329,7 @@ async fn test_admin_product_create() {
 
     let payload = CreateProductDTO {
         name: Some("Test Product New 1".to_string()),
+        categories: Some(vec![1, 2]),
         price: Some(100.0),
         quantity: Some(10),
         configurable: Some(false),
@@ -356,6 +357,7 @@ async fn test_admin_product_create_unauthorized_user() {
 
     let payload = CreateProductDTO {
         name: Some("Test Product New 1".to_string()),
+        categories: Some(vec![1, 2]),
         price: Some(100.0),
         quantity: Some(10),
         configurable: Some(false),
@@ -375,6 +377,7 @@ async fn test_admin_product_create_no_token() {
 
     let payload = CreateProductDTO {
         name: Some("Test Product New 1".to_string()),
+        categories: Some(vec![1, 2]),
         price: Some(100.0),
         quantity: Some(10),
         configurable: Some(false),
@@ -399,6 +402,7 @@ async fn test_admin_product_create_unprocessable_entity() {
 
     let payload = CreateProductDTO {
         name: None,
+        categories: None,
         price: None,
         quantity: None,
         configurable: None,
@@ -418,6 +422,7 @@ async fn test_admin_product_create_product_already_exists() {
 
     let payload = CreateProductDTO {
         name: Some("Test Product New 1".to_string()),
+        categories: Some(vec![1]),
         price: Some(100.0),
         quantity: Some(10),
         configurable: Some(false),
@@ -434,11 +439,32 @@ async fn test_admin_product_create_product_already_exists() {
 }
 
 #[actix_rt::test]
+async fn test_admin_product_create_category_not_found() {
+    let context = utils::TestContext::new(Some("admin1@admin.com".to_string())).await;
+
+    let payload = CreateProductDTO {
+        name: Some("Test Product New 1".to_string()),
+        categories: Some(vec![1, 24]),
+        price: Some(100.0),
+        quantity: Some(10),
+        configurable: Some(false),
+        is_active: Some(true),
+    };
+
+    let res = create_product(&context, &payload).await;
+
+    assert_eq!(res.status(), StatusCode::NOT_FOUND);
+
+    context.database.cleanup().await;
+}
+
+#[actix_rt::test]
 async fn test_admin_product_update() {
     let context = utils::TestContext::new(Some("admin1@admin.com".to_string())).await;
 
     let payload = UpdateProductDTO {
         name: Some("Test Product Edited 1".to_string()),
+        categories: Some(vec![1, 2]),
         price: Some(100.0),
         quantity: Some(10),
         configurable: Some(false),
@@ -468,6 +494,7 @@ async fn test_admin_product_update_unauthorized_user() {
 
     let payload = UpdateProductDTO {
         name: Some("Test Product Edited 1".to_string()),
+        categories: Some(vec![1, 2]),
         price: Some(100.0),
         quantity: Some(10),
         configurable: Some(false),
@@ -487,6 +514,7 @@ async fn test_admin_product_update_unprocessable_entity() {
 
     let payload = UpdateProductDTO {
         name: None,
+        categories: None,
         price: None,
         quantity: None,
         configurable: None,
@@ -506,6 +534,7 @@ async fn test_admin_product_update_product_already_exists() {
 
     let payload = UpdateProductDTO {
         name: Some("Test Product Edited 1".to_string()),
+        categories: Some(vec![1, 2]),
         price: Some(100.0),
         quantity: Some(10),
         configurable: Some(false),
@@ -522,11 +551,32 @@ async fn test_admin_product_update_product_already_exists() {
 }
 
 #[actix_rt::test]
+async fn test_admin_product_update_category_not_found() {
+    let context = utils::TestContext::new(Some("admin1@admin.com".to_string())).await;
+
+    let payload = UpdateProductDTO {
+        name: Some("Test Product Edited 1".to_string()),
+        categories: Some(vec![1, 20]),
+        price: Some(100.0),
+        quantity: Some(10),
+        configurable: Some(false),
+        is_active: Some(true),
+    };
+
+    let res = update_product(&context, &payload, 1).await;
+
+    assert_eq!(res.status(), StatusCode::NOT_FOUND);
+
+    context.database.cleanup().await;
+}
+
+#[actix_rt::test]
 async fn test_admin_product_update_product_not_found() {
     let context = utils::TestContext::new(Some("admin1@admin.com".to_string())).await;
 
     let payload = UpdateProductDTO {
         name: Some("Test Product Edited 1".to_string()),
+        categories: Some(vec![1, 2]),
         price: Some(100.0),
         quantity: Some(10),
         configurable: Some(false),

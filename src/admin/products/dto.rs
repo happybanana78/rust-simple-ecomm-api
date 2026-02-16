@@ -67,6 +67,9 @@ pub struct CreateProductDTO {
     #[validate(required, length(min = 3))]
     pub name: Option<String>,
 
+    #[validate(length(min = 1))]
+    pub categories: Option<Vec<i64>>,
+
     #[validate(required, range(min = 0.0))]
     pub price: Option<f64>,
 
@@ -80,6 +83,7 @@ pub struct CreateProductDTO {
 
 pub struct CreateProductCommand {
     pub name: String,
+    pub categories: Option<Vec<i64>>,
     pub price: f64,
     pub quantity: i32,
     pub configurable: bool,
@@ -92,6 +96,7 @@ impl TryFrom<CreateProductDTO> for CreateProductCommand {
     fn try_from(dto: CreateProductDTO) -> Result<Self, Self::Error> {
         Ok(Self {
             name: dto.name.unwrap(),
+            categories: dto.categories,
             price: dto.price.unwrap(),
             quantity: dto.quantity.unwrap_or(0),
             configurable: dto.configurable.unwrap_or(false),
@@ -104,6 +109,9 @@ impl TryFrom<CreateProductDTO> for CreateProductCommand {
 pub struct UpdateProductDTO {
     #[validate(required, length(min = 3))]
     pub name: Option<String>,
+
+    #[validate(length(min = 1))]
+    pub categories: Option<Vec<i64>>,
 
     #[validate(required, range(min = 0.0))]
     pub price: Option<f64>,
@@ -118,6 +126,7 @@ pub struct UpdateProductDTO {
 
 pub struct UpdateProductCommand {
     pub name: String,
+    pub categories: Option<Vec<i64>>,
     pub price: f64,
     pub quantity: i32,
     pub configurable: bool,
@@ -130,6 +139,7 @@ impl TryFrom<UpdateProductDTO> for UpdateProductCommand {
     fn try_from(dto: UpdateProductDTO) -> Result<Self, Self::Error> {
         Ok(Self {
             name: dto.name.unwrap(),
+            categories: dto.categories,
             price: dto.price.unwrap(),
             quantity: dto.quantity.unwrap_or(0),
             configurable: dto.configurable.unwrap_or(false),

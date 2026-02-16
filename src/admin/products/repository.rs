@@ -3,17 +3,26 @@ use crate::admin::products::filters::ProductFilters;
 use crate::admin::products::model::AdminProductModel;
 use crate::errors::error::AppError;
 use crate::pagination::Paginate;
-use sqlx::{PgPool, Postgres, QueryBuilder};
+use crate::traits::IsRepository;
+use sqlx::{Executor, PgPool, Postgres, QueryBuilder};
 
 pub struct AdminProductRepository {
     pool: PgPool,
 }
 
-impl AdminProductRepository {
-    pub fn new(pool: PgPool) -> Self {
+impl IsRepository for AdminProductRepository {
+    type Repository = Self;
+
+    fn new(pool: PgPool) -> Self {
         Self { pool }
     }
 
+    fn get_pool(&self) -> &PgPool {
+        &self.pool
+    }
+}
+
+impl AdminProductRepository {
     pub async fn index(&self) -> Result<Vec<AdminProductModel>, AppError> {
         sqlx::query_as! {
             AdminProductModel,
@@ -156,7 +165,11 @@ impl AdminProductRepository {
         .map_err(AppError::Database)
     }
 
-    pub async fn create(&self, cmd: CreateProductCommand) -> Result<AdminProductModel, AppError> {
+    pub async fn create(
+        &self,
+        executor: impl Executor<'_, Database = Postgres>,
+        cmd: &CreateProductCommand,
+    ) -> Result<AdminProductModel, AppError> {
         sqlx::query_as! {
             AdminProductModel,
             r#"
@@ -166,12 +179,17 @@ impl AdminProductRepository {
         "#,
             cmd.name, cmd.price, cmd.quantity, cmd.configurable, cmd.is_active
         }
-        .fetch_one(&self.pool)
+        .fetch_one(executor)
         .await
         .map_err(AppError::Database)
     }
 
-    pub async fn update(&self, cmd: UpdateProductCommand, id: i64) -> Result<u64, AppError> {
+    pub async fn update(
+        &self,
+        executor: impl Executor<'_, Database = Postgres>,
+        cmd: UpdateProductCommand,
+        id: i64,
+    ) -> Result<u64, AppError> {
         let result = sqlx::query_as! {
             AdminProductModel,
             r#"
@@ -181,19 +199,23 @@ impl AdminProductRepository {
         "#,
             cmd.name, cmd.price, cmd.quantity, cmd.configurable, cmd.is_active, id
         }
-        .execute(&self.pool)
+        .execute(executor)
         .await
         .map_err(AppError::Database)?;
 
         Ok(result.rows_affected())
     }
 
-    pub async fn delete(&self, id: i64) -> Result<u64, AppError> {
+    pub async fn delete(
+        &self,
+        executor: impl Executor<'_, Database = Postgres>,
+        id: i64,
+    ) -> Result<u64, AppError> {
         let result = sqlx::query! {
             "DELETE FROM products WHERE id = $1;",
             id
         }
-        .execute(&self.pool)
+        .execute(executor)
         .await
         .map_err(AppError::Database)?;
 
@@ -212,5 +234,61 @@ impl AdminProductRepository {
         .fetch_one(&self.pool)
         .await
         .map_err(AppError::Database)
+    }
+
+    pub async fn check_existence_on_category(
+        &self,
+        product_id: i64,
+        category_id: i64,
+    ) -> Result<bool, AppError> {
+        sqlx::query_scalar! {
+            r#"
+            SELECT EXISTS (
+                SELECT 1 FROM product_has_categories WHERE product_id = $1 AND category_id = $2
+            ) AS "exists!";
+            "#,
+            product_id, category_id
+        }
+        .fetch_one(&self.pool)
+        .await
+        .map_err(AppError::Database)
+    }
+
+    pub async fn detach_product_from_all_categories(
+        &self,
+        executor: impl Executor<'_, Database = Postgres>,
+        product_id: i64,
+    ) -> Result<u64, AppError> {
+        let result = sqlx::query! {
+            r#"
+            DELETE FROM product_has_categories WHERE product_id = $1;
+            "#,
+            product_id
+        }
+        .execute(executor)
+        .await
+        .map_err(AppError::Database)?;
+
+        Ok(result.rows_affected())
+    }
+
+    pub async fn attach_product_to_category(
+        &self,
+        executor: impl Executor<'_, Database = Postgres>,
+        product_id: i64,
+        category_id: i64,
+    ) -> Result<u64, AppError> {
+        let result = sqlx::query! {
+            r#"
+        INSERT INTO product_has_categories (category_id, product_id)
+        VALUES ($1, $2);
+        "#,
+            category_id, product_id
+        }
+        .execute(executor)
+        .await
+        .map_err(AppError::Database)?;
+
+        Ok(result.rows_affected())
     }
 }

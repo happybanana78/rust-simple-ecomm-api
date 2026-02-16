@@ -80,3 +80,4 @@ pub async fn delete(
 }
 
 // TODO: handle category
+// TODO: add slug to product
