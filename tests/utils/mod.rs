@@ -87,6 +87,7 @@ impl TestContext {
 
         seed_roles(&test_db.pool).await;
         seed_users(&test_db.pool).await;
+        seed_categories(&test_db.pool).await;
         seed_products(&test_db.pool).await;
 
         let test_server = create_test_server(test_db.pool.clone());
@@ -164,6 +165,19 @@ pub async fn seed_users(pool: &PgPool) {
     .execute(pool)
     .await
     .expect("Failed to seed roles for user test data");
+}
+
+pub async fn seed_categories(pool: &PgPool) {
+    // ids 1 and 2
+    sqlx::query!(
+        "INSERT INTO categories (name, slug, is_active) VALUES
+         ('Test Category 1', 'test-category-1', true),
+         ('Test Category 2', 'test-category-2', false)
+         ON CONFLICT (id) DO NOTHING;"
+    )
+    .execute(pool)
+    .await
+    .expect("Failed to seed category test data");
 }
 
 pub async fn seed_products(pool: &PgPool) {

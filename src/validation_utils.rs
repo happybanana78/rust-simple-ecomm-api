@@ -1,9 +1,8 @@
 use crate::errors::error::AppError;
 
 pub fn validate_slug(slug: &str) -> Result<(), AppError> {
-    let split = slug.split("").into_iter().any(|s| s.is_empty());
-    if split {
-        Err(AppError::Internal(
+    if slug.contains(" ") {
+        Err(AppError::Conflict(
             "Slug cannot contain empty spaces".to_string(),
         ))
     } else {

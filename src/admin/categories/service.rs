@@ -7,6 +7,7 @@ use crate::admin::categories::repository::AdminCategoryRepository;
 use crate::admin::categories::traits::IntoPublic;
 use crate::errors::error::AppError;
 use crate::pagination::{DataCollection, Paginate, PaginatedDataCollection};
+use crate::validation_utils::validate_slug;
 use sqlx::PgPool;
 
 pub struct AdminCategoryService {
@@ -69,29 +70,46 @@ impl AdminCategoryService {
     }
 
     pub async fn create(&self, cmd: CreateCategoryCommand) -> Result<AdminCategoryModel, AppError> {
+        validate_slug(&cmd.slug)?;
+
         let category_already_exists = self.check_exist_with_same_name(&cmd.name).await?;
+        let slug_already_exists = self.check_exist_with_same_slug(&cmd.slug).await?;
 
         if category_already_exists {
-            Err(AppError::Conflict(
+            return Err(AppError::Conflict(
                 "Category with the same name already exists".to_string(),
-            ))
-        } else {
-            self.repository.create(cmd).await
+            ));
         }
+
+        if slug_already_exists {
+            return Err(AppError::Conflict(
+                "Category with the same slug already exists".to_string(),
+            ));
+        }
+
+        self.repository.create(cmd).await
     }
 
     pub async fn update(&self, cmd: UpdateCategoryCommand, id: i64) -> Result<u64, AppError> {
         self.get_one(id).await?;
+        validate_slug(&cmd.slug)?;
 
         let category_already_exists = self.check_exist_with_same_name(&cmd.name).await?;
+        let slug_already_exists = self.check_exist_with_same_slug(&cmd.slug).await?;
 
         if category_already_exists {
-            Err(AppError::Conflict(
+            return Err(AppError::Conflict(
                 "Category with the same name already exists".to_string(),
-            ))
-        } else {
-            self.repository.update(cmd, id).await
+            ));
         }
+
+        if slug_already_exists {
+            return Err(AppError::Conflict(
+                "Category with the same slug already exists".to_string(),
+            ));
+        }
+
+        self.repository.update(cmd, id).await
     }
 
     pub async fn delete(&self, id: i64) -> Result<u64, AppError> {
@@ -101,5 +119,9 @@ impl AdminCategoryService {
 
     pub async fn check_exist_with_same_name(&self, name: &str) -> Result<bool, AppError> {
         self.repository.check_existence_by_name(name).await
+    }
+
+    pub async fn check_exist_with_same_slug(&self, slug: &str) -> Result<bool, AppError> {
+        self.repository.check_existence_by_slug(slug).await
     }
 }

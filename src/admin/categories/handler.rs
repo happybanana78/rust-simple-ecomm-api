@@ -79,5 +79,3 @@ pub async fn delete(
     state.admin_category_service.delete(id.into_inner()).await?;
     Ok(HttpResponse::NoContent().finish())
 }
-
-// TODO: add tests for categories

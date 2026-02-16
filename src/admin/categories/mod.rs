@@ -1,8 +1,8 @@
-mod dto;
-mod filters;
+pub mod dto;
+pub mod filters;
 mod handler;
 mod model;
-mod permission;
+pub mod permission;
 mod repository;
 pub mod routes;
 pub mod service;

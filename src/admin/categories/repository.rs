@@ -165,4 +165,18 @@ impl AdminCategoryRepository {
         .await
         .map_err(AppError::Database)
     }
+
+    pub async fn check_existence_by_slug(&self, slug: &str) -> Result<bool, AppError> {
+        sqlx::query_scalar! {
+            r#"
+            SELECT EXISTS (
+                SELECT 1 FROM categories WHERE slug = $1
+            ) AS "exists!";
+            "#,
+            slug,
+        }
+        .fetch_one(&self.pool)
+        .await
+        .map_err(AppError::Database)
+    }
 }

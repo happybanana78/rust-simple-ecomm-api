@@ -1,3 +1,4 @@
+use crate::admin::categories::permission::CategoryScope;
 use crate::admin::products::permission::ProductScope;
 use crate::auth::traits::Scope;
 use crate::errors::error::AppError;
@@ -29,6 +30,9 @@ impl RoleEnum {
 
                 // product scopes
                 scopes.extend(ProductScope::all().iter().map(|s| s.as_str().to_string()));
+
+                // category scopes
+                scopes.extend(CategoryScope::all().iter().map(|s| s.as_str().to_string()));
 
                 scopes
             }
