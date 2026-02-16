@@ -1,12 +1,9 @@
 use serde::{Deserialize, Serialize};
-use validator::Validate;
 
-#[derive(Debug, Serialize, Deserialize, Validate)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ProductFilters {
-    #[validate(range(min = 0.0))]
     pub price_min: Option<f64>,
 
-    #[validate(range(min = 0.0))]
     pub price_max: Option<f64>,
 
     pub in_stock: Option<bool>,
