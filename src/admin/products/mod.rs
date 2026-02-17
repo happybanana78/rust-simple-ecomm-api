@@ -1,6 +1,7 @@
 pub mod dto;
 pub mod filters;
 mod handler;
+pub mod images;
 pub mod model;
 pub mod permission;
 mod repository;
