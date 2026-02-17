@@ -12,10 +12,15 @@ mod traits;
 mod users;
 mod validation_utils;
 
-use actix_web::{App, HttpServer, web};
+use crate::errors::error::AppError;
+use actix_multipart::MultipartError;
+use actix_multipart::form::MultipartFormConfig;
+use actix_web::error::InternalError;
+use actix_web::{App, HttpServer, ResponseError, web};
 use dotenvy::from_filename;
 use sqlx::PgPool;
 use state::AppState;
+use std::collections::HashMap;
 use std::env;
 
 #[actix_web::main]
@@ -31,6 +36,20 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(AppState::new(pool.clone())))
+            .app_data(MultipartFormConfig::default().error_handler(|err, _req| {
+                let response = match &err {
+                    MultipartError::MissingField(field) => {
+                        let mut validation_error = HashMap::new();
+                        validation_error
+                            .insert(field.to_owned(), vec!["Field is required".to_string()]);
+
+                        AppError::ValidationSingle(validation_error)
+                    }
+                    _ => AppError::Conflict("Invalid multipart payload".to_string()),
+                };
+
+                InternalError::from_response(err, response.error_response()).into()
+            }))
             .configure(auth::routes::routes)
             .configure(admin::routes::routes)
             .configure(products::routes::routes)
@@ -41,7 +60,6 @@ async fn main() -> std::io::Result<()> {
     .await
 }
 
-// TODO: handle categories
 // TODO: handle product images
 // TODO: handle product videos
 // TODO: handle product reviews

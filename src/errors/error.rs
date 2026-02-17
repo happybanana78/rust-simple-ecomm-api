@@ -11,6 +11,9 @@ pub enum AppError {
     #[error("validation error")]
     Validation(ValidationErrors),
 
+    #[error("validation error")]
+    ValidationSingle(HashMap<String, Vec<String>>),
+
     #[error("unauthorized: {0:?}")]
     Unauthorized(String),
 
@@ -40,6 +43,7 @@ impl ResponseError for AppError {
     fn status_code(&self) -> StatusCode {
         match self {
             AppError::Validation(_) => StatusCode::UNPROCESSABLE_ENTITY,
+            AppError::ValidationSingle(_) => StatusCode::UNPROCESSABLE_ENTITY,
             AppError::Unauthorized(_) => StatusCode::UNAUTHORIZED,
             AppError::Forbidden(_) => StatusCode::FORBIDDEN,
             AppError::Internal(_) => StatusCode::INTERNAL_SERVER_ERROR,
@@ -55,6 +59,13 @@ impl ResponseError for AppError {
                 HttpResponse::UnprocessableEntity().json(ErrorResponse {
                     message: "validation failed".to_string(),
                     errors: Some(extract_validation_errors(errors)),
+                })
+            }
+
+            AppError::ValidationSingle(error) => {
+                HttpResponse::UnprocessableEntity().json(ErrorResponse {
+                    message: "validation failed".to_string(),
+                    errors: Some(error.clone()),
                 })
             }
 
