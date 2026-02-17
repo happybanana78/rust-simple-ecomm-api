@@ -9,6 +9,7 @@ pub mod products;
 pub mod responses;
 pub mod roles;
 pub mod state;
+pub mod storage;
 pub mod traits;
 pub mod users;
 pub mod validation_utils;

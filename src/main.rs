@@ -8,6 +8,7 @@ mod products;
 mod responses;
 mod roles;
 mod state;
+mod storage;
 mod traits;
 mod users;
 mod validation_utils;

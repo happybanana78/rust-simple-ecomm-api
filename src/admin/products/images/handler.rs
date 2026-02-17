@@ -10,7 +10,7 @@ pub async fn upload(
 ) -> Result<impl Responder, AppError> {
     state
         .admin_product_images_service
-        .upload(form.into_inner())
+        .upload(form.into_inner(), &state.local_storage)
         .await?;
 
     Ok(HttpResponse::NoContent().finish())
@@ -22,7 +22,7 @@ pub async fn delete(
 ) -> Result<impl Responder, AppError> {
     state
         .admin_product_images_service
-        .delete(id.into_inner())
+        .delete(id.into_inner(), &state.local_storage)
         .await?;
     Ok(HttpResponse::NoContent().finish())
 }

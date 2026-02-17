@@ -4,8 +4,10 @@ use crate::admin::products::images::repository::AdminProductImageRepository;
 use crate::admin::products::service::AdminProductService;
 use crate::errors::error::AppError;
 use crate::pagination::DataCollection;
-use crate::traits::IsRepository;
+use crate::storage::LocalStorage;
+use crate::traits::{IsRepository, UseStorage};
 use sqlx::PgPool;
+use uuid::Uuid;
 
 pub struct AdminProductImageService {
     repository: AdminProductImageRepository,
@@ -34,14 +36,23 @@ impl AdminProductImageService {
         }
     }
 
-    pub async fn upload(&self, dto: CreateProductImageDTO) -> Result<(), AppError> {
+    pub async fn upload(
+        &self,
+        dto: CreateProductImageDTO,
+        storage: &LocalStorage,
+    ) -> Result<(), AppError> {
         self.product_service.get_one(*dto.product_id).await?;
 
-        // upload
-        let url = "https://example.com/image.jpg".to_string();
+        let mut command = CreateProductImageCommand::new_from_dto(&dto);
 
-        // create
-        let command = CreateProductImageCommand::new_from_dto(dto, url);
+        let file_name = format!("product-image-{}-{}", *dto.product_id, Uuid::new_v4());
+
+        let url = storage
+            .upload_from_temp(file_name.as_str(), dto.file)
+            .await?;
+
+        command.set_url(url);
+
         self.repository
             .create(self.repository.get_pool(), &command)
             .await?;
@@ -49,8 +60,9 @@ impl AdminProductImageService {
         Ok(())
     }
 
-    pub async fn delete(&self, id: i64) -> Result<u64, AppError> {
-        self.get_one(id).await?;
+    pub async fn delete(&self, id: i64, storage: &LocalStorage) -> Result<u64, AppError> {
+        let image = self.get_one(id).await?;
+        storage.delete(image.url.as_str()).await?;
         self.repository.delete(self.repository.get_pool(), id).await
     }
 }

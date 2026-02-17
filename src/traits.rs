@@ -1,4 +1,7 @@
 use crate::errors::error::AppError;
+use actix_multipart::form::tempfile::TempFile;
+use actix_web::mime::Mime;
+use bytes::Bytes;
 use sqlx::PgPool;
 
 pub trait IsRepository {
@@ -28,5 +31,26 @@ pub trait HasQuantity {
             return false;
         }
         true
+    }
+}
+
+pub trait UseStorage {
+    fn upload(
+        &self,
+        path: &str,
+        ext: &str,
+        bytes: Bytes,
+    ) -> impl Future<Output = Result<String, AppError>> + Send;
+
+    fn upload_from_temp(
+        &self,
+        path: &str,
+        temp_file: TempFile,
+    ) -> impl Future<Output = Result<String, AppError>> + Send;
+
+    fn delete(&self, path: &str) -> impl Future<Output = Result<(), AppError>> + Send;
+
+    fn mime_to_extension(&self, mime: &Mime) -> String {
+        mime.subtype().to_string()
     }
 }

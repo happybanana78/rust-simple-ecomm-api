@@ -38,20 +38,24 @@ pub struct CreateProductImageDTO {
 
 pub struct CreateProductImageCommand {
     pub product_id: i64,
-    pub url: String,
+    pub url: Option<String>,
     pub alt: String,
     pub sort: i32,
     pub is_main: bool,
 }
 
 impl CreateProductImageCommand {
-    pub fn new_from_dto(dto: CreateProductImageDTO, url: String) -> Self {
+    pub fn new_from_dto(dto: &CreateProductImageDTO) -> Self {
         Self {
-            product_id: dto.product_id.into_inner(),
-            url,
-            alt: dto.alt.into_inner(),
-            sort: dto.sort.into_inner(),
-            is_main: dto.is_main.into_inner(),
+            product_id: *dto.product_id,
+            url: None,
+            alt: dto.alt.clone(),
+            sort: *dto.sort,
+            is_main: *dto.is_main,
         }
+    }
+
+    pub fn set_url(&mut self, url: String) {
+        self.url = Some(url);
     }
 }

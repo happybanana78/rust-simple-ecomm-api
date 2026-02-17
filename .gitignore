@@ -4,3 +4,4 @@
 .env.test
 .sqlx
 .idea
+/public

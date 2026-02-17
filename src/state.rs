@@ -6,6 +6,7 @@ use crate::cart::cart_items::service::CartItemsService;
 use crate::cart::guest_cart::service::GuestCartService;
 use crate::cart::user_cart::service::UserCartService;
 use crate::products::service::ProductService;
+use crate::storage::LocalStorage;
 use crate::users::service::UserService;
 use sqlx::PgPool;
 
@@ -21,6 +22,9 @@ pub struct AppState {
     pub admin_product_service: AdminProductService,
     pub admin_product_images_service: AdminProductImageService,
     pub admin_category_service: AdminCategoryService,
+
+    // storage
+    pub local_storage: LocalStorage,
 }
 
 impl AppState {
@@ -37,6 +41,9 @@ impl AppState {
             admin_product_service: AdminProductService::new(pool.clone()),
             admin_product_images_service: AdminProductImageService::new(pool.clone()),
             admin_category_service: AdminCategoryService::new(pool),
+
+            // storage
+            local_storage: LocalStorage::new("public/uploads".to_string()),
         }
     }
 }
