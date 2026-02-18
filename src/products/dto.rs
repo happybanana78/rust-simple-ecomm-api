@@ -2,7 +2,7 @@ use crate::errors::error::AppError;
 use crate::products::filters::ProductFilters;
 use crate::products::images::dto::PublicProductImage;
 use crate::products::model::ProductModel;
-use crate::traits::HasQuantity;
+use crate::traits::{HasId, HasQuantity};
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
@@ -16,6 +16,12 @@ pub struct PublicProduct {
     pub configurable: bool,
     pub is_active: bool,
     pub images: Vec<PublicProductImage>,
+}
+
+impl HasId for PublicProduct {
+    fn get_id(&self) -> i64 {
+        self.id
+    }
 }
 
 impl PublicProduct {

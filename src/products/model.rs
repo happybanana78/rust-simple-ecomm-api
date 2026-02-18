@@ -1,3 +1,4 @@
+use crate::traits::HasId;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 
@@ -10,6 +11,12 @@ pub struct ProductModel {
     pub quantity: i32,
     pub configurable: bool,
     pub is_active: bool,
+}
+
+impl HasId for ProductModel {
+    fn get_id(&self) -> i64 {
+        self.id
+    }
 }
 
 #[derive(FromRow)]
