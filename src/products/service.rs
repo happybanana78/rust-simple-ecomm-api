@@ -69,7 +69,7 @@ impl ProductService {
         let product = self.get_one(slug).await?;
         let images = self
             .product_image_repository
-            .get_all_by_product(*product.id)
+            .get_all_by_product(product.id)
             .await?
             .into_public();
 
