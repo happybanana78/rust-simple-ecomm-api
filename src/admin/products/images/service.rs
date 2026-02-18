@@ -3,7 +3,6 @@ use crate::admin::products::images::model::AdminProductImageModel;
 use crate::admin::products::images::repository::AdminProductImageRepository;
 use crate::admin::products::service::AdminProductService;
 use crate::errors::error::AppError;
-use crate::pagination::DataCollection;
 use crate::storage::LocalStorage;
 use crate::traits::{IsRepository, UseStorage};
 use sqlx::PgPool;
@@ -20,11 +19,6 @@ impl AdminProductImageService {
             repository: AdminProductImageRepository::new(pool.clone()),
             product_service: AdminProductService::new(pool),
         }
-    }
-
-    pub async fn get_all(&self) -> Result<DataCollection<AdminProductImageModel>, AppError> {
-        let data = self.repository.index().await?;
-        Ok(DataCollection::new(data))
     }
 
     pub async fn get_one(&self, id: i64) -> Result<AdminProductImageModel, AppError> {

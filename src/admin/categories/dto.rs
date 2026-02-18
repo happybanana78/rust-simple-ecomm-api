@@ -1,6 +1,7 @@
 use crate::admin::categories::filters::CategoryFilters;
 use crate::admin::categories::model::AdminCategoryModel;
 use crate::errors::error::AppError;
+use crate::traits::HasId;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
@@ -10,6 +11,12 @@ pub struct AdminPublicCategory {
     pub name: String,
     pub slug: String,
     pub is_active: bool,
+}
+
+impl HasId for AdminPublicCategory {
+    fn get_id(&self) -> i64 {
+        self.id
+    }
 }
 
 impl From<AdminCategoryModel> for AdminPublicCategory {

@@ -4,6 +4,10 @@ use actix_web::mime::Mime;
 use bytes::Bytes;
 use sqlx::PgPool;
 
+pub trait HasId {
+    fn get_id(&self) -> i64;
+}
+
 pub trait IsRepository {
     type Repository;
 

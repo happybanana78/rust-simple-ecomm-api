@@ -1,9 +1,10 @@
+use crate::traits::HasId;
 use chrono::{DateTime, Utc};
 use fake::{Dummy, Fake, Faker};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Serialize, Deserialize, sqlx::FromRow)]
+#[derive(Serialize, Deserialize, sqlx::FromRow, Clone)]
 pub struct AdminProductModel {
     pub id: i64,
     pub name: String,
@@ -13,6 +14,12 @@ pub struct AdminProductModel {
     pub configurable: bool,
     pub is_active: bool,
     pub created_at: DateTime<Utc>,
+}
+
+impl HasId for AdminProductModel {
+    fn get_id(&self) -> i64 {
+        self.id
+    }
 }
 
 pub struct AdminProductDummy {

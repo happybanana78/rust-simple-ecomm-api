@@ -1,10 +1,11 @@
 use crate::admin::products::images::model::AdminProductImageModel;
+use crate::traits::HasId;
 use actix_multipart::form::MultipartForm;
 use actix_multipart::form::tempfile::TempFile;
 use actix_multipart::form::text::Text;
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AdminPublicProductImage {
     pub id: i64,
     pub product_id: i64,
@@ -12,6 +13,12 @@ pub struct AdminPublicProductImage {
     pub alt: String,
     pub is_main: bool,
     pub sort: i32,
+}
+
+impl HasId for AdminPublicProductImage {
+    fn get_id(&self) -> i64 {
+        self.id
+    }
 }
 
 impl From<AdminProductImageModel> for AdminPublicProductImage {

@@ -1,3 +1,5 @@
+use crate::admin::products::model::AdminProductModel;
+use crate::traits::HasId;
 use chrono::{DateTime, Utc};
 use fake::{Dummy, Fake, Faker};
 use serde::{Deserialize, Serialize};
@@ -12,6 +14,12 @@ pub struct AdminProductImageModel {
     pub sort: i32,
     pub deleted_at: Option<DateTime<Utc>>,
     pub created_at: DateTime<Utc>,
+}
+
+impl HasId for AdminProductImageModel {
+    fn get_id(&self) -> i64 {
+        self.id
+    }
 }
 
 pub struct AdminProductImageDummy {

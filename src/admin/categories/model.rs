@@ -1,3 +1,4 @@
+use crate::traits::HasId;
 use chrono::{DateTime, Duration, Utc};
 use fake::Dummy;
 use fake::faker::chrono::en::DateTimeBetween;
@@ -11,6 +12,12 @@ pub struct AdminCategoryModel {
     pub slug: String,
     pub is_active: bool,
     pub created_at: DateTime<Utc>,
+}
+
+impl HasId for AdminCategoryModel {
+    fn get_id(&self) -> i64 {
+        self.id
+    }
 }
 
 #[derive(Dummy)]

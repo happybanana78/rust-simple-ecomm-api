@@ -1,12 +1,20 @@
+use crate::traits::HasId;
 use serde::{Deserialize, Serialize};
 
 pub struct DataCollection<T> {
     pub data: Vec<T>,
 }
 
-impl<T> DataCollection<T> {
+impl<T> DataCollection<T>
+where
+    T: HasId,
+{
     pub fn new(data: Vec<T>) -> Self {
         DataCollection { data }
+    }
+
+    pub fn extract_ids(&self) -> Vec<i64> {
+        self.data.iter().map(|item| item.get_id()).collect()
     }
 }
 
@@ -32,8 +40,15 @@ pub struct PaginatedDataCollection<T> {
     pub pagination: Paginate,
 }
 
-impl<T> PaginatedDataCollection<T> {
+impl<T> PaginatedDataCollection<T>
+where
+    T: HasId,
+{
     pub fn new(data: Vec<T>, pagination: Paginate) -> Self {
         PaginatedDataCollection { data, pagination }
+    }
+
+    pub fn extract_ids(&self) -> Vec<i64> {
+        self.data.iter().map(|item| item.get_id()).collect()
     }
 }

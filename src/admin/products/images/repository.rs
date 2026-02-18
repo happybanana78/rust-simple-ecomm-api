@@ -21,7 +21,10 @@ impl IsRepository for AdminProductImageRepository {
 }
 
 impl AdminProductImageRepository {
-    pub async fn index(&self) -> Result<Vec<AdminProductImageModel>, AppError> {
+    pub async fn get_all_by_product(
+        &self,
+        product_id: i64,
+    ) -> Result<Vec<AdminProductImageModel>, AppError> {
         sqlx::query_as! {
             AdminProductImageModel,
             r#"
@@ -34,8 +37,36 @@ impl AdminProductImageRepository {
             sort,
             deleted_at,
             created_at
-        FROM product_images;
+        FROM product_images
+        WHERE product_id = $1;
         "#,
+            product_id
+        }
+        .fetch_all(&self.pool)
+        .await
+        .map_err(AppError::Database)
+    }
+
+    pub async fn get_all_for_multiple_products(
+        &self,
+        product_ids: Vec<i64>,
+    ) -> Result<Vec<AdminProductImageModel>, AppError> {
+        sqlx::query_as! {
+            AdminProductImageModel,
+            r#"
+        SELECT
+            id,
+            product_id,
+            url,
+            alt,
+            is_main,
+            sort,
+            deleted_at,
+            created_at
+        FROM product_images
+        WHERE product_id = ANY($1);
+        "#,
+            &product_ids
         }
         .fetch_all(&self.pool)
         .await

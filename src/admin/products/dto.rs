@@ -1,6 +1,8 @@
 use crate::admin::products::filters::ProductFilters;
+use crate::admin::products::images::dto::AdminPublicProductImage;
 use crate::admin::products::model::AdminProductModel;
 use crate::errors::error::AppError;
+use crate::traits::HasId;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
@@ -12,6 +14,13 @@ pub struct AdminPublicProduct {
     pub quantity: i32,
     pub configurable: bool,
     pub is_active: bool,
+    pub images: Vec<AdminPublicProductImage>,
+}
+
+impl HasId for AdminPublicProduct {
+    fn get_id(&self) -> i64 {
+        self.id
+    }
 }
 
 impl From<AdminProductModel> for AdminPublicProduct {
@@ -23,6 +32,24 @@ impl From<AdminProductModel> for AdminPublicProduct {
             quantity: product.quantity,
             configurable: product.configurable,
             is_active: product.is_active,
+            images: Vec::new(),
+        }
+    }
+}
+
+impl AdminPublicProduct {
+    pub fn from_model_with_images(
+        product: AdminProductModel,
+        images: Vec<AdminPublicProductImage>,
+    ) -> Self {
+        Self {
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            quantity: product.quantity,
+            configurable: product.configurable,
+            is_active: product.is_active,
+            images,
         }
     }
 }
