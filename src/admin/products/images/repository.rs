@@ -64,7 +64,8 @@ impl AdminProductImageRepository {
             deleted_at,
             created_at
         FROM product_images
-        WHERE product_id = ANY($1);
+        WHERE product_id = ANY($1)
+        ORDER BY sort;
         "#,
             &product_ids
         }
