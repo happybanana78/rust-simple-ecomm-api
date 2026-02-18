@@ -1,28 +1,59 @@
 use super::model::ProductModel;
 use crate::errors::error::AppError;
+use crate::pagination::{Paginate, PaginatedDataCollection};
 use crate::products::dto::{PublicProduct, UpdateStockDto};
+use crate::products::filters::ProductFilters;
+use crate::products::images::repository::ProductImageRepository;
+use crate::products::images::traits::IntoPublic as IntoPublicProductImage;
 use crate::products::repository::ProductRepository;
 use crate::products::traits::IntoPublic;
-use crate::traits::HasQuantity;
+use crate::traits::{HasQuantity, IsRepository};
 use sqlx::PgPool;
 
 pub struct ProductService {
     repository: ProductRepository,
+    product_image_repository: ProductImageRepository,
 }
 
 impl ProductService {
     pub fn new(pool: PgPool) -> Self {
-        let repository = ProductRepository::new(pool.clone());
-        Self { repository }
+        Self {
+            repository: ProductRepository::new(pool.clone()),
+            product_image_repository: ProductImageRepository::new(pool),
+        }
     }
 
-    pub async fn get_all(&self) -> Result<Vec<ProductModel>, AppError> {
-        self.repository.index().await
+    pub async fn get_all_paginated(
+        &self,
+        pagination: &Paginate,
+        filters: &ProductFilters,
+        search: &Option<String>,
+    ) -> Result<PaginatedDataCollection<ProductModel>, AppError> {
+        let data = self
+            .repository
+            .index_paginated(pagination, search, filters)
+            .await?;
+
+        Ok(PaginatedDataCollection::new(data, pagination.clone()))
     }
 
-    pub async fn get_all_public(&self) -> Result<Vec<PublicProduct>, AppError> {
-        let products = self.get_all().await?;
-        Ok(products.into_public())
+    /**
+     * Get all paginated products with images (public version).
+     */
+    pub async fn get_all_paginated_public(
+        &self,
+        pagination: &Paginate,
+        filters: &ProductFilters,
+        search: &Option<String>,
+    ) -> Result<PaginatedDataCollection<PublicProduct>, AppError> {
+        let products = self.get_all_paginated(pagination, filters, search).await?;
+        let images = self
+            .product_image_repository
+            .get_all_for_multiple_products(products.extract_ids())
+            .await?
+            .into_public();
+
+        Ok(products.into_public_with_images(images))
     }
 
     pub async fn get_one(&self, slug: &str) -> Result<ProductModel, AppError> {
@@ -36,8 +67,13 @@ impl ProductService {
 
     pub async fn get_one_public(&self, slug: &str) -> Result<PublicProduct, AppError> {
         let product = self.get_one(slug).await?;
+        let images = self
+            .product_image_repository
+            .get_all_by_product(*product.id)
+            .await?
+            .into_public();
 
-        Ok(product.into_public())
+        Ok(product.into_public_with_images(images))
     }
 
     pub async fn exist(&self, id: i64) -> Result<bool, AppError> {

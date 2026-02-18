@@ -1,6 +1,8 @@
 use super::model::{ProductIdModel, ProductModel};
 use crate::errors::error::AppError;
-use sqlx::PgPool;
+use crate::pagination::Paginate;
+use crate::products::filters::ProductFilters;
+use sqlx::{PgPool, Postgres, QueryBuilder};
 
 pub struct ProductRepository {
     pool: PgPool,
@@ -30,6 +32,99 @@ impl ProductRepository {
         .fetch_all(&self.pool)
         .await
         .map_err(AppError::Database)
+    }
+
+    pub async fn index_paginated(
+        &self,
+        pagination: &Paginate,
+        search: &Option<String>,
+        filters: &ProductFilters,
+    ) -> Result<Vec<ProductModel>, AppError> {
+        let mut qb = QueryBuilder::<Postgres>::new(
+            r#"
+            SELECT
+                products.id,
+                products.name,
+                products.slug,
+                products.price,
+                products.quantity,
+                products.configurable,
+                products.is_active,
+                products.created_at
+            FROM products
+        "#,
+        );
+
+        let mut has_where = false;
+
+        // category
+        if let Some(category) = filters.category {
+            qb.push(
+                " JOIN product_has_categories ON product_has_categories.product_id = products.id ",
+            );
+
+            if has_where {
+                qb.push(" AND ");
+            } else {
+                qb.push(" WHERE ");
+                has_where = true;
+            }
+
+            qb.push(" product_has_categories.category_id = ");
+            qb.push_bind(category);
+        }
+
+        // handle search
+        if let Some(search) = search {
+            if has_where {
+                qb.push(" AND ");
+            } else {
+                qb.push(" WHERE ");
+                has_where = true;
+            }
+
+            qb.push(" products.name ILIKE ");
+            qb.push_bind(format!("%{}%", search));
+        }
+
+        // min price
+        if let Some(min_price) = filters.price_min {
+            if has_where {
+                qb.push(" AND ");
+            } else {
+                qb.push(" WHERE ");
+                has_where = true;
+            }
+
+            qb.push(" products.price >= ");
+            qb.push_bind(min_price);
+        }
+
+        // max price
+        if let Some(max_price) = filters.price_max {
+            if has_where {
+                qb.push(" AND ");
+            } else {
+                qb.push(" WHERE ");
+                has_where = true;
+            }
+
+            qb.push(" products.price <= ");
+            qb.push_bind(max_price);
+        }
+
+        // handle pagination
+        qb.push(" LIMIT ");
+        qb.push_bind(pagination.limit);
+        qb.push(" OFFSET ");
+        qb.push_bind(pagination.get_offset());
+
+        let query = qb.build_query_as::<ProductModel>();
+
+        query
+            .fetch_all(&self.pool)
+            .await
+            .map_err(AppError::Database)
     }
 
     pub async fn show(&self, slug: &str) -> Result<Option<ProductModel>, AppError> {

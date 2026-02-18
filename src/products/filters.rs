@@ -1,0 +1,8 @@
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ProductFilters {
+    pub category: Option<i64>,
+    pub price_min: Option<f64>,
+    pub price_max: Option<f64>,
+}
