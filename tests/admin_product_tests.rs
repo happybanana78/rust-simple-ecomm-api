@@ -103,6 +103,11 @@ async fn test_admin_product_index() {
         res.json::<ErrorResponse>().await.unwrap()
     );
 
+    let body: LocalApiPaginatedResponse<Vec<AdminPublicProduct>> = res.json().await.unwrap();
+
+    assert_eq!(body.get_data().len(), 2);
+    assert_eq!(body.get_data()[0].images[0].alt, "p1 example image 1");
+
     context.database.cleanup().await;
 }
 

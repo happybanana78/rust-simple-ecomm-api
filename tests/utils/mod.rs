@@ -89,6 +89,7 @@ impl TestContext {
         seed_users(&test_db.pool).await;
         seed_categories(&test_db.pool).await;
         seed_products(&test_db.pool).await;
+        seed_product_images(&test_db.pool).await;
 
         let test_server = create_test_server(test_db.pool.clone());
 
@@ -191,4 +192,17 @@ pub async fn seed_products(pool: &PgPool) {
     .execute(pool)
     .await
     .expect("Failed to seed product test data");
+}
+
+pub async fn seed_product_images(pool: &PgPool) {
+    sqlx::query!(
+        "INSERT INTO product_images (product_id, url, alt, is_main, sort) VALUES
+         (1, 'public/uploads/p1_example_image1.jpg', 'p1 example image 1', true, 1),
+         (1, 'public/uploads/p1_example_image2.jpg', 'p1 example image 2', false, 2),
+         (2, 'public/uploads/p2_example_image1.jpg', 'p2 example image 1', true, 1)
+         ON CONFLICT (id) DO NOTHING;"
+    )
+    .execute(pool)
+    .await
+    .expect("Failed to seed product image test data");
 }
