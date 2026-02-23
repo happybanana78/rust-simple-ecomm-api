@@ -67,23 +67,4 @@ impl CategoryRepository {
         .await
         .map_err(AppError::Database)
     }
-
-    pub async fn get_categories_by_product(
-        &self,
-        product_id: i64,
-    ) -> Result<Vec<CategoryModel>, AppError> {
-        sqlx::query_as! {
-            CategoryModel,
-            r#"
-            SELECT categories.id, categories.name, categories.slug, categories.is_active
-            FROM categories
-            INNER JOIN product_has_categories ON categories.id = product_has_categories.category_id
-            WHERE product_has_categories.product_id = $1;
-            "#,
-            product_id
-        }
-        .fetch_all(&self.pool)
-        .await
-        .map_err(AppError::Database)
-    }
 }
