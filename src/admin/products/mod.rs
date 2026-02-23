@@ -8,3 +8,4 @@ mod repository;
 pub mod routes;
 pub mod service;
 pub mod traits;
+pub mod videos;
