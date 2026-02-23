@@ -1,6 +1,7 @@
 pub mod admin;
 pub mod auth;
 pub mod cart;
+pub mod categories;
 pub mod db;
 pub mod errors;
 pub mod middlewares;

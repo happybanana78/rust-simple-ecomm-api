@@ -5,6 +5,7 @@ use ecomm::admin::routes::routes as admin_routes;
 use ecomm::auth::dto::LoginDTO;
 use ecomm::auth::routes::routes as auth_routes;
 use ecomm::cart::routes::routes as cart_routes;
+use ecomm::categories::routes::routes as category_routes;
 use ecomm::products::routes::routes as products_routes;
 use ecomm::state::AppState;
 use sqlx::{PgPool, postgres::PgPoolOptions};
@@ -112,6 +113,7 @@ pub fn create_test_server(pool: PgPool) -> TestServer {
             .app_data(web::Data::new(AppState::new(pool.clone())))
             .configure(auth_routes)
             .configure(admin_routes)
+            .configure(category_routes)
             .configure(products_routes)
             .configure(cart_routes)
     })

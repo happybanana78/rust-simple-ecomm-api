@@ -1,6 +1,7 @@
 mod admin;
 mod auth;
 mod cart;
+mod categories;
 mod errors;
 mod middlewares;
 mod pagination;
@@ -53,6 +54,7 @@ async fn main() -> std::io::Result<()> {
             }))
             .configure(auth::routes::routes)
             .configure(admin::routes::routes)
+            .configure(categories::routes::routes)
             .configure(products::routes::routes)
             .configure(cart::routes::routes)
     })
@@ -61,7 +63,6 @@ async fn main() -> std::io::Result<()> {
     .await
 }
 
-// TODO: handle product images
 // TODO: handle product videos
 // TODO: handle product reviews
 // TODO: handle review replies

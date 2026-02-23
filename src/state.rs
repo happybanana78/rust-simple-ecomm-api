@@ -5,6 +5,7 @@ use crate::auth::service::AuthService;
 use crate::cart::cart_items::service::CartItemsService;
 use crate::cart::guest_cart::service::GuestCartService;
 use crate::cart::user_cart::service::UserCartService;
+use crate::categories::service::CategoryService;
 use crate::products::service::ProductService;
 use crate::storage::LocalStorage;
 use crate::users::service::UserService;
@@ -12,6 +13,7 @@ use sqlx::PgPool;
 
 pub struct AppState {
     pub auth_service: AuthService,
+    pub category_service: CategoryService,
     pub product_service: ProductService,
     pub user_cart_service: UserCartService,
     pub guest_cart_service: GuestCartService,
@@ -32,6 +34,7 @@ impl AppState {
         Self {
             auth_service: AuthService::new(pool.clone()),
             product_service: ProductService::new(pool.clone()),
+            category_service: CategoryService::new(pool.clone()),
             user_cart_service: UserCartService::new(pool.clone()),
             guest_cart_service: GuestCartService::new(pool.clone()),
             cart_items_service: CartItemsService::new(pool.clone()),
