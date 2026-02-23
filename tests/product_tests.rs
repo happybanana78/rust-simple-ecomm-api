@@ -38,7 +38,7 @@ async fn test_product_index() {
 
     let body: LocalApiPaginatedResponse<Vec<PublicProduct>> = res.json().await.unwrap();
 
-    assert_eq!(body.get_data().len(), 2);
+    assert_eq!(body.get_data().len(), 1); // only the active one
     assert_eq!(body.get_data()[0].images[0].alt, "p1 example image 1");
 
     context.database.cleanup().await;

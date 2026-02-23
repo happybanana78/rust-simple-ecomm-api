@@ -13,27 +13,6 @@ impl ProductRepository {
         Self { pool }
     }
 
-    pub async fn index(&self) -> Result<Vec<ProductModel>, AppError> {
-        sqlx::query_as! {
-            ProductModel,
-            r#"
-        SELECT
-            id,
-            name,
-            slug,
-            price,
-            quantity,
-            configurable,
-            is_active
-        FROM products
-        WHERE is_active = true;
-        "#,
-        }
-        .fetch_all(&self.pool)
-        .await
-        .map_err(AppError::Database)
-    }
-
     pub async fn index_paginated(
         &self,
         pagination: &Paginate,
@@ -52,10 +31,9 @@ impl ProductRepository {
                 products.is_active,
                 products.created_at
             FROM products
+            WHERE is_active = true
         "#,
         );
-
-        let mut has_where = false;
 
         // category
         if let Some(category) = filters.category {
@@ -63,53 +41,25 @@ impl ProductRepository {
                 " JOIN product_has_categories ON product_has_categories.product_id = products.id ",
             );
 
-            if has_where {
-                qb.push(" AND ");
-            } else {
-                qb.push(" WHERE ");
-                has_where = true;
-            }
-
-            qb.push(" product_has_categories.category_id = ");
+            qb.push(" AND product_has_categories.category_id = ");
             qb.push_bind(category);
         }
 
         // handle search
         if let Some(search) = search {
-            if has_where {
-                qb.push(" AND ");
-            } else {
-                qb.push(" WHERE ");
-                has_where = true;
-            }
-
-            qb.push(" products.name ILIKE ");
+            qb.push(" AND products.name ILIKE ");
             qb.push_bind(format!("%{}%", search));
         }
 
         // min price
         if let Some(min_price) = filters.price_min {
-            if has_where {
-                qb.push(" AND ");
-            } else {
-                qb.push(" WHERE ");
-                has_where = true;
-            }
-
-            qb.push(" products.price >= ");
+            qb.push(" AND products.price >= ");
             qb.push_bind(min_price);
         }
 
         // max price
         if let Some(max_price) = filters.price_max {
-            if has_where {
-                qb.push(" AND ");
-            } else {
-                qb.push(" WHERE ");
-                has_where = true;
-            }
-
-            qb.push(" products.price <= ");
+            qb.push(" AND products.price <= ");
             qb.push_bind(max_price);
         }
 
