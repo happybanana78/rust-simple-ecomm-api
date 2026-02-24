@@ -5,6 +5,7 @@ use crate::admin::products::videos::repository::AdminProductVideoRepository;
 use crate::errors::error::AppError;
 use crate::storage::LocalStorage;
 use crate::traits::{IsRepository, UseStorage};
+use actix_files::NamedFile;
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -39,7 +40,11 @@ impl AdminProductVideoService {
 
         let mut command = CreateProductVideoCommand::new_from_dto(&dto);
 
-        let file_name = format!("product-image-{}-{}", *dto.product_id, Uuid::new_v4());
+        if self.repository.get_total_count(*dto.product_id).await? == 0 {
+            command.set_is_main(true);
+        }
+
+        let file_name = format!("product-video-{}-{}", *dto.product_id, Uuid::new_v4());
 
         let url = storage
             .upload_from_temp(file_name.as_str(), dto.file)
@@ -52,6 +57,11 @@ impl AdminProductVideoService {
             .await?;
 
         Ok(())
+    }
+
+    pub async fn stream(&self, id: i64) -> Result<NamedFile, AppError> {
+        let video = self.get_one(id).await?;
+        NamedFile::open(format!("./{}", video.url)).map_err(|e| AppError::Internal(e.to_string()))
     }
 
     pub async fn delete(&self, id: i64, storage: &LocalStorage) -> Result<u64, AppError> {

@@ -5,7 +5,7 @@ use bytes::Bytes;
 use futures_util::TryFutureExt;
 use tokio::fs;
 use tokio::fs::File;
-use tokio::io::AsyncWriteExt;
+use tokio::io::{AsyncWriteExt, copy};
 
 pub struct LocalStorage {
     pub base_path: String,
@@ -53,9 +53,13 @@ impl UseStorage for LocalStorage {
             .map_err(|e| AppError::Internal(e.to_string()))
             .await?;
 
-        temp_file
-            .file
-            .persist(format!("./{}", full_path))
+        let mut src = File::from_std(temp_file.file.into_file());
+        let mut dst = File::create(format!("./{}", full_path))
+            .await
+            .map_err(|e| AppError::Internal(e.to_string()))?;
+
+        copy(&mut src, &mut dst)
+            .await
             .map_err(|e| AppError::Internal(e.to_string()))?;
 
         Ok(full_path)

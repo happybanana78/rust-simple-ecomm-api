@@ -1,6 +1,7 @@
 use super::handler;
 use crate::admin::products::images::routes::routes as images_routes;
 use crate::admin::products::permission::ProductScope;
+use crate::admin::products::videos::routes::routes as videos_routes;
 use crate::middlewares::auth::AuthMiddleware;
 use actix_web::web;
 use actix_web::web::{delete, get, post, put, resource};
@@ -10,6 +11,7 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/products")
             .configure(images_routes)
+            .configure(videos_routes)
             .service(
                 resource("/list")
                     .wrap(AuthMiddleware::new(Some(Arc::new(ProductScope::List))))

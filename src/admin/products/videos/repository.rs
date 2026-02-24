@@ -131,4 +131,19 @@ impl AdminProductVideoRepository {
 
         Ok(result.rows_affected())
     }
+
+    pub async fn get_total_count(&self, product_id: i64) -> Result<i64, AppError> {
+        sqlx::query_scalar! {
+            r#"
+            SELECT COUNT(*) AS "count!"
+            FROM product_videos
+            WHERE product_id = $1
+            AND deleted_at IS NULL;
+            "#,
+            product_id,
+        }
+        .fetch_one(&self.pool)
+        .await
+        .map_err(AppError::Database)
+    }
 }
