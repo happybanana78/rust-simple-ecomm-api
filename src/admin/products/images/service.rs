@@ -37,7 +37,7 @@ impl AdminProductImageService {
         storage: &LocalStorage,
         file_bytes: Vec<u8>,
         extension: &str,
-    ) -> Result<(), AppError> {
+    ) -> Result<i64, AppError> {
         self.product_service.get_one(cmd.product_id).await?;
 
         let file_name = format!("product-image-{}-{}", cmd.product_id, Uuid::new_v4());
@@ -50,11 +50,12 @@ impl AdminProductImageService {
         cmd.handle_main(&self.repository).await?;
         cmd.handle_sort(&self.repository).await?;
 
-        self.repository
+        let image_model = self
+            .repository
             .create(self.repository.get_pool(), &cmd)
             .await?;
 
-        Ok(())
+        Ok(image_model.id)
     }
 
     pub async fn delete(&self, id: i64, storage: &LocalStorage) -> Result<u64, AppError> {
