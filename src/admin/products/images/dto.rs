@@ -65,4 +65,8 @@ impl CreateProductImageCommand {
     pub fn set_url(&mut self, url: String) {
         self.url = Some(url);
     }
+
+    pub fn set_is_main(&mut self, value: bool) {
+        self.is_main = value;
+    }
 }
