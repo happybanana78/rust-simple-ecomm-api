@@ -108,6 +108,25 @@ impl TestContext {
     }
 }
 
+pub struct TestContextNoServer {
+    pub database: TestDatabase,
+}
+
+impl TestContextNoServer {
+    pub async fn new() -> Self {
+        let test_db = TestDatabase::new().await;
+
+        seed_roles(&test_db.pool).await;
+        seed_users(&test_db.pool).await;
+        seed_categories(&test_db.pool).await;
+        seed_products(&test_db.pool).await;
+        seed_product_images(&test_db.pool).await;
+        seed_product_videos(&test_db.pool).await;
+
+        Self { database: test_db }
+    }
+}
+
 pub fn create_test_server(pool: PgPool) -> TestServer {
     actix_test::start(move || {
         App::new()
