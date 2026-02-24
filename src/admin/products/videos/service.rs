@@ -8,6 +8,7 @@ use crate::traits::{IsRepository, UseStorage};
 use actix_files::NamedFile;
 use bytes::Bytes;
 use sqlx::PgPool;
+use std::path::Path;
 use uuid::Uuid;
 
 pub struct AdminProductVideoService {
@@ -61,7 +62,10 @@ impl AdminProductVideoService {
 
     pub async fn stream(&self, id: i64) -> Result<NamedFile, AppError> {
         let video = self.get_one(id).await?;
-        NamedFile::open(format!("./{}", video.url)).map_err(|e| AppError::Internal(e.to_string()))
+
+        let full_path = Path::new("./").join(&video.url);
+
+        NamedFile::open(full_path).map_err(|e| AppError::Internal(e.to_string()))
     }
 
     pub async fn delete(&self, id: i64, storage: &LocalStorage) -> Result<u64, AppError> {
