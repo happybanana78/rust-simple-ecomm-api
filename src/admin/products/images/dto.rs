@@ -54,31 +54,54 @@ pub struct CreateProductImageCommand {
 }
 
 impl CreateProductImageCommand {
-    pub async fn new_from_dto(
-        dto: &CreateProductImageDTO,
-        repository: &AdminProductImageRepository,
-    ) -> Result<Self, AppError> {
-        let mut is_main = *dto.is_main;
-
-        let total_count = repository.get_total_count(*dto.product_id).await?;
-
-        if total_count == 0 {
-            is_main = true;
-        } else if is_main && total_count > 1 {
-            repository.reset_is_main(*dto.product_id).await?;
-            is_main = true;
-        }
-
-        Ok(Self {
+    pub fn new_from_dto(dto: &CreateProductImageDTO) -> Self {
+        Self {
             product_id: *dto.product_id,
             url: None,
             alt: dto.alt.clone(),
             sort: *dto.sort,
-            is_main,
-        })
+            is_main: *dto.is_main,
+        }
     }
 
     pub fn set_url(&mut self, url: String) {
         self.url = Some(url);
+    }
+
+    /// ```rust
+    /// Asynchronously handles the logic for determining and modifying the "main image" status
+    /// of a product based on the given parameters and repository operations.
+    /// ```
+    pub async fn handle_main(
+        &mut self,
+        repository: &AdminProductImageRepository,
+    ) -> Result<(), AppError> {
+        let total_count = repository.get_total_count(self.product_id).await?;
+
+        if total_count == 0 {
+            self.is_main = true;
+        } else if self.is_main && total_count > 1 {
+            repository.reset_is_main(self.product_id).await?;
+            self.is_main = true;
+        }
+
+        Ok(())
+    }
+
+    /// ```rust
+    ///  Handles the sorting logic for a product image.
+    /// ```
+    pub async fn handle_sort(
+        &mut self,
+        repository: &AdminProductImageRepository,
+    ) -> Result<(), AppError> {
+        let last_sort = repository.get_last_sort(self.product_id).await?;
+
+        match last_sort {
+            Some(sort) => self.sort = sort + 1,
+            None => self.sort = 0,
+        }
+
+        Ok(())
     }
 }

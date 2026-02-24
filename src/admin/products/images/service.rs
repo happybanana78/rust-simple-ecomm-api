@@ -1,10 +1,11 @@
-use crate::admin::products::images::dto::{CreateProductImageCommand, CreateProductImageDTO};
+use crate::admin::products::images::dto::CreateProductImageCommand;
 use crate::admin::products::images::model::AdminProductImageModel;
 use crate::admin::products::images::repository::AdminProductImageRepository;
 use crate::admin::products::service::AdminProductService;
 use crate::errors::error::AppError;
 use crate::storage::LocalStorage;
 use crate::traits::{IsRepository, UseStorage};
+use bytes::Bytes;
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -32,23 +33,25 @@ impl AdminProductImageService {
 
     pub async fn upload(
         &self,
-        dto: CreateProductImageDTO,
+        mut cmd: CreateProductImageCommand,
         storage: &LocalStorage,
+        file_bytes: Vec<u8>,
+        extension: &str,
     ) -> Result<(), AppError> {
-        self.product_service.get_one(*dto.product_id).await?;
+        self.product_service.get_one(cmd.product_id).await?;
 
-        let mut command = CreateProductImageCommand::new_from_dto(&dto, &self.repository).await?;
-
-        let file_name = format!("product-image-{}-{}", *dto.product_id, Uuid::new_v4());
+        let file_name = format!("product-image-{}-{}", cmd.product_id, Uuid::new_v4());
 
         let url = storage
-            .upload_from_temp(file_name.as_str(), dto.file)
+            .upload(file_name.as_str(), extension, Bytes::from(file_bytes))
             .await?;
 
-        command.set_url(url);
+        cmd.set_url(url);
+        cmd.handle_main(&self.repository).await?;
+        cmd.handle_sort(&self.repository).await?;
 
         self.repository
-            .create(self.repository.get_pool(), &command)
+            .create(self.repository.get_pool(), &cmd)
             .await?;
 
         Ok(())
