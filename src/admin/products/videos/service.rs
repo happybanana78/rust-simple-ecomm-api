@@ -38,7 +38,7 @@ impl AdminProductVideoService {
     ) -> Result<(), AppError> {
         self.product_service.get_one(*dto.product_id).await?;
 
-        let mut command = CreateProductVideoCommand::new_from_dto(&dto);
+        let mut command = CreateProductVideoCommand::new_from_dto(&dto, &self.repository).await?;
 
         if self.repository.get_total_count(*dto.product_id).await? == 0 {
             command.set_is_main(true);

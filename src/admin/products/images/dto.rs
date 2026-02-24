@@ -1,4 +1,6 @@
 use crate::admin::products::images::model::AdminProductImageModel;
+use crate::admin::products::images::repository::AdminProductImageRepository;
+use crate::errors::error::AppError;
 use crate::traits::HasId;
 use actix_multipart::form::MultipartForm;
 use actix_multipart::form::tempfile::TempFile;
@@ -52,21 +54,31 @@ pub struct CreateProductImageCommand {
 }
 
 impl CreateProductImageCommand {
-    pub fn new_from_dto(dto: &CreateProductImageDTO) -> Self {
-        Self {
+    pub async fn new_from_dto(
+        dto: &CreateProductImageDTO,
+        repository: &AdminProductImageRepository,
+    ) -> Result<Self, AppError> {
+        let mut is_main = *dto.is_main;
+
+        let total_count = repository.get_total_count(*dto.product_id).await?;
+
+        if total_count == 0 {
+            is_main = true;
+        } else if is_main && total_count > 1 {
+            repository.reset_is_main(*dto.product_id).await?;
+            is_main = true;
+        }
+
+        Ok(Self {
             product_id: *dto.product_id,
             url: None,
             alt: dto.alt.clone(),
             sort: *dto.sort,
-            is_main: *dto.is_main,
-        }
+            is_main,
+        })
     }
 
     pub fn set_url(&mut self, url: String) {
         self.url = Some(url);
-    }
-
-    pub fn set_is_main(&mut self, value: bool) {
-        self.is_main = value;
     }
 }

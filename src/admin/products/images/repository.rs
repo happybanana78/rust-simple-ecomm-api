@@ -146,4 +146,22 @@ impl AdminProductImageRepository {
         .await
         .map_err(AppError::Database)
     }
+
+    pub async fn reset_is_main(&self, product_id: i64) -> Result<u64, AppError> {
+        let result = sqlx::query_as! {
+            AdminProductImageModel,
+            r#"
+            UPDATE product_images
+            SET is_main = false
+            WHERE product_id = $1
+            AND is_main = true;
+            "#,
+            product_id,
+        }
+        .execute(&self.pool)
+        .await
+        .map_err(AppError::Database)?;
+
+        Ok(result.rows_affected())
+    }
 }

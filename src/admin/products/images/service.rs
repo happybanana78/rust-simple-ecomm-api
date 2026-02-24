@@ -37,13 +37,7 @@ impl AdminProductImageService {
     ) -> Result<(), AppError> {
         self.product_service.get_one(*dto.product_id).await?;
 
-        let mut command = CreateProductImageCommand::new_from_dto(&dto);
-
-        if self.repository.get_total_count(*dto.product_id).await? == 0 {
-            command.set_is_main(true);
-        }
-
-        // TODO: only ever have one image with is_main set to true
+        let mut command = CreateProductImageCommand::new_from_dto(&dto, &self.repository).await?;
 
         let file_name = format!("product-image-{}-{}", *dto.product_id, Uuid::new_v4());
 
