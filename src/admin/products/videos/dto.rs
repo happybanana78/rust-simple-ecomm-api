@@ -54,35 +54,54 @@ pub struct CreateProductVideoCommand {
 }
 
 impl CreateProductVideoCommand {
-    pub async fn new_from_dto(
-        dto: &CreateProductVideoDTO,
-        repository: &AdminProductVideoRepository,
-    ) -> Result<Self, AppError> {
-        let mut is_main = *dto.is_main;
-
-        let total_count = repository.get_total_count(*dto.product_id).await?;
-
-        if total_count == 0 {
-            is_main = true;
-        } else if is_main && total_count > 1 {
-            repository.reset_is_main(*dto.product_id).await?;
-            is_main = true;
-        }
-
-        Ok(Self {
+    pub fn new_from_dto(dto: &CreateProductVideoDTO) -> Self {
+        Self {
             product_id: *dto.product_id,
             url: None,
             alt: dto.alt.clone(),
             sort: *dto.sort,
-            is_main,
-        })
+            is_main: *dto.is_main,
+        }
     }
 
     pub fn set_url(&mut self, url: String) {
         self.url = Some(url);
     }
 
-    pub fn set_is_main(&mut self, value: bool) {
-        self.is_main = value;
+    /// ```rust
+    /// Asynchronously handles the logic for determining and modifying the "main video" status
+    /// of a product based on the given parameters and repository operations.
+    /// ```
+    pub async fn handle_main(
+        &mut self,
+        repository: &AdminProductVideoRepository,
+    ) -> Result<(), AppError> {
+        let total_count = repository.get_total_count(self.product_id).await?;
+
+        if total_count == 0 {
+            self.is_main = true;
+        } else if self.is_main && total_count > 1 {
+            repository.reset_is_main(self.product_id).await?;
+            self.is_main = true;
+        }
+
+        Ok(())
+    }
+
+    /// ```rust
+    ///  Handles the sorting logic for a product video.
+    /// ```
+    pub async fn handle_sort(
+        &mut self,
+        repository: &AdminProductVideoRepository,
+    ) -> Result<(), AppError> {
+        let last_sort = repository.get_last_sort(self.product_id).await?;
+
+        match last_sort {
+            Some(sort) => self.sort = sort + 1,
+            None => self.sort = 0,
+        }
+
+        Ok(())
     }
 }

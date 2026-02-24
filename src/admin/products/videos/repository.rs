@@ -147,6 +147,23 @@ impl AdminProductVideoRepository {
         .map_err(AppError::Database)
     }
 
+    pub async fn get_last_sort(&self, product_id: i64) -> Result<Option<i32>, AppError> {
+        sqlx::query_scalar! {
+            r#"
+            SELECT sort
+            FROM product_videos
+            WHERE product_id = $1
+            AND deleted_at IS NULL
+            ORDER BY sort DESC
+            LIMIT 1;
+            "#,
+            product_id,
+        }
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(AppError::Database)
+    }
+
     pub async fn reset_is_main(&self, product_id: i64) -> Result<u64, AppError> {
         let result = sqlx::query_as! {
             AdminProductImageModel,
