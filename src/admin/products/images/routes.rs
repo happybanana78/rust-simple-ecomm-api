@@ -2,7 +2,7 @@ use crate::admin::products::images::handler;
 use crate::admin::products::permission::ProductScope;
 use crate::middlewares::auth::AuthMiddleware;
 use actix_web::web;
-use actix_web::web::{delete, post, resource};
+use actix_web::web::{delete, post, put, resource};
 use std::sync::Arc;
 
 pub fn routes(cfg: &mut web::ServiceConfig) {
@@ -12,6 +12,11 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
                 resource("/upload")
                     .wrap(AuthMiddleware::new(Some(Arc::new(ProductScope::Create))))
                     .route(post().to(handler::upload)),
+            )
+            .service(
+                resource("/{id}/update-sort")
+                    .wrap(AuthMiddleware::new(Some(Arc::new(ProductScope::Update))))
+                    .route(put().to(handler::update_sort)),
             )
             .service(
                 resource("/delete/{id}")

@@ -109,6 +109,7 @@ impl CreateProductImageCommand {
     }
 }
 
+#[derive(Serialize, Deserialize, Debug)]
 pub struct UpdateProductImageSortDTO {
     pub target_index: Option<i32>,
 }
