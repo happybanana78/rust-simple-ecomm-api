@@ -7,19 +7,23 @@ use crate::products::images::repository::ProductImageRepository;
 use crate::products::images::traits::IntoPublic as IntoPublicProductImage;
 use crate::products::repository::ProductRepository;
 use crate::products::traits::IntoPublic;
+use crate::products::videos::repository::ProductVideoRepository;
+use crate::products::videos::traits::IntoPublic as IntoPublicProductVideo;
 use crate::traits::{HasQuantity, IsRepository};
 use sqlx::PgPool;
 
 pub struct ProductService {
     repository: ProductRepository,
     product_image_repository: ProductImageRepository,
+    product_video_repository: ProductVideoRepository,
 }
 
 impl ProductService {
     pub fn new(pool: PgPool) -> Self {
         Self {
             repository: ProductRepository::new(pool.clone()),
-            product_image_repository: ProductImageRepository::new(pool),
+            product_image_repository: ProductImageRepository::new(pool.clone()),
+            product_video_repository: ProductVideoRepository::new(pool),
         }
     }
 
@@ -47,13 +51,20 @@ impl ProductService {
         search: &Option<String>,
     ) -> Result<PaginatedDataCollection<PublicProduct>, AppError> {
         let products = self.get_all_paginated(pagination, filters, search).await?;
+
         let images = self
             .product_image_repository
             .get_all_for_multiple_products(products.extract_ids())
             .await?
             .into_public();
 
-        Ok(products.into_public_with_images(images))
+        let videos = self
+            .product_video_repository
+            .get_all_for_multiple_products(products.extract_ids())
+            .await?
+            .into_public();
+
+        Ok(products.into_public_with_media(images, videos))
     }
 
     pub async fn get_one(&self, slug: &str) -> Result<ProductModel, AppError> {
@@ -67,13 +78,20 @@ impl ProductService {
 
     pub async fn get_one_public(&self, slug: &str) -> Result<PublicProduct, AppError> {
         let product = self.get_one(slug).await?;
+
         let images = self
             .product_image_repository
             .get_all_by_product(product.id)
             .await?
             .into_public();
 
-        Ok(product.into_public_with_images(images))
+        let videos = self
+            .product_video_repository
+            .get_all_by_product(product.id)
+            .await?
+            .into_public();
+
+        Ok(product.into_public_with_media(images, videos))
     }
 
     pub async fn exist(&self, id: i64) -> Result<bool, AppError> {

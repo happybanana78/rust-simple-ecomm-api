@@ -63,7 +63,6 @@ async fn main() -> std::io::Result<()> {
     .await
 }
 
-// TODO: handle product videos
 // TODO: handle product reviews
 // TODO: handle review replies
 // TODO: handle review attachments

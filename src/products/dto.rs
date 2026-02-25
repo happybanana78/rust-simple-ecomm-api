@@ -2,6 +2,7 @@ use crate::errors::error::AppError;
 use crate::products::filters::ProductFilters;
 use crate::products::images::dto::PublicProductImage;
 use crate::products::model::ProductModel;
+use crate::products::videos::dto::PublicProductVideo;
 use crate::traits::{HasId, HasQuantity};
 use serde::{Deserialize, Serialize};
 use validator::Validate;
@@ -16,6 +17,7 @@ pub struct PublicProduct {
     pub configurable: bool,
     pub is_active: bool,
     pub images: Vec<PublicProductImage>,
+    pub videos: Vec<PublicProductVideo>,
 }
 
 impl HasId for PublicProduct {
@@ -25,7 +27,11 @@ impl HasId for PublicProduct {
 }
 
 impl PublicProduct {
-    pub fn from_model_with_images(product: ProductModel, images: Vec<PublicProductImage>) -> Self {
+    pub fn from_model_with_media(
+        product: ProductModel,
+        images: Vec<PublicProductImage>,
+        videos: Vec<PublicProductVideo>,
+    ) -> Self {
         Self {
             id: product.id,
             name: product.name,
@@ -35,6 +41,7 @@ impl PublicProduct {
             configurable: product.configurable,
             is_active: product.is_active,
             images,
+            videos,
         }
     }
 }
@@ -50,6 +57,7 @@ impl From<ProductModel> for PublicProduct {
             configurable: product.configurable,
             is_active: product.is_active,
             images: Vec::new(),
+            videos: Vec::new(),
         }
     }
 }
