@@ -6,8 +6,10 @@ use crate::admin::products::images::repository::AdminProductImageRepository;
 use crate::admin::products::images::traits::IntoPublic as ProductImageIntoPublic;
 use crate::admin::products::repository::AdminProductRepository;
 use crate::admin::products::traits::IntoPublic;
+use crate::admin::products::videos::repository::AdminProductVideoRepository;
+use crate::admin::products::videos::traits::IntoPublic as ProductVideoIntoPublic;
 use crate::errors::error::AppError;
-use crate::pagination::{DataCollection, Paginate, PaginatedDataCollection};
+use crate::pagination::{Paginate, PaginatedDataCollection};
 use crate::traits::IsRepository;
 use crate::validation_utils::validate_slug;
 use sqlx::PgPool;
@@ -16,6 +18,7 @@ pub struct AdminProductService {
     repository: AdminProductRepository,
     category_repository: AdminCategoryRepository,
     product_image_repository: AdminProductImageRepository,
+    product_video_repository: AdminProductVideoRepository,
 }
 
 impl AdminProductService {
@@ -23,13 +26,9 @@ impl AdminProductService {
         Self {
             repository: AdminProductRepository::new(pool.clone()),
             category_repository: AdminCategoryRepository::new(pool.clone()),
-            product_image_repository: AdminProductImageRepository::new(pool),
+            product_image_repository: AdminProductImageRepository::new(pool.clone()),
+            product_video_repository: AdminProductVideoRepository::new(pool),
         }
-    }
-
-    pub async fn get_all(&self) -> Result<DataCollection<AdminProductModel>, AppError> {
-        let data = self.repository.index().await?;
-        Ok(DataCollection::new(data))
     }
 
     pub async fn get_all_paginated(
@@ -55,13 +54,20 @@ impl AdminProductService {
         search: &Option<String>,
     ) -> Result<PaginatedDataCollection<AdminPublicProduct>, AppError> {
         let products = self.get_all_paginated(pagination, filters, search).await?;
+
         let images = self
             .product_image_repository
             .get_all_for_multiple_products(products.extract_ids())
             .await?
             .into_public();
 
-        Ok(products.into_public_with_images(images))
+        let videos = self
+            .product_video_repository
+            .get_all_for_multiple_products(products.extract_ids())
+            .await?
+            .into_public();
+
+        Ok(products.into_public_with_media(images, videos))
     }
 
     pub async fn get_one(&self, id: i64) -> Result<AdminProductModel, AppError> {
@@ -78,13 +84,20 @@ impl AdminProductService {
      */
     pub async fn get_one_public(&self, id: i64) -> Result<AdminPublicProduct, AppError> {
         let product = self.get_one(id).await?;
+
         let images = self
             .product_image_repository
             .get_all_by_product(id)
             .await?
             .into_public();
 
-        Ok(product.into_public_with_images(images))
+        let videos = self
+            .product_video_repository
+            .get_all_by_product(id)
+            .await?
+            .into_public();
+
+        Ok(product.into_public_with_media(images, videos))
     }
 
     pub async fn create(&self, cmd: CreateProductCommand) -> Result<AdminProductModel, AppError> {

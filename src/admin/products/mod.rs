@@ -5,6 +5,7 @@ pub mod images;
 pub mod model;
 pub mod permission;
 mod repository;
+pub mod reviews;
 pub mod routes;
 pub mod service;
 pub mod traits;

@@ -4,4 +4,4 @@ pub mod model;
 pub mod repository;
 pub mod routes;
 pub mod service;
-mod traits;
+pub mod traits;

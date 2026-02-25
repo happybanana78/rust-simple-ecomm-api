@@ -1,6 +1,7 @@
 use crate::admin::products::filters::ProductFilters;
 use crate::admin::products::images::dto::AdminPublicProductImage;
 use crate::admin::products::model::AdminProductModel;
+use crate::admin::products::videos::dto::AdminPublicProductVideo;
 use crate::errors::error::AppError;
 use crate::traits::HasId;
 use serde::{Deserialize, Serialize};
@@ -15,6 +16,7 @@ pub struct AdminPublicProduct {
     pub configurable: bool,
     pub is_active: bool,
     pub images: Vec<AdminPublicProductImage>,
+    pub videos: Vec<AdminPublicProductVideo>,
 }
 
 impl HasId for AdminPublicProduct {
@@ -33,14 +35,16 @@ impl From<AdminProductModel> for AdminPublicProduct {
             configurable: product.configurable,
             is_active: product.is_active,
             images: Vec::new(),
+            videos: Vec::new(),
         }
     }
 }
 
 impl AdminPublicProduct {
-    pub fn from_model_with_images(
+    pub fn from_model_with_media(
         product: AdminProductModel,
         images: Vec<AdminPublicProductImage>,
+        videos: Vec<AdminPublicProductVideo>,
     ) -> Self {
         Self {
             id: product.id,
@@ -50,6 +54,7 @@ impl AdminPublicProduct {
             configurable: product.configurable,
             is_active: product.is_active,
             images,
+            videos,
         }
     }
 }
