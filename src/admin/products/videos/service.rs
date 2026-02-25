@@ -1,11 +1,14 @@
 use crate::admin::products::service::AdminProductService;
-use crate::admin::products::videos::dto::CreateProductVideoCommand;
+use crate::admin::products::videos::dto::{
+    CreateProductVideoCommand, UpdateProductVideoSortCommand,
+};
 use crate::admin::products::videos::model::AdminProductVideoModel;
 use crate::admin::products::videos::repository::AdminProductVideoRepository;
 use crate::errors::error::AppError;
 use crate::storage::LocalStorage;
 use crate::traits::{IsRepository, UseStorage};
 use actix_files::NamedFile;
+use bigdecimal::BigDecimal;
 use bytes::Bytes;
 use sqlx::PgPool;
 use std::path::Path;
@@ -58,6 +61,42 @@ impl AdminProductVideoService {
             .await?;
 
         Ok(video_model.id)
+    }
+
+    pub async fn update_sort(
+        &self,
+        id: i64,
+        cmd: UpdateProductVideoSortCommand,
+    ) -> Result<u64, AppError> {
+        let video = self.get_one(id).await?;
+
+        let mut sort_videos = self
+            .repository
+            .get_videos_only_sort(video.product_id)
+            .await?;
+        sort_videos.retain(|i| i.id != id);
+
+        if sort_videos.is_empty() {
+            return Ok(0);
+        }
+
+        let divider = BigDecimal::from(2);
+        let amount_to_add = BigDecimal::from(1000);
+
+        let new_sort = if cmd.target_index == 0 {
+            let first = sort_videos.first().unwrap();
+            first.sort.clone() / divider
+        } else if cmd.target_index >= sort_videos.len() {
+            let last = sort_videos.last().unwrap();
+            last.sort.clone() + amount_to_add
+        } else {
+            let prev = &sort_videos[cmd.target_index - 1];
+            let next = &sort_videos[cmd.target_index];
+
+            (prev.sort.clone() + next.sort.clone()) / divider
+        };
+
+        self.repository.update_sort(id, new_sort).await
     }
 
     pub async fn stream(&self, id: i64) -> Result<NamedFile, AppError> {

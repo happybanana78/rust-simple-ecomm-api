@@ -1,7 +1,10 @@
 use crate::admin::products::videos::dto::CreateProductVideoCommand;
-use crate::admin::products::videos::model::AdminProductVideoModel;
+use crate::admin::products::videos::model::{
+    AdminProductVideoModel, AdminProductVideoOnlySortModel,
+};
 use crate::errors::error::AppError;
 use crate::traits::IsRepository;
+use bigdecimal::BigDecimal;
 use sqlx::{Executor, PgPool, Postgres};
 
 pub struct AdminProductVideoRepository {
@@ -116,6 +119,24 @@ impl AdminProductVideoRepository {
         .map_err(AppError::Database)
     }
 
+    pub async fn update_sort(&self, id: i64, sort: BigDecimal) -> Result<u64, AppError> {
+        let result = sqlx::query_as! {
+            AdminProductVideoModel,
+            r#"
+            UPDATE product_videos
+            SET sort = $1
+            WHERE id = $2;
+            "#,
+            sort,
+            id,
+        }
+        .execute(&self.pool)
+        .await
+        .map_err(AppError::Database)?;
+
+        Ok(result.rows_affected())
+    }
+
     pub async fn delete(
         &self,
         executor: impl Executor<'_, Database = Postgres>,
@@ -147,7 +168,27 @@ impl AdminProductVideoRepository {
         .map_err(AppError::Database)
     }
 
-    pub async fn get_last_sort(&self, product_id: i64) -> Result<Option<i32>, AppError> {
+    pub async fn get_videos_only_sort(
+        &self,
+        product_id: i64,
+    ) -> Result<Vec<AdminProductVideoOnlySortModel>, AppError> {
+        sqlx::query_as! {
+            AdminProductVideoOnlySortModel,
+            r#"
+            SELECT id, sort
+            FROM product_videos
+            WHERE product_id = $1
+            AND deleted_at IS NULL
+            ORDER BY sort;
+            "#,
+            product_id,
+        }
+        .fetch_all(&self.pool)
+        .await
+        .map_err(AppError::Database)
+    }
+
+    pub async fn get_last_sort(&self, product_id: i64) -> Result<Option<BigDecimal>, AppError> {
         sqlx::query_scalar! {
             r#"
             SELECT sort

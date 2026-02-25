@@ -1,3 +1,4 @@
+use bigdecimal::BigDecimal;
 use ecomm::admin::products::videos::dto::CreateProductVideoCommand;
 use ecomm::admin::products::videos::service::AdminProductVideoService;
 use ecomm::responses::error_responses::ErrorResponse;
@@ -18,7 +19,7 @@ async fn test_admin_product_video_upload() {
     let command = CreateProductVideoCommand {
         product_id: 1,
         alt: "test alt 1".to_string(),
-        sort: 0,
+        sort: BigDecimal::from(1000),
         is_main: true,
         url: None,
     };
@@ -47,7 +48,7 @@ async fn test_admin_product_video_delete() {
     let command = CreateProductVideoCommand {
         product_id: 1,
         alt: "test alt 1".to_string(),
-        sort: 0,
+        sort: BigDecimal::from(1000),
         is_main: true,
         url: None,
     };
@@ -91,7 +92,7 @@ async fn test_admin_product_video_stream() {
     let command = CreateProductVideoCommand {
         product_id: 1,
         alt: "test alt 1".to_string(),
-        sort: 0,
+        sort: BigDecimal::from(1000),
         is_main: true,
         url: None,
     };
