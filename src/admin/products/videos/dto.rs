@@ -69,10 +69,10 @@ impl CreateProductVideoCommand {
         self.url = Some(url);
     }
 
-    /// ```rust
-    /// Asynchronously handles the logic for determining and modifying the "main video" status
-    /// of a product based on the given parameters and repository operations.
-    /// ```
+    /**
+     * Asynchronously handles the logic for determining and modifying the "main video" status
+     * of a product based on the given parameters and repository operations.
+     */
     pub async fn handle_main(
         &mut self,
         repository: &AdminProductVideoRepository,
@@ -89,9 +89,9 @@ impl CreateProductVideoCommand {
         Ok(())
     }
 
-    /// ```rust
-    ///  Handles the sorting logic for a product video.
-    /// ```
+    /**
+     * Handles the sorting logic for a product video.
+     */
     pub async fn handle_sort(
         &mut self,
         repository: &AdminProductVideoRepository,

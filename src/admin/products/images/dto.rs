@@ -69,10 +69,10 @@ impl CreateProductImageCommand {
         self.url = Some(url);
     }
 
-    /// ```rust
-    /// Asynchronously handles the logic for determining and modifying the "main image" status
-    /// of a product based on the given parameters and repository operations.
-    /// ```
+    /**
+     * Asynchronously handles the logic for determining and modifying the "main image" status
+     * of a product based on the given parameters and repository operations.
+     */
     pub async fn handle_main(
         &mut self,
         repository: &AdminProductImageRepository,
@@ -89,9 +89,9 @@ impl CreateProductImageCommand {
         Ok(())
     }
 
-    /// ```rust
-    ///  Handles the sorting logic for a product image.
-    /// ```
+    /**
+     * Handles the sorting logic for a product image.
+     */
     pub async fn handle_sort(
         &mut self,
         repository: &AdminProductImageRepository,
