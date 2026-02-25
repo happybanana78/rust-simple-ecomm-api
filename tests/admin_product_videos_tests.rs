@@ -1,6 +1,7 @@
 use bigdecimal::BigDecimal;
-use ecomm::admin::products::videos::dto::CreateProductVideoCommand;
+use ecomm::admin::products::videos::dto::{CreateProductVideoCommand, UpdateProductVideoSortDTO};
 use ecomm::admin::products::videos::service::AdminProductVideoService;
+use ecomm::responses::api_responses::LocalApiResponse;
 use ecomm::responses::error_responses::ErrorResponse;
 use ecomm::storage::LocalStorage;
 use tempdir::TempDir;
@@ -31,6 +32,37 @@ async fn test_admin_product_video_upload() {
         .await;
 
     assert!(result.is_ok(), "{:?}", result);
+
+    context.database.cleanup().await;
+}
+
+#[actix_rt::test]
+async fn test_admin_product_video_sort_update() {
+    let context = utils::TestContext::new(Some("admin1@admin.com".to_string())).await;
+
+    let auth_token = context.auth_token.clone().unwrap();
+
+    let payload = UpdateProductVideoSortDTO {
+        target_index: Some(1),
+    };
+
+    let mut res = context
+        .srv
+        .put(format!("/admin/products/videos/{}/update-sort", 1))
+        .insert_header(("Authorization", format!("Bearer {}", auth_token)))
+        .send_json(&payload)
+        .await
+        .unwrap();
+
+    assert!(
+        res.status().is_success(),
+        "detailed error: {:#?}",
+        res.json::<ErrorResponse>().await.unwrap()
+    );
+
+    let body: LocalApiResponse<BigDecimal> = res.json().await.unwrap();
+
+    assert_eq!(body.get_data(), 3000);
 
     context.database.cleanup().await;
 }

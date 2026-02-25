@@ -219,9 +219,9 @@ pub async fn seed_products(pool: &PgPool) {
 pub async fn seed_product_images(pool: &PgPool) {
     sqlx::query!(
         "INSERT INTO product_images (product_id, url, alt, is_main, sort) VALUES
-         (1, 'public/uploads/p1_example_image1.jpg', 'p1 example image 1', true, 1),
-         (1, 'public/uploads/p1_example_image2.jpg', 'p1 example image 2', false, 2),
-         (2, 'public/uploads/p2_example_image1.jpg', 'p2 example image 1', true, 1)
+         (1, 'public/uploads/p1_example_image1.jpg', 'p1 example image 1', true, 1000),
+         (1, 'public/uploads/p1_example_image2.jpg', 'p1 example image 2', false, 2000),
+         (2, 'public/uploads/p2_example_image1.jpg', 'p2 example image 1', true, 1000)
          ON CONFLICT (id) DO NOTHING;"
     )
     .execute(pool)
@@ -231,10 +231,10 @@ pub async fn seed_product_images(pool: &PgPool) {
 
 pub async fn seed_product_videos(pool: &PgPool) {
     sqlx::query!(
-        "INSERT INTO product_images (product_id, url, alt, is_main, sort) VALUES
-         (1, 'public/uploads/p1_example_video1.jpg', 'p1 example video 1', true, 1),
-         (1, 'public/uploads/p1_example_video2.jpg', 'p1 example video 2', false, 2),
-         (2, 'public/uploads/p2_example_video1.jpg', 'p2 example video 1', true, 1)
+        "INSERT INTO product_videos (product_id, url, alt, is_main, sort) VALUES
+         (1, 'public/uploads/p1_example_video1.jpg', 'p1 example video 1', true, 1000),
+         (1, 'public/uploads/p1_example_video2.jpg', 'p1 example video 2', false, 2000),
+         (2, 'public/uploads/p2_example_video1.jpg', 'p2 example video 1', true, 1000)
          ON CONFLICT (id) DO NOTHING;"
     )
     .execute(pool)
