@@ -65,7 +65,7 @@ impl AdminProductImageService {
         &self,
         id: i64,
         cmd: UpdateProductImageSortCommand,
-    ) -> Result<u64, AppError> {
+    ) -> Result<BigDecimal, AppError> {
         let image = self.get_one(id).await?;
 
         let mut sort_images = self
@@ -75,7 +75,7 @@ impl AdminProductImageService {
         sort_images.retain(|i| i.id != id);
 
         if sort_images.is_empty() {
-            return Ok(0);
+            return Ok(BigDecimal::from(0));
         }
 
         let divider = BigDecimal::from(2);
@@ -94,7 +94,9 @@ impl AdminProductImageService {
             (prev.sort.clone() + next.sort.clone()) / divider
         };
 
-        self.repository.update_sort(id, new_sort).await
+        self.repository.update_sort(id, new_sort.clone()).await?;
+
+        Ok(new_sort)
     }
 
     pub async fn delete(&self, id: i64, storage: &LocalStorage) -> Result<u64, AppError> {
