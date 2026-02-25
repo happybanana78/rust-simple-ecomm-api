@@ -178,7 +178,6 @@ impl AdminProductVideoRepository {
             SELECT id, sort
             FROM product_videos
             WHERE product_id = $1
-            AND deleted_at IS NULL
             ORDER BY sort;
             "#,
             product_id,

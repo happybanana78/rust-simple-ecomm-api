@@ -4,7 +4,7 @@ use chrono::{DateTime, Utc};
 use fake::{Dummy, Fake, Faker};
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, sqlx::FromRow)]
+#[derive(Serialize, Deserialize, sqlx::FromRow, Debug)]
 pub struct AdminProductVideoModel {
     pub id: i64,
     pub product_id: i64,
@@ -22,7 +22,7 @@ impl HasId for AdminProductVideoModel {
     }
 }
 
-#[derive(Serialize, Deserialize, sqlx::FromRow)]
+#[derive(Serialize, Deserialize, sqlx::FromRow, Debug)]
 pub struct AdminProductVideoOnlySortModel {
     pub id: i64,
     pub sort: BigDecimal,

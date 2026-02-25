@@ -67,7 +67,7 @@ impl AdminProductVideoService {
         &self,
         id: i64,
         cmd: UpdateProductVideoSortCommand,
-    ) -> Result<u64, AppError> {
+    ) -> Result<BigDecimal, AppError> {
         let video = self.get_one(id).await?;
 
         let mut sort_videos = self
@@ -77,7 +77,7 @@ impl AdminProductVideoService {
         sort_videos.retain(|i| i.id != id);
 
         if sort_videos.is_empty() {
-            return Ok(0);
+            return Ok(BigDecimal::from(0));
         }
 
         let divider = BigDecimal::from(2);
@@ -96,7 +96,9 @@ impl AdminProductVideoService {
             (prev.sort.clone() + next.sort.clone()) / divider
         };
 
-        self.repository.update_sort(id, new_sort).await
+        self.repository.update_sort(id, new_sort.clone()).await?;
+
+        Ok(new_sort)
     }
 
     pub async fn stream(&self, id: i64) -> Result<NamedFile, AppError> {

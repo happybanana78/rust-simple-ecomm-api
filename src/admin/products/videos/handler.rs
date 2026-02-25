@@ -3,6 +3,7 @@ use crate::admin::products::videos::dto::{
     UpdateProductVideoSortDTO,
 };
 use crate::errors::error::AppError;
+use crate::responses::error_responses::SuccessResponse;
 use crate::state::AppState;
 use actix_multipart::form::MultipartForm;
 use actix_web::{HttpResponse, Responder, web};
@@ -42,12 +43,12 @@ pub async fn update_sort(
 ) -> Result<impl Responder, AppError> {
     let command = UpdateProductVideoSortCommand::new_from_dto(&body.into_inner())?;
 
-    state
+    let new_sort = state
         .admin_product_videos_service
         .update_sort(id.into_inner(), command)
         .await?;
 
-    Ok(HttpResponse::NoContent().finish())
+    Ok(HttpResponse::Ok().json(SuccessResponse::ok(new_sort)))
 }
 
 pub async fn stream(
