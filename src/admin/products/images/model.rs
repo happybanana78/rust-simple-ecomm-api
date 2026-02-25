@@ -1,5 +1,5 @@
-use crate::admin::products::model::AdminProductModel;
 use crate::traits::HasId;
+use bigdecimal::BigDecimal;
 use chrono::{DateTime, Utc};
 use fake::{Dummy, Fake, Faker};
 use serde::{Deserialize, Serialize};
@@ -11,12 +11,24 @@ pub struct AdminProductImageModel {
     pub url: String,
     pub alt: String,
     pub is_main: bool,
-    pub sort: i32,
+    pub sort: BigDecimal,
     pub deleted_at: Option<DateTime<Utc>>,
     pub created_at: DateTime<Utc>,
 }
 
 impl HasId for AdminProductImageModel {
+    fn get_id(&self) -> i64 {
+        self.id
+    }
+}
+
+#[derive(Serialize, Deserialize, sqlx::FromRow)]
+pub struct AdminProductImageOnlySortModel {
+    pub id: i64,
+    pub sort: BigDecimal,
+}
+
+impl HasId for AdminProductImageOnlySortModel {
     fn get_id(&self) -> i64 {
         self.id
     }

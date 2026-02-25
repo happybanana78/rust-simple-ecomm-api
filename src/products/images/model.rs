@@ -1,4 +1,5 @@
 use crate::traits::HasId;
+use bigdecimal::BigDecimal;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, sqlx::FromRow)]
@@ -8,7 +9,7 @@ pub struct ProductImageModel {
     pub url: String,
     pub alt: String,
     pub is_main: bool,
-    pub sort: i32,
+    pub sort: BigDecimal,
 }
 
 impl HasId for ProductImageModel {

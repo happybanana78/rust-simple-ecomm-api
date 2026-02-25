@@ -1,10 +1,13 @@
-use crate::admin::products::images::dto::CreateProductImageCommand;
+use crate::admin::products::images::dto::{
+    CreateProductImageCommand, UpdateProductImageSortCommand,
+};
 use crate::admin::products::images::model::AdminProductImageModel;
 use crate::admin::products::images::repository::AdminProductImageRepository;
 use crate::admin::products::service::AdminProductService;
 use crate::errors::error::AppError;
 use crate::storage::LocalStorage;
 use crate::traits::{IsRepository, UseStorage};
+use bigdecimal::BigDecimal;
 use bytes::Bytes;
 use sqlx::PgPool;
 use uuid::Uuid;
@@ -56,6 +59,42 @@ impl AdminProductImageService {
             .await?;
 
         Ok(image_model.id)
+    }
+
+    pub async fn update_sort(
+        &self,
+        id: i64,
+        cmd: UpdateProductImageSortCommand,
+    ) -> Result<u64, AppError> {
+        let image = self.get_one(id).await?;
+
+        let mut sort_images = self
+            .repository
+            .get_images_only_sort(image.product_id)
+            .await?;
+        sort_images.retain(|i| i.id != id);
+
+        if sort_images.is_empty() {
+            return Ok(0);
+        }
+
+        let divider = BigDecimal::from(2);
+        let amount_to_add = BigDecimal::from(1000);
+
+        let new_sort = if cmd.target_index == 0 {
+            let first = sort_images.first().unwrap();
+            first.sort.clone() / divider
+        } else if cmd.target_index >= sort_images.len() {
+            let last = sort_images.last().unwrap();
+            last.sort.clone() + amount_to_add
+        } else {
+            let prev = &sort_images[cmd.target_index - 1];
+            let next = &sort_images[cmd.target_index];
+
+            (prev.sort.clone() + next.sort.clone()) / divider
+        };
+
+        self.repository.update_sort(id, new_sort).await
     }
 
     pub async fn delete(&self, id: i64, storage: &LocalStorage) -> Result<u64, AppError> {

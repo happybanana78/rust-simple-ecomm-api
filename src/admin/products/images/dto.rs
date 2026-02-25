@@ -2,9 +2,11 @@ use crate::admin::products::images::model::AdminProductImageModel;
 use crate::admin::products::images::repository::AdminProductImageRepository;
 use crate::errors::error::AppError;
 use crate::traits::HasId;
+use crate::validation_utils::validate_target_index;
 use actix_multipart::form::MultipartForm;
 use actix_multipart::form::tempfile::TempFile;
 use actix_multipart::form::text::Text;
+use bigdecimal::BigDecimal;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -14,7 +16,7 @@ pub struct AdminPublicProductImage {
     pub url: String,
     pub alt: String,
     pub is_main: bool,
-    pub sort: i32,
+    pub sort: BigDecimal,
 }
 
 impl HasId for AdminPublicProductImage {
@@ -41,7 +43,6 @@ pub struct CreateProductImageDTO {
     pub product_id: Text<i64>,
     pub file: TempFile,
     pub alt: Text<String>,
-    pub sort: Text<i32>,
     pub is_main: Text<bool>,
 }
 
@@ -49,7 +50,7 @@ pub struct CreateProductImageCommand {
     pub product_id: i64,
     pub url: Option<String>,
     pub alt: String,
-    pub sort: i32,
+    pub sort: BigDecimal,
     pub is_main: bool,
 }
 
@@ -59,7 +60,7 @@ impl CreateProductImageCommand {
             product_id: *dto.product_id,
             url: None,
             alt: dto.alt.clone(),
-            sort: *dto.sort,
+            sort: BigDecimal::from(1000),
             is_main: *dto.is_main,
         }
     }
@@ -97,11 +98,29 @@ impl CreateProductImageCommand {
     ) -> Result<(), AppError> {
         let last_sort = repository.get_last_sort(self.product_id).await?;
 
+        let default_sort = BigDecimal::from(1000);
+
         match last_sort {
-            Some(sort) => self.sort = sort + 1,
-            None => self.sort = 0,
+            Some(sort) => self.sort = sort + default_sort,
+            None => self.sort = default_sort,
         }
 
         Ok(())
+    }
+}
+
+pub struct UpdateProductImageSortDTO {
+    pub target_index: Option<i32>,
+}
+
+pub struct UpdateProductImageSortCommand {
+    pub target_index: usize,
+}
+
+impl UpdateProductImageSortCommand {
+    pub fn new_from_dto(dto: &UpdateProductImageSortDTO) -> Result<Self, AppError> {
+        let target_index = validate_target_index(dto.target_index)?;
+
+        Ok(Self { target_index })
     }
 }

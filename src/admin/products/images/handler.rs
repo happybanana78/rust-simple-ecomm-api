@@ -1,4 +1,7 @@
-use crate::admin::products::images::dto::{CreateProductImageCommand, CreateProductImageDTO};
+use crate::admin::products::images::dto::{
+    CreateProductImageCommand, CreateProductImageDTO, UpdateProductImageSortCommand,
+    UpdateProductImageSortDTO,
+};
 use crate::errors::error::AppError;
 use crate::state::AppState;
 use actix_multipart::form::MultipartForm;
@@ -32,6 +35,21 @@ pub async fn upload(
     Ok(HttpResponse::NoContent().finish())
 }
 
+pub async fn update_sort(
+    state: web::Data<AppState>,
+    body: web::Json<UpdateProductImageSortDTO>,
+    id: web::Path<i64>,
+) -> Result<impl Responder, AppError> {
+    let command = UpdateProductImageSortCommand::new_from_dto(&body.into_inner())?;
+
+    state
+        .admin_product_images_service
+        .update_sort(id.into_inner(), command)
+        .await?;
+
+    Ok(HttpResponse::NoContent().finish())
+}
+
 pub async fn delete(
     state: web::Data<AppState>,
     id: web::Path<i64>,
@@ -40,7 +58,6 @@ pub async fn delete(
         .admin_product_images_service
         .delete(id.into_inner(), &state.local_storage)
         .await?;
+
     Ok(HttpResponse::NoContent().finish())
 }
-
-// TODO: implement sort update

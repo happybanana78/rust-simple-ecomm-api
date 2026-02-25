@@ -1,3 +1,4 @@
+use bigdecimal::BigDecimal;
 use ecomm::admin::products::images::dto::CreateProductImageCommand;
 use ecomm::admin::products::images::service::AdminProductImageService;
 use ecomm::responses::error_responses::ErrorResponse;
@@ -18,7 +19,7 @@ async fn test_admin_product_image_upload() {
     let command = CreateProductImageCommand {
         product_id: 1,
         alt: "test alt 1".to_string(),
-        sort: 0,
+        sort: BigDecimal::from(1000),
         is_main: true,
         url: None,
     };
@@ -47,7 +48,7 @@ async fn test_admin_product_image_delete() {
     let command = CreateProductImageCommand {
         product_id: 1,
         alt: "test alt 1".to_string(),
-        sort: 0,
+        sort: BigDecimal::from(1000),
         is_main: true,
         url: None,
     };
