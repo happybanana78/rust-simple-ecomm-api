@@ -92,6 +92,7 @@ impl TestContext {
         seed_products(&test_db.pool).await;
         seed_product_images(&test_db.pool).await;
         seed_product_videos(&test_db.pool).await;
+        seed_product_reviews(&test_db.pool).await;
 
         let test_server = create_test_server(test_db.pool.clone());
 
@@ -122,6 +123,7 @@ impl TestContextNoServer {
         seed_products(&test_db.pool).await;
         seed_product_images(&test_db.pool).await;
         seed_product_videos(&test_db.pool).await;
+        seed_product_reviews(&test_db.pool).await;
 
         Self { database: test_db }
     }
@@ -240,4 +242,24 @@ pub async fn seed_product_videos(pool: &PgPool) {
     .execute(pool)
     .await
     .expect("Failed to seed product video test data");
+}
+
+pub async fn seed_product_reviews(pool: &PgPool) {
+    sqlx::query!(
+        "INSERT INTO product_reviews (user_id, product_id, title, content, rating, approval_status) VALUES
+         (1, 1, 'product 1 review title 1', 'product 1 review content 1', 4, 'pending'),
+         (2, 1, 'product 1 review title 2', 'product 1 review content 2', 5, 'approved'),
+         (1, 2, 'product 2 review title 1', 'product 2 review content 1', 3, 'rejected'),
+         (1, 2, 'product 2 review title 2', 'product 2 review content 2', 4, 'pending'),
+         (2, 1, 'product 1 review title 3', 'product 1 review content 3', 2, 'approved'),
+         (1, 1, 'product 1 review title 4', 'product 1 review content 4', 5, 'approved'),
+         (NULL, 1, 'product 1 review title 5', 'product 1 review content 5', 1, 'rejected'),
+         (2, 2, 'product 2 review title 3', 'product 2 review content 3', 3, 'pending'),
+         (NULL, 2, 'product 2 review title 4', 'product 2 review content 4', 4, 'approved'),
+         (1, 1, 'product 1 review title 6', 'product 1 review content 6', 5, 'approved')
+         ON CONFLICT (id) DO NOTHING;"
+    )
+        .execute(pool)
+        .await
+        .expect("Failed to seed product review test data");
 }
