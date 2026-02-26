@@ -15,15 +15,17 @@ pub trait IsRepository {
 
     fn get_pool(&self) -> &PgPool;
 
-    async fn start_transaction(&self) -> Result<sqlx::Transaction<'_, sqlx::Postgres>, AppError> {
-        self.get_pool().begin().await.map_err(AppError::Database)
+    fn start_transaction(
+        &self,
+    ) -> impl Future<Output = Result<sqlx::Transaction<'_, sqlx::Postgres>, AppError>> {
+        async { self.get_pool().begin().await.map_err(AppError::Database) }
     }
 
-    async fn commit_transaction(
+    fn commit_transaction(
         &self,
         tx: sqlx::Transaction<'_, sqlx::Postgres>,
-    ) -> Result<(), AppError> {
-        tx.commit().await.map_err(AppError::Database)
+    ) -> impl Future<Output = Result<(), AppError>> {
+        async { tx.commit().await.map_err(AppError::Database) }
     }
 }
 
