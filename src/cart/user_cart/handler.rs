@@ -1,11 +1,11 @@
-use crate::auth::dto::AuthUserId;
 use crate::cart::cart_items::dto::{
     AddItemCommand, AddItemDto, RemoveItemCommand, RemoveItemDto, UpdateItemCommand, UpdateItemDto,
 };
 use crate::errors::error::AppError;
+use crate::extractors::extract_auth_user_id;
 use crate::responses::error_responses::SuccessResponse;
 use crate::state::AppState;
-use actix_web::{HttpMessage, HttpRequest, HttpResponse, Responder, web};
+use actix_web::{HttpRequest, HttpResponse, Responder, web};
 use validator::Validate;
 
 pub async fn get_user_cart(
@@ -95,11 +95,4 @@ pub async fn remove_item(
 
     state.cart_items_service.remove_item(command).await?;
     Ok(HttpResponse::Ok().json(SuccessResponse::<()>::empty()))
-}
-
-fn extract_auth_user_id(req: &HttpRequest) -> Result<i64, AppError> {
-    req.extensions()
-        .get::<AuthUserId>()
-        .map(|id| id.0)
-        .ok_or(AppError::Unauthorized("unauthorized".to_string()))
 }
