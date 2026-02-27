@@ -2,6 +2,7 @@ use crate::errors::error::AppError;
 use crate::products::filters::ProductFilters;
 use crate::products::images::dto::PublicProductImage;
 use crate::products::model::ProductModel;
+use crate::products::reviews::dto::PublicProductReview;
 use crate::products::videos::dto::PublicProductVideo;
 use crate::traits::{HasId, HasQuantity};
 use serde::{Deserialize, Serialize};
@@ -18,6 +19,7 @@ pub struct PublicProduct {
     pub is_active: bool,
     pub images: Vec<PublicProductImage>,
     pub videos: Vec<PublicProductVideo>,
+    // pub reviews: Vec<PublicProductReview>,
 }
 
 impl HasId for PublicProduct {

@@ -3,6 +3,7 @@ mod auth;
 mod cart;
 mod categories;
 mod errors;
+mod extractors;
 mod middlewares;
 mod pagination;
 mod products;

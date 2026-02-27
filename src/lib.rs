@@ -4,6 +4,7 @@ pub mod cart;
 pub mod categories;
 pub mod db;
 pub mod errors;
+pub mod extractors;
 pub mod middlewares;
 pub mod pagination;
 pub mod products;
