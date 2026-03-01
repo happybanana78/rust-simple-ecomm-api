@@ -2,7 +2,7 @@ use crate::admin::categories::dto::{CreateCategoryCommand, UpdateCategoryCommand
 use crate::admin::categories::filters::CategoryFilters;
 use crate::admin::categories::model::AdminCategoryModel;
 use crate::errors::error::AppError;
-use crate::pagination::Paginate;
+use crate::utils::pagination::Paginate;
 use sqlx::{PgPool, Postgres, QueryBuilder};
 
 pub struct AdminCategoryRepository {

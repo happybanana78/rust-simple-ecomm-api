@@ -3,7 +3,7 @@ use crate::app::cart::cart_items::model::CartItemModel;
 use crate::app::cart::cart_items::repository::CartItemsRepository;
 use crate::app::products::repository::ProductRepository;
 use crate::errors::error::AppError;
-use crate::traits::IsRepository;
+use crate::utils::traits::IsRepository;
 use sqlx::PgPool;
 
 pub struct CartItemsService {

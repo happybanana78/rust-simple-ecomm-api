@@ -1,4 +1,4 @@
-use crate::pagination::Paginate;
+use crate::utils::pagination::Paginate;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 

@@ -9,9 +9,9 @@ use crate::admin::products::traits::IntoPublic;
 use crate::admin::products::videos::repository::AdminProductVideoRepository;
 use crate::admin::products::videos::traits::IntoPublic as ProductVideoIntoPublic;
 use crate::errors::error::AppError;
-use crate::pagination::{Paginate, PaginatedDataCollection};
-use crate::traits::IsRepository;
-use crate::validation_utils::validate_slug;
+use crate::utils::pagination::{Paginate, PaginatedDataCollection};
+use crate::utils::traits::IsRepository;
+use crate::utils::validation_utils::validate_slug;
 use sqlx::PgPool;
 
 pub struct AdminProductService {

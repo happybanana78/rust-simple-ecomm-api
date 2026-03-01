@@ -1,7 +1,7 @@
 use super::model::{ProductIdModel, ProductModel};
 use crate::app::products::filters::ProductFilters;
 use crate::errors::error::AppError;
-use crate::pagination::Paginate;
+use crate::utils::pagination::Paginate;
 use sqlx::{PgPool, Postgres, QueryBuilder};
 
 pub struct ProductRepository {

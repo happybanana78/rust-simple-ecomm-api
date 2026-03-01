@@ -2,14 +2,10 @@ mod admin;
 mod app;
 mod auth;
 mod errors;
-mod extractors;
 mod middlewares;
-mod pagination;
 mod responses;
 mod state;
-mod storage;
-mod traits;
-mod validation_utils;
+mod utils;
 
 use crate::errors::error::AppError;
 use actix_multipart::MultipartError;

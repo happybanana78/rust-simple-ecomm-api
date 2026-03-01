@@ -12,7 +12,7 @@ use crate::app::products::reviews::service::ProductReviewService;
 use crate::app::products::service::ProductService;
 use crate::app::users::service::UserService;
 use crate::auth::service::AuthService;
-use crate::storage::LocalStorage;
+use crate::utils::storage::LocalStorage;
 use sqlx::PgPool;
 
 pub struct AppState {

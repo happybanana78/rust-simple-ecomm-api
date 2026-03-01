@@ -1,4 +1,4 @@
-use crate::traits::HasId;
+use crate::utils::traits::HasId;
 use bigdecimal::BigDecimal;
 use chrono::{DateTime, Utc};
 use fake::{Dummy, Fake, Faker};

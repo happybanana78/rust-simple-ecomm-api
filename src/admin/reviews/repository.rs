@@ -2,8 +2,8 @@ use crate::admin::reviews::dto::ReviewApprovalStatus;
 use crate::admin::reviews::filters::AdminReviewFilters;
 use crate::admin::reviews::model::AdminReviewModel;
 use crate::errors::error::AppError;
-use crate::pagination::Paginate;
-use crate::traits::IsRepository;
+use crate::utils::pagination::Paginate;
+use crate::utils::traits::IsRepository;
 use sqlx::{Executor, PgPool, Postgres, QueryBuilder};
 
 pub struct AdminReviewRepository {

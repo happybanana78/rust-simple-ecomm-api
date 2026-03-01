@@ -1,4 +1,4 @@
-use crate::traits::HasId;
+use crate::utils::traits::HasId;
 use chrono::{DateTime, Duration, Utc};
 use fake::Dummy;
 use fake::faker::chrono::en::DateTimeBetween;

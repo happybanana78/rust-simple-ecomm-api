@@ -1,4 +1,4 @@
-use crate::traits::HasId;
+use crate::utils::traits::HasId;
 use serde::{Deserialize, Serialize};
 
 pub struct DataCollection<T> {

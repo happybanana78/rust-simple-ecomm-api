@@ -1,7 +1,7 @@
 use crate::admin::reviews::filters::AdminReviewFilters;
 use crate::admin::reviews::model::AdminReviewModel;
 use crate::errors::error::AppError;
-use crate::traits::HasId;
+use crate::utils::traits::HasId;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::str::FromStr;

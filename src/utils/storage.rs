@@ -1,5 +1,5 @@
 use crate::errors::error::AppError;
-use crate::traits::UseStorage;
+use crate::utils::traits::UseStorage;
 use actix_multipart::form::tempfile::TempFile;
 use bytes::Bytes;
 use futures_util::TryFutureExt;

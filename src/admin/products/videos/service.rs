@@ -5,8 +5,8 @@ use crate::admin::products::videos::dto::{
 use crate::admin::products::videos::model::AdminProductVideoModel;
 use crate::admin::products::videos::repository::AdminProductVideoRepository;
 use crate::errors::error::AppError;
-use crate::storage::LocalStorage;
-use crate::traits::{IsRepository, UseStorage};
+use crate::utils::storage::LocalStorage;
+use crate::utils::traits::{IsRepository, UseStorage};
 use actix_files::NamedFile;
 use bigdecimal::BigDecimal;
 use bytes::Bytes;

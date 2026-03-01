@@ -1,6 +1,6 @@
 use crate::admin::reviews::dto::ReviewApprovalStatus;
 use crate::app::products::reviews::model::ProductReviewModel;
-use crate::traits::HasId;
+use crate::utils::traits::HasId;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 

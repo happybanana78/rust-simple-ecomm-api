@@ -5,8 +5,8 @@ use crate::admin::reviews::model::AdminReviewModel;
 use crate::admin::reviews::repository::AdminReviewRepository;
 use crate::admin::reviews::traits::IntoPublic;
 use crate::errors::error::AppError;
-use crate::pagination::{Paginate, PaginatedDataCollection};
-use crate::traits::IsRepository;
+use crate::utils::pagination::{Paginate, PaginatedDataCollection};
+use crate::utils::traits::IsRepository;
 use sqlx::PgPool;
 
 pub struct AdminReviewService {

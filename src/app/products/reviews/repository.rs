@@ -2,7 +2,7 @@ use crate::admin::reviews::dto::ReviewApprovalStatus;
 use crate::app::products::reviews::dto::CreateProductReviewCommand;
 use crate::app::products::reviews::model::ProductReviewModel;
 use crate::errors::error::AppError;
-use crate::traits::IsRepository;
+use crate::utils::traits::IsRepository;
 use sqlx::{Executor, PgPool, Postgres};
 
 pub struct ProductReviewRepository {

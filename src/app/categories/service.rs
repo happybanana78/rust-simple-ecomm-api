@@ -3,7 +3,7 @@ use crate::app::categories::model::CategoryModel;
 use crate::app::categories::repository::CategoryRepository;
 use crate::app::categories::traits::IntoPublic;
 use crate::errors::error::AppError;
-use crate::pagination::{Paginate, PaginatedDataCollection};
+use crate::utils::pagination::{Paginate, PaginatedDataCollection};
 use sqlx::PgPool;
 
 pub struct CategoryService {

@@ -1,6 +1,6 @@
 use crate::app::categories::dto::PublicCategory;
 use crate::app::categories::model::CategoryModel;
-use crate::pagination::PaginatedDataCollection;
+use crate::utils::pagination::PaginatedDataCollection;
 
 pub trait IntoPublic<T> {
     fn into_public(self) -> T;

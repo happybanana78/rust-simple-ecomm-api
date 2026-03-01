@@ -2,9 +2,9 @@ use crate::app::products::dto::{IndexProductDTO, ShowProductDTO};
 use crate::app::products::filters::ProductFilters;
 use crate::app::products::relations::ProductLoadRelations;
 use crate::errors::error::AppError;
-use crate::pagination::Paginate;
 use crate::responses::error_responses::SuccessResponse;
 use crate::state::AppState;
+use crate::utils::pagination::Paginate;
 use actix_web::{HttpResponse, Responder, web};
 use validator::Validate;
 

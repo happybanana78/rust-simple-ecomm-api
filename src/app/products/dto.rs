@@ -6,7 +6,7 @@ use crate::app::products::reviews::dto::PublicProductReview;
 use crate::app::products::traits::IntoPublic;
 use crate::app::products::videos::dto::PublicProductVideo;
 use crate::errors::error::AppError;
-use crate::traits::{HasId, HasQuantity};
+use crate::utils::traits::{HasId, HasQuantity};
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 

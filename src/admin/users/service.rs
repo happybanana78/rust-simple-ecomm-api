@@ -1,7 +1,7 @@
 use super::model::AdminSafeUserModel;
 use crate::admin::users::repository::AdminUserRepository;
 use crate::errors::error::AppError;
-use crate::traits::IsRepository;
+use crate::utils::traits::IsRepository;
 use sqlx::PgPool;
 
 pub struct AdminUserService {

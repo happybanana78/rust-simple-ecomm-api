@@ -3,7 +3,7 @@ use crate::admin::products::videos::model::{
     AdminProductVideoModel, AdminProductVideoOnlySortModel,
 };
 use crate::errors::error::AppError;
-use crate::traits::IsRepository;
+use crate::utils::traits::IsRepository;
 use bigdecimal::BigDecimal;
 use sqlx::{Executor, PgPool, Postgres};
 

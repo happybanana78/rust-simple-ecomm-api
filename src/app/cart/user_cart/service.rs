@@ -4,7 +4,7 @@ use crate::app::cart::user_cart::dto::PublicUserCart;
 use crate::app::cart::user_cart::repository::UserCartRepository;
 use crate::app::users::service::UserService;
 use crate::errors::error::AppError;
-use crate::traits::IsRepository;
+use crate::utils::traits::IsRepository;
 use sqlx::PgPool;
 
 pub struct UserCartService {

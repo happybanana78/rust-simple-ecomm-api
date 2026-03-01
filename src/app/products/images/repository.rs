@@ -1,6 +1,6 @@
 use crate::app::products::images::model::ProductImageModel;
 use crate::errors::error::AppError;
-use crate::traits::IsRepository;
+use crate::utils::traits::IsRepository;
 use sqlx::{Executor, PgPool};
 
 pub struct ProductImageRepository {

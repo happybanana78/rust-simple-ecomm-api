@@ -4,7 +4,7 @@ use crate::app::products::reviews::dto::{CreateProductReviewCommand, PublicProdu
 use crate::app::products::reviews::repository::ProductReviewRepository;
 use crate::app::products::reviews::traits::IntoPublic;
 use crate::errors::error::AppError;
-use crate::traits::IsRepository;
+use crate::utils::traits::IsRepository;
 use sqlx::PgPool;
 
 pub struct ProductReviewService {

@@ -2,7 +2,7 @@ use crate::admin::products::dto::AdminPublicProduct;
 use crate::admin::products::images::dto::AdminPublicProductImage;
 use crate::admin::products::model::AdminProductModel;
 use crate::admin::products::videos::dto::AdminPublicProductVideo;
-use crate::pagination::{DataCollection, PaginatedDataCollection};
+use crate::utils::pagination::{DataCollection, PaginatedDataCollection};
 use std::collections::HashMap;
 
 pub trait IntoPublic<T> {

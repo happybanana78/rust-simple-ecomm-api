@@ -1,6 +1,6 @@
 use crate::app::products::dto::PublicProduct;
 use crate::app::products::model::ProductModel;
-use crate::pagination::PaginatedDataCollection;
+use crate::utils::pagination::PaginatedDataCollection;
 
 pub trait IntoPublic<T> {
     fn into_public(self) -> T;

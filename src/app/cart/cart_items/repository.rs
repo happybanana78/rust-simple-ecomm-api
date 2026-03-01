@@ -1,7 +1,7 @@
 use crate::app::cart::cart_items::dto::{AddItemCommand, RemoveItemCommand, UpdateItemCommand};
 use crate::app::cart::cart_items::model::CartItemModel;
 use crate::errors::error::AppError;
-use crate::traits::IsRepository;
+use crate::utils::traits::IsRepository;
 use sqlx::PgPool;
 
 pub struct CartItemsRepository {

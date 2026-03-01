@@ -3,7 +3,7 @@ use crate::admin::products::images::dto::AdminPublicProductImage;
 use crate::admin::products::model::AdminProductModel;
 use crate::admin::products::videos::dto::AdminPublicProductVideo;
 use crate::errors::error::AppError;
-use crate::traits::HasId;
+use crate::utils::traits::HasId;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 

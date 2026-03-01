@@ -6,8 +6,8 @@ use crate::admin::categories::model::AdminCategoryModel;
 use crate::admin::categories::repository::AdminCategoryRepository;
 use crate::admin::categories::traits::IntoPublic;
 use crate::errors::error::AppError;
-use crate::pagination::{DataCollection, Paginate, PaginatedDataCollection};
-use crate::validation_utils::validate_slug;
+use crate::utils::pagination::{DataCollection, Paginate, PaginatedDataCollection};
+use crate::utils::validation_utils::validate_slug;
 use sqlx::PgPool;
 
 pub struct AdminCategoryService {

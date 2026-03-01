@@ -1,6 +1,6 @@
 use crate::admin::reviews::dto::AdminPublicReview;
 use crate::admin::reviews::model::AdminReviewModel;
-use crate::pagination::PaginatedDataCollection;
+use crate::utils::pagination::PaginatedDataCollection;
 
 pub trait IntoPublic<T> {
     fn into_public(self) -> T;

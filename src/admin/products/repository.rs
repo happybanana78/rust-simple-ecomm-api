@@ -2,8 +2,8 @@ use crate::admin::products::dto::{CreateProductCommand, UpdateProductCommand};
 use crate::admin::products::filters::ProductFilters;
 use crate::admin::products::model::AdminProductModel;
 use crate::errors::error::AppError;
-use crate::pagination::Paginate;
-use crate::traits::IsRepository;
+use crate::utils::pagination::Paginate;
+use crate::utils::traits::IsRepository;
 use sqlx::{Executor, PgPool, Postgres, QueryBuilder};
 
 pub struct AdminProductRepository {

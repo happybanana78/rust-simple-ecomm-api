@@ -1,6 +1,6 @@
 use crate::app::categories::model::CategoryModel;
 use crate::errors::error::AppError;
-use crate::pagination::Paginate;
+use crate::utils::pagination::Paginate;
 use sqlx::{PgPool, Postgres, QueryBuilder};
 
 pub struct CategoryRepository {

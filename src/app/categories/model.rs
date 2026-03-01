@@ -1,4 +1,4 @@
-use crate::traits::HasId;
+use crate::utils::traits::HasId;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, sqlx::FromRow, Clone)]

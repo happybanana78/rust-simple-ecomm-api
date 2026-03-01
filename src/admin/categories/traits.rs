@@ -1,6 +1,6 @@
 use crate::admin::categories::dto::AdminPublicCategory;
 use crate::admin::categories::model::AdminCategoryModel;
-use crate::pagination::{DataCollection, PaginatedDataCollection};
+use crate::utils::pagination::{DataCollection, PaginatedDataCollection};
 
 pub trait IntoPublic<T> {
     fn into_public(self) -> T;

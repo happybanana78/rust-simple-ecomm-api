@@ -1,8 +1,8 @@
 use crate::app::products::reviews::dto::{CreateProductReviewCommand, CreateProductReviewDto};
 use crate::errors::error::AppError;
-use crate::extractors::extract_auth_user_id;
 use crate::responses::error_responses::SuccessResponse;
 use crate::state::AppState;
+use crate::utils::extractors::extract_auth_user_id;
 use actix_web::{HttpRequest, HttpResponse, Responder, web};
 use validator::Validate;
 

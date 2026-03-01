@@ -1,5 +1,5 @@
 use crate::admin::reviews::dto::ReviewApprovalStatus;
-use crate::traits::HasId;
+use crate::utils::traits::HasId;
 use chrono::{DateTime, Utc};
 use fake::{Dummy, Fake, Faker};
 use serde::{Deserialize, Serialize};

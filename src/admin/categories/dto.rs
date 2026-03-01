@@ -1,7 +1,7 @@
 use crate::admin::categories::filters::CategoryFilters;
 use crate::admin::categories::model::AdminCategoryModel;
 use crate::errors::error::AppError;
-use crate::traits::HasId;
+use crate::utils::traits::HasId;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 

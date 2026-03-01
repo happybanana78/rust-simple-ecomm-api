@@ -3,7 +3,7 @@ use crate::admin::products::images::model::{
     AdminProductImageModel, AdminProductImageOnlySortModel,
 };
 use crate::errors::error::AppError;
-use crate::traits::IsRepository;
+use crate::utils::traits::IsRepository;
 use bigdecimal::BigDecimal;
 use sqlx::{Executor, PgPool, Postgres};
 

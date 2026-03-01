@@ -1,8 +1,8 @@
 use crate::admin::products::images::model::AdminProductImageModel;
 use crate::admin::products::images::repository::AdminProductImageRepository;
 use crate::errors::error::AppError;
-use crate::traits::HasId;
-use crate::validation_utils::validate_target_index;
+use crate::utils::traits::HasId;
+use crate::utils::validation_utils::validate_target_index;
 use actix_multipart::form::MultipartForm;
 use actix_multipart::form::tempfile::TempFile;
 use actix_multipart::form::text::Text;

@@ -3,7 +3,7 @@ use ecomm::admin::products::videos::dto::{CreateProductVideoCommand, UpdateProdu
 use ecomm::admin::products::videos::service::AdminProductVideoService;
 use ecomm::responses::api_responses::LocalApiResponse;
 use ecomm::responses::error_responses::ErrorResponse;
-use ecomm::storage::LocalStorage;
+use ecomm::utils::storage::LocalStorage;
 use tempdir::TempDir;
 use uuid::Uuid;
 
