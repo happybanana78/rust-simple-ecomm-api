@@ -2,7 +2,7 @@ use crate::traits::HasId;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 
-#[derive(Serialize, Deserialize, FromRow)]
+#[derive(Serialize, Deserialize, FromRow, Clone)]
 pub struct ProductModel {
     pub id: i64,
     pub name: String,

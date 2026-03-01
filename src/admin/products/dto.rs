@@ -7,7 +7,7 @@ use crate::traits::HasId;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AdminPublicProduct {
     pub id: i64,
     pub name: String,

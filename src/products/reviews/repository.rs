@@ -50,7 +50,7 @@ impl ProductReviewRepository {
 
     pub async fn get_all_for_multiple_products(
         &self,
-        product_ids: Vec<i64>,
+        product_ids: &Vec<i64>,
     ) -> Result<Vec<ProductReviewModel>, AppError> {
         sqlx::query_as! {
             ProductReviewModel,

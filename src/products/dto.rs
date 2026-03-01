@@ -2,13 +2,47 @@ use crate::errors::error::AppError;
 use crate::products::filters::ProductFilters;
 use crate::products::images::dto::PublicProductImage;
 use crate::products::model::ProductModel;
+use crate::products::relations::ProductLoadRelations;
 use crate::products::reviews::dto::PublicProductReview;
+use crate::products::traits::IntoPublic;
 use crate::products::videos::dto::PublicProductVideo;
 use crate::traits::{HasId, HasQuantity};
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
 #[derive(Serialize, Deserialize, Debug)]
+pub struct PublicProductBuilder {
+    pub product: PublicProduct,
+}
+
+impl PublicProductBuilder {
+    pub fn new(product: &ProductModel) -> Self {
+        Self {
+            product: product.clone().into_public(),
+        }
+    }
+
+    pub fn with_images(mut self, images: Vec<PublicProductImage>) -> Self {
+        self.product.images = Some(images);
+        self
+    }
+
+    pub fn with_videos(mut self, videos: Vec<PublicProductVideo>) -> Self {
+        self.product.videos = Some(videos);
+        self
+    }
+
+    pub fn with_reviews(mut self, reviews: Vec<PublicProductReview>) -> Self {
+        self.product.reviews = Some(reviews);
+        self
+    }
+
+    pub fn build(self) -> PublicProduct {
+        self.product
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PublicProduct {
     pub id: i64,
     pub name: String,
@@ -17,34 +51,20 @@ pub struct PublicProduct {
     pub quantity: i32,
     pub configurable: bool,
     pub is_active: bool,
-    pub images: Vec<PublicProductImage>,
-    pub videos: Vec<PublicProductVideo>,
-    // pub reviews: Vec<PublicProductReview>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub images: Option<Vec<PublicProductImage>>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub videos: Option<Vec<PublicProductVideo>>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reviews: Option<Vec<PublicProductReview>>,
 }
 
 impl HasId for PublicProduct {
     fn get_id(&self) -> i64 {
         self.id
-    }
-}
-
-impl PublicProduct {
-    pub fn from_model_with_media(
-        product: ProductModel,
-        images: Vec<PublicProductImage>,
-        videos: Vec<PublicProductVideo>,
-    ) -> Self {
-        Self {
-            id: product.id,
-            name: product.name,
-            slug: product.slug,
-            price: product.price,
-            quantity: product.quantity,
-            configurable: product.configurable,
-            is_active: product.is_active,
-            images,
-            videos,
-        }
     }
 }
 
@@ -58,8 +78,9 @@ impl From<ProductModel> for PublicProduct {
             quantity: product.quantity,
             configurable: product.configurable,
             is_active: product.is_active,
-            images: Vec::new(),
-            videos: Vec::new(),
+            images: None,
+            videos: None,
+            reviews: None,
         }
     }
 }
@@ -75,6 +96,7 @@ pub struct IndexProductDTO {
     #[validate(length(min = 1))]
     pub search: Option<String>,
 
+    // filters
     #[validate(range(min = 1))]
     pub category: Option<i64>,
 
@@ -83,6 +105,11 @@ pub struct IndexProductDTO {
 
     #[validate(range(min = 0.0))]
     pub price_max: Option<f64>,
+
+    // relations
+    pub images: Option<bool>,
+    pub videos: Option<bool>,
+    pub reviews: Option<bool>,
 }
 
 impl TryFrom<IndexProductDTO> for ProductFilters {
@@ -94,6 +121,33 @@ impl TryFrom<IndexProductDTO> for ProductFilters {
             price_min: dto.price_min,
             price_max: dto.price_max,
         })
+    }
+}
+
+impl From<IndexProductDTO> for ProductLoadRelations {
+    fn from(dto: IndexProductDTO) -> Self {
+        Self {
+            images: dto.images.is_some(),
+            videos: dto.videos.is_some(),
+            reviews: dto.reviews.is_some(),
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Validate, Clone)]
+pub struct ShowProductDTO {
+    pub images: Option<bool>,
+    pub videos: Option<bool>,
+    pub reviews: Option<bool>,
+}
+
+impl From<ShowProductDTO> for ProductLoadRelations {
+    fn from(dto: ShowProductDTO) -> Self {
+        Self {
+            images: dto.images.is_some(),
+            videos: dto.videos.is_some(),
+            reviews: dto.reviews.is_some(),
+        }
     }
 }
 

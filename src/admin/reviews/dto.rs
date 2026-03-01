@@ -32,7 +32,7 @@ impl FromStr for ReviewApprovalStatus {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AdminPublicReview {
     pub id: i64,
     pub user_id: Option<i64>,

@@ -34,7 +34,7 @@ impl Paginate {
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct PaginatedDataCollection<T> {
     pub data: Vec<T>,
     pub pagination: Paginate,
@@ -42,10 +42,18 @@ pub struct PaginatedDataCollection<T> {
 
 impl<T> PaginatedDataCollection<T>
 where
-    T: HasId,
+    T: HasId + Clone,
 {
     pub fn new(data: Vec<T>, pagination: Paginate) -> Self {
         PaginatedDataCollection { data, pagination }
+    }
+
+    pub fn get_data(&self) -> Vec<T> {
+        self.data.clone()
+    }
+
+    pub fn get_pagination(&self) -> Paginate {
+        self.pagination.clone()
     }
 
     pub fn extract_ids(&self) -> Vec<i64> {

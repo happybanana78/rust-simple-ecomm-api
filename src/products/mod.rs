@@ -3,6 +3,7 @@ pub mod filters;
 pub mod handler;
 mod images;
 mod model;
+mod relations;
 pub mod repository;
 pub mod reviews;
 pub mod routes;

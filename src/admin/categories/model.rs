@@ -5,7 +5,7 @@ use fake::faker::chrono::en::DateTimeBetween;
 use fake::faker::name::en::Name;
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, sqlx::FromRow)]
+#[derive(Serialize, Deserialize, sqlx::FromRow, Clone)]
 pub struct AdminCategoryModel {
     pub id: i64,
     pub name: String,
