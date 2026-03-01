@@ -1,6 +1,6 @@
+use crate::app::users::dto::{GuestDto, GuestToken};
 use crate::responses::error_responses::ErrorResponse;
 use crate::state::AppState;
-use crate::users::dto::{GuestDto, GuestToken};
 use actix_web::body::{BoxBody, EitherBody};
 use actix_web::dev::{Service, ServiceRequest, ServiceResponse, Transform};
 use actix_web::web::Data;

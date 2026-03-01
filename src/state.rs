@@ -4,15 +4,15 @@ use crate::admin::products::service::AdminProductService;
 use crate::admin::products::videos::service::AdminProductVideoService;
 use crate::admin::reviews::service::AdminReviewService;
 use crate::admin::users::service::AdminUserService;
+use crate::app::cart::cart_items::service::CartItemsService;
+use crate::app::cart::guest_cart::service::GuestCartService;
+use crate::app::cart::user_cart::service::UserCartService;
+use crate::app::categories::service::CategoryService;
+use crate::app::products::reviews::service::ProductReviewService;
+use crate::app::products::service::ProductService;
+use crate::app::users::service::UserService;
 use crate::auth::service::AuthService;
-use crate::cart::cart_items::service::CartItemsService;
-use crate::cart::guest_cart::service::GuestCartService;
-use crate::cart::user_cart::service::UserCartService;
-use crate::categories::service::CategoryService;
-use crate::products::reviews::service::ProductReviewService;
-use crate::products::service::ProductService;
 use crate::storage::LocalStorage;
-use crate::users::service::UserService;
 use sqlx::PgPool;
 
 pub struct AppState {

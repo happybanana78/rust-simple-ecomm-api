@@ -1,9 +1,9 @@
+use crate::app::roles::dto::RoleEnum;
+use crate::app::roles::service::RoleService;
 use crate::auth::dto::{AuthToken, LoginCommand, NewUser, PublicAuthToken, RegisterCommand};
 use crate::auth::model::{AuthTokenModel, UserModel};
 use crate::auth::repository::AuthRepository;
 use crate::errors::error::AppError;
-use crate::roles::dto::RoleEnum;
-use crate::roles::service::RoleService;
 use argon2::password_hash::phc::PasswordHash;
 use argon2::{Argon2, PasswordVerifier, password_hash::PasswordHasher};
 use sqlx::PgPool;

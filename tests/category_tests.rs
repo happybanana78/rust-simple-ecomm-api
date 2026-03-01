@@ -1,5 +1,5 @@
 use actix_web::http::StatusCode;
-use ecomm::categories::dto::{IndexCategoryDTO, PublicCategory};
+use ecomm::app::categories::dto::{IndexCategoryDTO, PublicCategory};
 use ecomm::responses::api_responses::LocalApiPaginatedResponse;
 use ecomm::responses::error_responses::ErrorResponse;
 

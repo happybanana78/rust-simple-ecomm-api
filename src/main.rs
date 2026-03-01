@@ -1,18 +1,14 @@
 mod admin;
+mod app;
 mod auth;
-mod cart;
-mod categories;
 mod errors;
 mod extractors;
 mod middlewares;
 mod pagination;
-mod products;
 mod responses;
-mod roles;
 mod state;
 mod storage;
 mod traits;
-mod users;
 mod validation_utils;
 
 use crate::errors::error::AppError;
@@ -55,9 +51,9 @@ async fn main() -> std::io::Result<()> {
             }))
             .configure(auth::routes::routes)
             .configure(admin::routes::routes)
-            .configure(categories::routes::routes)
-            .configure(products::routes::routes)
-            .configure(cart::routes::routes)
+            .configure(app::categories::routes::routes)
+            .configure(app::products::routes::routes)
+            .configure(app::cart::routes::routes)
     })
     .bind("127.0.0.1:8080")?
     .run()

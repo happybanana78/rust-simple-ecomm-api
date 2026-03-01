@@ -1,6 +1,6 @@
 use actix_test::ClientResponse;
 use actix_web::http::StatusCode;
-use ecomm::products::reviews::dto::{CreateProductReviewDto, PublicProductReview};
+use ecomm::app::products::reviews::dto::{CreateProductReviewDto, PublicProductReview};
 use ecomm::responses::api_responses::LocalApiResponse;
 use ecomm::responses::error_responses::ErrorResponse;
 

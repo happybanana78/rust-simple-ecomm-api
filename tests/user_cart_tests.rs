@@ -2,8 +2,8 @@ mod utils;
 
 use actix_test::{ClientResponse, TestServer};
 use actix_web::http::StatusCode;
-use ecomm::cart::cart_items::dto::{AddItemDto, RemoveItemDto, UpdateItemDto};
-use ecomm::cart::user_cart::dto::PublicUserCart;
+use ecomm::app::cart::cart_items::dto::{AddItemDto, RemoveItemDto, UpdateItemDto};
+use ecomm::app::cart::user_cart::dto::PublicUserCart;
 use ecomm::responses::api_responses::LocalApiResponse;
 use uuid::Uuid;
 

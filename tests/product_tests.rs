@@ -1,6 +1,6 @@
 use actix_web::http::StatusCode;
-use ecomm::products::dto::PublicProduct;
-use ecomm::products::dto::{IndexProductDTO, ShowProductDTO};
+use ecomm::app::products::dto::PublicProduct;
+use ecomm::app::products::dto::{IndexProductDTO, ShowProductDTO};
 use ecomm::responses::api_responses::{LocalApiPaginatedResponse, LocalApiResponse};
 use ecomm::responses::error_responses::ErrorResponse;
 
